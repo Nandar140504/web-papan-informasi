@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Menggunakan fallback string (dummy) agar Vercel tidak error saat proses build
+// meskipun Environment Variables belum terisi/terbaca sempurna di Vercel.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy-url-agar-vercel-tidak-error.supabase.co';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-key';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function GET(request: Request) {
-  // Supabase fetch
   const { data: rooms } = await supabase.from('rooms').select('*').order('id');
   const { data: bookings } = await supabase.from('bookings').select('*').order('created_at', { ascending: true });
   
