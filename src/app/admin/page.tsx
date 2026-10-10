@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 export default function AdminPage() {
   const [rooms, setRooms] = useState<any[]>([])
   const [bookings, setBookings] = useState<any[]>([])
-  const [now, setNow] = useState(new Date())
+  const [now, setNow] = useState<Date | null>(null)
   const [form, setForm] = useState({
     room_id: '', diklat_acara: '', instruktur_pic: '', materi: '', start_time: '', end_time: ''
   })
@@ -48,6 +48,8 @@ export default function AdminPage() {
   }
 
   const recentBookings = [...bookings].reverse().slice(0, 7)
+
+  if (!now) return <div className="h-screen bg-slate-950"></div>;
 
   return (
     <div className="h-screen bg-slate-950 text-white relative font-sans flex flex-col overflow-y-auto lg:overflow-hidden"
