@@ -1,0 +1,46 @@
+{
+  "rooms": [
+    {
+      "id": 1,
+      "name": "Education Room",
+      "floor": "Lantai 2",
+      "capacity": "Kapasitas 50/60 orang"
+    },
+    {
+      "id": 2,
+      "name": "Learning Room",
+      "floor": "Lantai 1",
+      "capacity": "Kapasitas 30/40 orang"
+    },
+    {
+      "id": 3,
+      "name": "Knowledge Room",
+      "floor": "Lantai 1",
+      "capacity": "Kapasitas 30/40 orang"
+    },
+    {
+      "id": 4,
+      "name": "Development Room",
+      "floor": "Lantai 1",
+      "capacity": "Kapasitas 20/25 orang"
+    },
+    {
+      "id": 5,
+      "name": "Podcast",
+      "floor": "Lantai 2",
+      "capacity": "Kapasitas 6/10 orang"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "1791645053460",
+      "room_id": "1",
+      "diklat_acara": "tes",
+      "instruktur_pic": "nandar",
+      "materi": "membahas nandar",
+      "start_time": "2026-10-23T23:15",
+      "end_time": "2026-10-11T23:30",
+      "created_at": "2026-10-10T15:10:53.460Z"
+    }
+  ]
+}
