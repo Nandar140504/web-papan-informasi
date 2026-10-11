@@ -320,7 +320,7 @@ export default function AdminPage() {
       {/* Footer Running Text */}
       <div className="relative z-20 shrink-0 w-full bg-slate-950/80 backdrop-blur-lg border-t border-white/10 py-2.5 md:py-3 flex items-center overflow-hidden mt-auto">
         <div className="whitespace-nowrap animate-marquee text-[9px] md:text-xs font-bold tracking-[0.2em] text-slate-300">
-          UNIT LEARNING & DEVELOPMENT • CORPORATE UNIVERSITY • UNIT LEARNING & DEVELOPMENT • CORPORATE UNIVERSITY
+          UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT
         </div>
       </div>
     </div>

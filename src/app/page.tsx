@@ -194,7 +194,7 @@ export default function TVDisplay() {
         {/* Footer Running Text */}
         <div className="shrink-0 w-full bg-[#0a1128]/95 border-t border-slate-700 py-2.5 lg:py-3 mt-2 lg:mt-0 flex items-center overflow-hidden">
           <div className="whitespace-nowrap animate-marquee text-[10px] md:text-xs lg:text-sm font-bold tracking-[0.3em] text-slate-300">
-            UNIT LEARNING & DEVELOPMENT • CORPORATE UNIVERSITY • UNIT LEARNING & DEVELOPMENT • CORPORATE UNIVERSITY
+            UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT
           </div>
         </div>
 
