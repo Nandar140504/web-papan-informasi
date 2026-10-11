@@ -140,18 +140,6 @@ export default function TVDisplay() {
     <div className="min-h-screen lg:h-screen bg-[#0a1128] text-white relative flex flex-col overflow-y-auto lg:overflow-hidden" 
          style={{ backgroundImage: 'url("/bg-building.jpg")', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(100vw); }
-          100% { transform: translateX(-100%); }
-        }
-        .animate-marquee {
-          display: inline-block;
-          animation: marquee 25s linear infinite;
-          will-change: transform;
-        }
-      `}</style>
-
       {/* Tombol Akses Masuk Admin di pojok kanan atas */}
       <a 
         href="/admin" 
@@ -194,7 +182,7 @@ export default function TVDisplay() {
         {/* Footer Running Text */}
         <div className="shrink-0 w-full bg-[#0a1128]/95 border-t border-slate-700 py-2.5 lg:py-3 mt-2 lg:mt-0 flex items-center overflow-hidden">
           <div className="whitespace-nowrap animate-marquee text-[10px] md:text-xs lg:text-sm font-bold tracking-[0.3em] text-slate-300">
-            UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT
+            UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT •
           </div>
         </div>
 

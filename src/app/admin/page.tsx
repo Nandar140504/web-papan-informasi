@@ -91,18 +91,6 @@ export default function AdminPage() {
     <div className="h-screen bg-slate-950 text-white relative font-sans flex flex-col overflow-y-auto lg:overflow-hidden"
          style={{ backgroundImage: 'url("/bg-building.jpg")', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(100vw); }
-          100% { transform: translateX(-100%); }
-        }
-        .animate-marquee {
-          display: inline-block;
-          animation: marquee 25s linear infinite;
-          will-change: transform;
-        }
-      `}</style>
-
       <div className="absolute inset-0 bg-[#0f172a]/85 backdrop-blur-md z-0 fixed"></div>
 
       <div className="relative z-10 max-w-7xl mx-auto w-full flex-grow flex flex-col gap-3 md:gap-4 p-3 md:p-4 lg:p-5 min-h-0">
@@ -320,7 +308,7 @@ export default function AdminPage() {
       {/* Footer Running Text */}
       <div className="relative z-20 shrink-0 w-full bg-slate-950/80 backdrop-blur-lg border-t border-white/10 py-2.5 md:py-3 flex items-center overflow-hidden mt-auto">
         <div className="whitespace-nowrap animate-marquee text-[9px] md:text-xs font-bold tracking-[0.2em] text-slate-300">
-          UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT
+          UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT •
         </div>
       </div>
     </div>
