@@ -12,6 +12,9 @@ const DEFAULT_ROOMS = [
   { id: 5, name: 'Podcast', floor: 'Lantai 2', capacity: 'Kapasitas 6/10 orang' }
 ];
 
+const DEFAULT_SUPABASE_URL = 'https://dqsrylfuomfoydknewfu.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'sb_publishable_BZgO0F2JC87sjpokpL9E9A_doqvtTfh';
+
 const dataFilePath = path.join(process.cwd(), 'database.json');
 
 function getLocalData() {
@@ -30,25 +33,29 @@ function getLocalData() {
 }
 
 function getSupabaseClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  let url = process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+  let key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_KEY;
 
-  if (
-    url && 
-    key && 
-    !url.includes('dummy') && 
-    !url.includes('ganti-dengan') && 
-    !key.includes('dummy') && 
-    !key.includes('ganti-dengan') &&
-    url.startsWith('https://')
-  ) {
-    try {
-      return createClient(url, key);
-    } catch {
-      return null;
+  for (const [envKey, envVal] of Object.entries(process.env)) {
+    if (typeof envKey === 'string' && typeof envVal === 'string') {
+      if (envKey.startsWith('sb_publishable_') && envVal.startsWith('https://')) {
+        key = envKey;
+        url = envVal;
+        break;
+      }
+      if (envVal.startsWith('sb_publishable_') && envKey.startsWith('https://')) {
+        key = envVal;
+        url = envKey;
+        break;
+      }
     }
   }
-  return null;
+
+  try {
+    return createClient(url, key);
+  } catch {
+    return null;
+  }
 }
 
 export async function GET() {
@@ -67,14 +74,12 @@ export async function GET() {
     }
   }
 
-  // Jika bookings masih kosong dari Supabase, coba ambil dari database lokal
   if (bookings.length === 0) {
     const local = getLocalData();
     bookings = local.bookings || [];
     if (local.rooms && local.rooms.length > 0) rooms = local.rooms;
   }
 
-  // Format data untuk Excel
   const formattedData = bookings.map((b: any) => {
     const room = rooms.find((r: any) => String(r.id) === String(b.room_id));
     return {
