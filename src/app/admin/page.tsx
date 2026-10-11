@@ -44,10 +44,16 @@ export default function AdminPage() {
     setLoading(true)
     
     try {
+      const payload = {
+        ...form,
+        start_time: new Date(form.start_time).toISOString(),
+        end_time: new Date(form.end_time).toISOString()
+      }
+
       const res = await fetch('/api/data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
+        body: JSON.stringify(payload)
       })
       const result = await res.json()
 

@@ -103,14 +103,24 @@ export async function POST(request: Request) {
 
   if (supabase) {
     try {
+      let startTime = body.start_time;
+      let endTime = body.end_time;
+
+      if (startTime && !startTime.includes('Z') && !startTime.includes('+')) {
+        try { startTime = new Date(startTime).toISOString(); } catch {}
+      }
+      if (endTime && !endTime.includes('Z') && !endTime.includes('+')) {
+        try { endTime = new Date(endTime).toISOString(); } catch {}
+      }
+
       const { data, error } = await supabase.from('bookings').insert([
         {
           room_id: body.room_id,
           diklat_acara: body.diklat_acara,
           instruktur_pic: body.instruktur_pic,
           materi: body.materi,
-          start_time: body.start_time,
-          end_time: body.end_time
+          start_time: startTime,
+          end_time: endTime
         }
       ]).select();
 
