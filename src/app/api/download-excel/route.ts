@@ -1,20 +1,80 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
+import fs from 'fs';
+import path from 'path';
 
-// Menggunakan fallback string (dummy) agar Vercel tidak error saat proses build
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy-url-agar-vercel-tidak-error.supabase.co';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-key';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const DEFAULT_ROOMS = [
+  { id: 1, name: 'Education Room', floor: 'Lantai 2', capacity: 'Kapasitas 50/60 orang' },
+  { id: 2, name: 'Learning Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang' },
+  { id: 3, name: 'Knowledge Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang' },
+  { id: 4, name: 'Development Room', floor: 'Lantai 1', capacity: 'Kapasitas 20/25 orang' },
+  { id: 5, name: 'Podcast', floor: 'Lantai 2', capacity: 'Kapasitas 6/10 orang' }
+];
+
+const dataFilePath = path.join(process.cwd(), 'database.json');
+
+function getLocalData() {
+  try {
+    if (fs.existsSync(dataFilePath)) {
+      const parsed = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
+      return {
+        rooms: (parsed.rooms && parsed.rooms.length > 0) ? parsed.rooms : DEFAULT_ROOMS,
+        bookings: parsed.bookings || []
+      };
+    }
+  } catch (err) {
+    console.error("Gagal baca database.json lokal:", err);
+  }
+  return { rooms: DEFAULT_ROOMS, bookings: [] };
+}
+
+function getSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (
+    url && 
+    key && 
+    !url.includes('dummy') && 
+    !url.includes('ganti-dengan') && 
+    !key.includes('dummy') && 
+    !key.includes('ganti-dengan') &&
+    url.startsWith('https://')
+  ) {
+    try {
+      return createClient(url, key);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
 
 export async function GET() {
-  const { data: rooms } = await supabase.from('rooms').select('*');
-  const { data: bookings } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
+  let rooms = DEFAULT_ROOMS;
+  let bookings: any[] = [];
 
-  if (!bookings || !rooms) {
-    return NextResponse.json({ error: 'Gagal mengambil data dari database' }, { status: 500 });
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { data: dbRooms } = await supabase.from('rooms').select('*');
+      const { data: dbBookings } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
+      if (dbRooms && dbRooms.length > 0) rooms = dbRooms;
+      if (dbBookings) bookings = dbBookings;
+    } catch (err) {
+      console.warn("Supabase fetch untuk excel gagal, beralih ke lokal:", err);
+    }
   }
 
+  // Jika bookings masih kosong dari Supabase, coba ambil dari database lokal
+  if (bookings.length === 0) {
+    const local = getLocalData();
+    bookings = local.bookings || [];
+    if (local.rooms && local.rooms.length > 0) rooms = local.rooms;
+  }
+
+  // Format data untuk Excel
   const formattedData = bookings.map((b: any) => {
     const room = rooms.find((r: any) => String(r.id) === String(b.room_id));
     return {
@@ -28,7 +88,7 @@ export async function GET() {
     };
   });
 
-  const worksheet = XLSX.utils.json_to_sheet(formattedData);
+  const worksheet = XLSX.utils.json_to_sheet(formattedData.length > 0 ? formattedData : [{ 'Status': 'Belum ada data peminjaman' }]);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Riwayat Peminjaman");
   

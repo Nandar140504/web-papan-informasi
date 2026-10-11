@@ -3,9 +3,18 @@ import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 
+const DEFAULT_ROOMS = [
+  { id: 1, name: 'Education Room', floor: 'Lantai 2', capacity: 'Kapasitas 50/60 orang' },
+  { id: 2, name: 'Learning Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang' },
+  { id: 3, name: 'Knowledge Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang' },
+  { id: 4, name: 'Development Room', floor: 'Lantai 1', capacity: 'Kapasitas 20/25 orang' },
+  { id: 5, name: 'Podcast', floor: 'Lantai 2', capacity: 'Kapasitas 6/10 orang' }
+];
+
 export default function TVDisplay() {
   const [time, setTime] = useState<Date | null>(null)
-  const [rooms, setRooms] = useState<any[]>([])
+  // Inisialisasi langsung dengan 5 ruangan default agar selalu tampil 24 jam dan tidak pernah kosong
+  const [rooms, setRooms] = useState<any[]>(DEFAULT_ROOMS)
 
   useEffect(() => {
     setTime(new Date())
@@ -25,13 +34,16 @@ export default function TVDisplay() {
       const res = await fetch('/api/data?t=' + new Date().getTime(), { cache: 'no-store' })
       const db = await res.json()
       
-      const mappedRooms = db.rooms.map((room: any) => ({
+      const rawRooms = (db.rooms && db.rooms.length > 0) ? db.rooms : DEFAULT_ROOMS;
+      const rawBookings = db.bookings || [];
+
+      const mappedRooms = rawRooms.map((room: any) => ({
         ...room,
-        bookings: db.bookings.filter((b: any) => String(b.room_id) === String(room.id))
+        bookings: rawBookings.filter((b: any) => String(b.room_id) === String(room.id))
       }))
       setRooms(mappedRooms)
     } catch (e) {
-      console.error("Gagal menarik data lokal", e)
+      console.error("Gagal menarik data, tetap menampilkan ruangan default:", e)
     }
   }
 
@@ -140,11 +152,21 @@ export default function TVDisplay() {
         }
       `}</style>
 
+      {/* Tombol Akses Masuk Admin di pojok kanan atas */}
+      <a 
+        href="/admin" 
+        className="fixed top-3 right-3 z-50 bg-slate-900/80 hover:bg-indigo-600/80 text-slate-300 hover:text-white border border-white/20 hover:border-indigo-400 px-3 py-1.5 rounded-full text-[11px] font-semibold backdrop-blur-md transition-all shadow-lg flex items-center gap-1.5 group"
+        title="Buka Halaman Admin"
+      >
+        <span className="text-xs group-hover:rotate-45 transition-transform duration-300">⚙️</span>
+        <span>Admin</span>
+      </a>
+
       <div className="absolute inset-0 z-0 bg-[#0a1128]/85 backdrop-blur-sm fixed"></div>
 
       <div className="relative z-10 flex-1 flex flex-col justify-between w-full min-h-0">
         
-        {/* Header Layar - Ukuran diperkecil agar pas 100% di layar laptop */}
+        {/* Header Layar */}
         <div className="shrink-0 text-center pt-3 lg:pt-4 pb-1 lg:pb-2">
           <h1 className="text-xl md:text-2xl lg:text-2xl font-bold tracking-widest text-slate-300">AVAILABLE ROOMS</h1>
           <h2 className="text-[9px] md:text-[10px] tracking-widest text-slate-400 mb-0.5 mt-1">CORPORATE LEARNING DEVELOPMENT</h2>
@@ -156,7 +178,7 @@ export default function TVDisplay() {
           </div>
         </div>
 
-        {/* Zona Kartu Ruangan - Margin dan Gap diperkecil */}
+        {/* Zona Kartu Ruangan - Selalu Tampil 24 Jam */}
         <div className="flex-1 min-h-0 flex flex-col justify-center w-full max-w-[98%] xl:max-w-[90%] mx-auto px-2 lg:px-0 py-2">
           
           <div className="flex flex-col lg:flex-row justify-center gap-3 lg:gap-4 mb-3 lg:gap-4 lg:mb-4">

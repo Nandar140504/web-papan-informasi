@@ -1,8 +1,17 @@
 'use client'
 import { useState, useEffect } from 'react'
 
+const DEFAULT_ROOMS = [
+  { id: 1, name: 'Education Room', floor: 'Lantai 2', capacity: 'Kapasitas 50/60 orang' },
+  { id: 2, name: 'Learning Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang' },
+  { id: 3, name: 'Knowledge Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang' },
+  { id: 4, name: 'Development Room', floor: 'Lantai 1', capacity: 'Kapasitas 20/25 orang' },
+  { id: 5, name: 'Podcast', floor: 'Lantai 2', capacity: 'Kapasitas 6/10 orang' }
+];
+
 export default function AdminPage() {
-  const [rooms, setRooms] = useState<any[]>([])
+  // Inisialisasi langsung dengan DEFAULT_ROOMS agar 5 ruangan selalu tampil 24 jam di pilihan & live status
+  const [rooms, setRooms] = useState<any[]>(DEFAULT_ROOMS)
   const [bookings, setBookings] = useState<any[]>([])
   const [now, setNow] = useState<Date | null>(null)
   const [form, setForm] = useState({
@@ -11,6 +20,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    setNow(new Date())
     fetchData()
     // Ticking clock agar status ruangan live tanpa perlu refresh
     const timer = setInterval(() => setNow(new Date()), 1000)
@@ -18,26 +28,35 @@ export default function AdminPage() {
   }, [])
 
   const fetchData = async () => {
-    const res = await fetch('/api/data?t=' + new Date().getTime())
-    const db = await res.json()
-    setRooms(db.rooms)
-    setBookings(db.bookings)
+    try {
+      const res = await fetch('/api/data?t=' + new Date().getTime())
+      const db = await res.json()
+      setRooms((db.rooms && db.rooms.length > 0) ? db.rooms : DEFAULT_ROOMS)
+      setBookings(db.bookings || [])
+    } catch (err) {
+      console.error("Gagal menarik data admin:", err)
+      setRooms(DEFAULT_ROOMS)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     
-    await fetch('/api/data', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    })
-    
-    setLoading(false)
-    alert('Berhasil disimpan! Layar TV dan File Excel otomatis terupdate.')
-    setForm({ room_id: '', diklat_acara: '', instruktur_pic: '', materi: '', start_time: '', end_time: '' })
-    fetchData() 
+    try {
+      await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      })
+      alert('Berhasil disimpan! Layar TV dan data otomatis terupdate.')
+      setForm({ room_id: '', diklat_acara: '', instruktur_pic: '', materi: '', start_time: '', end_time: '' })
+      fetchData()
+    } catch (err) {
+      alert('Gagal menyimpan data: ' + err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleDelete = async (id: string) => {
@@ -79,12 +98,21 @@ export default function AdminPage() {
             </h1>
             <p className="text-slate-400 mt-0.5 text-[10px] md:text-xs">Corporate Learning Development Room Management</p>
           </div>
-          <div className="bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-semibold border border-emerald-500/20 text-center">
-            {now.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' })}
+          <div className="flex items-center gap-2">
+            <a 
+              href="/" 
+              className="bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 hover:text-white border border-indigo-500/30 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-semibold transition-all flex items-center gap-1.5"
+            >
+              <span>📺</span>
+              <span>Lihat Layar TV</span>
+            </a>
+            <div className="bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-semibold border border-emerald-500/20 text-center">
+              {now.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' })}
+            </div>
           </div>
         </div>
 
-        {/* Live Status Mini Cards */}
+        {/* Live Status Mini Cards - 24 Jam Selalu Tampil untuk Admin */}
         <div className="shrink-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
           {rooms.map(room => {
             const roomBookings = bookings.filter(b => String(b.room_id) === String(room.id))
@@ -117,7 +145,7 @@ export default function AdminPage() {
           })}
         </div>
 
-        {/* Card Form Input */}
+        {/* Card Form Input - 24 Jam Selalu Ada Pilihan Ruangan */}
         <div className="shrink-0 bg-white/5 border border-white/10 rounded-xl p-3 lg:p-4 shadow-xl">
           <h2 className="text-sm md:text-base font-bold mb-3 flex items-center gap-2">
             <div className="bg-indigo-500 p-1 rounded-md"><span className="text-white text-[10px]">+</span></div>
@@ -131,7 +159,7 @@ export default function AdminPage() {
                 <label className="text-[8px] md:text-[9px] font-semibold text-slate-300 uppercase tracking-wider">Ruangan</label>
                 <select required value={form.room_id} onChange={e => setForm({...form, room_id: e.target.value})} 
                         className="w-full bg-slate-900/50 p-1.5 md:p-2 text-[10px] md:text-xs rounded-lg outline-none border border-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-200">
-                  <option value="">-- Pilih --</option>
+                  <option value="">-- Pilih Ruangan --</option>
                   {rooms.map(r => {
                     const isActive = bookings.some(b => String(b.room_id) === String(r.id) && new Date(b.start_time) <= now && new Date(b.end_time) >= now)
                     return (
