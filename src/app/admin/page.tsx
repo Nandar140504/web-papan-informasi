@@ -10,10 +10,10 @@ const DEFAULT_ROOMS = [
 ];
 
 export default function AdminPage() {
-  // Inisialisasi langsung dengan DEFAULT_ROOMS agar 5 ruangan selalu tampil 24 jam di pilihan & live status
   const [rooms, setRooms] = useState<any[]>(DEFAULT_ROOMS)
   const [bookings, setBookings] = useState<any[]>([])
   const [now, setNow] = useState<Date | null>(null)
+  const [supabaseConnected, setSupabaseConnected] = useState<boolean | null>(null)
   const [form, setForm] = useState({
     room_id: '', diklat_acara: '', instruktur_pic: '', materi: '', start_time: '', end_time: ''
   })
@@ -22,17 +22,17 @@ export default function AdminPage() {
   useEffect(() => {
     setNow(new Date())
     fetchData()
-    // Ticking clock agar status ruangan live tanpa perlu refresh
     const timer = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(timer)
   }, [])
 
   const fetchData = async () => {
     try {
-      const res = await fetch('/api/data?t=' + new Date().getTime())
+      const res = await fetch('/api/data?t=' + new Date().getTime(), { cache: 'no-store' })
       const db = await res.json()
       setRooms((db.rooms && db.rooms.length > 0) ? db.rooms : DEFAULT_ROOMS)
       setBookings(db.bookings || [])
+      setSupabaseConnected(db.supabaseConnected ?? false)
     } catch (err) {
       console.error("Gagal menarik data admin:", err)
       setRooms(DEFAULT_ROOMS)
@@ -44,16 +44,22 @@ export default function AdminPage() {
     setLoading(true)
     
     try {
-      await fetch('/api/data', {
+      const res = await fetch('/api/data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       })
-      alert('Berhasil disimpan! Layar TV dan data otomatis terupdate.')
-      setForm({ room_id: '', diklat_acara: '', instruktur_pic: '', materi: '', start_time: '', end_time: '' })
-      fetchData()
-    } catch (err) {
-      alert('Gagal menyimpan data: ' + err)
+      const result = await res.json()
+
+      if (result.success) {
+        alert('✅ Berhasil disimpan! Layar TV dan data otomatis terupdate.')
+        setForm({ room_id: '', diklat_acara: '', instruktur_pic: '', materi: '', start_time: '', end_time: '' })
+        fetchData()
+      } else {
+        alert('❌ GAGAL MENYIMPAN:\n\n' + (result.error || 'Terjadi kesalahan sistem.'))
+      }
+    } catch (err: any) {
+      alert('❌ Gagal menghubungi server: ' + err.message)
     } finally {
       setLoading(false)
     }
@@ -61,8 +67,13 @@ export default function AdminPage() {
 
   const handleDelete = async (id: string) => {
     if (confirm('Yakin ingin menghapus jadwal ini? Ini juga akan menghapusnya dari layar TV.')) {
-      await fetch('/api/data?id=' + id, { method: 'DELETE' })
-      fetchData()
+      const res = await fetch('/api/data?id=' + id, { method: 'DELETE' })
+      const result = await res.json()
+      if (result.success) {
+        fetchData()
+      } else {
+        alert('Gagal menghapus: ' + (result.error || 'Terjadi kesalahan.'))
+      }
     }
   }
 
@@ -112,6 +123,14 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* Peringatan jika Supabase belum aktif di Vercel */}
+        {supabaseConnected === false && typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') && (
+          <div className="shrink-0 bg-amber-500/15 border border-amber-500/40 text-amber-200 px-3 py-2 rounded-xl text-xs flex items-center gap-2">
+            <span className="text-base">⚠️</span>
+            <span><strong>Database Cloud (Supabase) belum terhubung di Vercel.</strong> Data tidak akan tersimpan online sebelum Anda memasukkan <em>Environment Variables</em> di Vercel.</span>
+          </div>
+        )}
+
         {/* Live Status Mini Cards - 24 Jam Selalu Tampil untuk Admin */}
         <div className="shrink-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
           {rooms.map(room => {
@@ -145,7 +164,7 @@ export default function AdminPage() {
           })}
         </div>
 
-        {/* Card Form Input - 24 Jam Selalu Ada Pilihan Ruangan */}
+        {/* Card Form Input */}
         <div className="shrink-0 bg-white/5 border border-white/10 rounded-xl p-3 lg:p-4 shadow-xl">
           <h2 className="text-sm md:text-base font-bold mb-3 flex items-center gap-2">
             <div className="bg-indigo-500 p-1 rounded-md"><span className="text-white text-[10px]">+</span></div>

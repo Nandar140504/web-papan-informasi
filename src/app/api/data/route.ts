@@ -31,12 +31,13 @@ function getLocalData() {
 function saveLocalData(data: any) {
   try {
     fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+    return true;
   } catch (err) {
     console.error("Gagal simpan database.json lokal:", err);
+    return false;
   }
 }
 
-// Cek apakah Supabase benar-benar diisi dengan kredensial asli (bukan placeholder / dummy)
 function getSupabaseClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -67,36 +68,32 @@ export async function GET(request: Request) {
       const { data: dbRooms, error: roomsError } = await supabase.from('rooms').select('*').order('id');
       const { data: dbBookings, error: bookingsError } = await supabase.from('bookings').select('*').order('created_at', { ascending: true });
 
-      if (!roomsError) {
+      if (!roomsError && !bookingsError) {
         return NextResponse.json({
           rooms: (dbRooms && dbRooms.length > 0) ? dbRooms : DEFAULT_ROOMS,
-          bookings: dbBookings || []
+          bookings: dbBookings || [],
+          supabaseConnected: true
         });
+      } else {
+        console.warn("Supabase fetch returned error:", roomsError || bookingsError);
       }
     } catch (err) {
       console.warn("Supabase fetch gagal, menggunakan database lokal:", err);
     }
   }
 
-  // Fallback lokal jika Supabase belum disetting / sedang offline
-  return NextResponse.json(getLocalData());
+  const local = getLocalData();
+  return NextResponse.json({
+    rooms: local.rooms,
+    bookings: local.bookings,
+    supabaseConnected: false
+  });
 }
 
 export async function POST(request: Request) {
   const body = await request.json();
   const supabase = getSupabaseClient();
 
-  // 1. Simpan ke database lokal selalu sebagai backup
-  const local = getLocalData();
-  const newBooking = {
-    id: Date.now().toString(),
-    ...body,
-    created_at: new Date().toISOString()
-  };
-  local.bookings.push(newBooking);
-  saveLocalData(local);
-
-  // 2. Jika Supabase aktif, simpan juga ke Supabase
   if (supabase) {
     try {
       const { data, error } = await supabase.from('bookings').insert([
@@ -110,12 +107,46 @@ export async function POST(request: Request) {
         }
       ]).select();
 
-      if (!error && data && data.length > 0) {
+      if (error) {
+        console.error("Supabase insert error:", error);
+        let errorMsg = error.message;
+        if (errorMsg.includes("does not exist")) {
+          errorMsg = 'Tabel "bookings" belum dibuat di Supabase SQL Editor. Silakan jalankan script SQL di Supabase.';
+        } else if (errorMsg.includes("violates row-level security policy")) {
+          errorMsg = 'Row Level Security (RLS) di Supabase masih aktif. Silakan jalankan script SQL untuk mematikan RLS.';
+        }
+        return NextResponse.json({ success: false, error: errorMsg }, { status: 400 });
+      }
+
+      if (data && data.length > 0) {
         return NextResponse.json({ success: true, booking: data[0] });
       }
-    } catch (err) {
-      console.error("Gagal simpan ke Supabase, tapi tersimpan di lokal:", err);
+    } catch (err: any) {
+      console.error("Gagal simpan ke Supabase:", err);
+      return NextResponse.json({ success: false, error: err.message }, { status: 500 });
     }
+  }
+
+  // Jika Supabase tidak aktif di Vercel:
+  if (process.env.VERCEL) {
+    return NextResponse.json({ 
+      success: false, 
+      error: "Supabase belum terhubung di Vercel! Mohon masukkan NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY di menu Settings > Environment Variables Vercel Anda, lalu Redeploy." 
+    }, { status: 400 });
+  }
+
+  // Jika di localhost, simpan ke database.json
+  const local = getLocalData();
+  const newBooking = {
+    id: Date.now().toString(),
+    ...body,
+    created_at: new Date().toISOString()
+  };
+  local.bookings.push(newBooking);
+  const saved = saveLocalData(local);
+
+  if (!saved) {
+    return NextResponse.json({ success: false, error: "Gagal menyimpan ke database lokal." }, { status: 500 });
   }
 
   return NextResponse.json({ success: true, booking: newBooking });
@@ -124,21 +155,24 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
+  const supabase = getSupabaseClient();
 
-  // 1. Hapus di lokal
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('bookings').delete().eq('id', id);
+      if (error) {
+        return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+      }
+      return NextResponse.json({ success: true });
+    } catch (err: any) {
+      return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    }
+  }
+
+  // Fallback lokal
   const local = getLocalData();
   local.bookings = local.bookings.filter((b: any) => String(b.id) !== String(id));
   saveLocalData(local);
-
-  // 2. Hapus di Supabase jika aktif
-  const supabase = getSupabaseClient();
-  if (supabase) {
-    try {
-      await supabase.from('bookings').delete().eq('id', id);
-    } catch (err) {
-      console.error("Gagal hapus di Supabase:", err);
-    }
-  }
 
   return NextResponse.json({ success: true });
 }
