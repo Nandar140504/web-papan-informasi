@@ -98,17 +98,17 @@ export default function TVDisplay() {
     return (
       <div 
         key={room.id} 
-        className="w-full lg:flex-1 lg:max-w-[32%] border border-white/25 rounded-xl p-3 lg:p-4 shadow-2xl relative flex flex-col overflow-hidden group backdrop-blur-[1px]"
+        className="w-full lg:flex-1 lg:max-w-[32%] border border-white/30 rounded-xl p-3 lg:p-4 shadow-2xl relative flex flex-col overflow-hidden group"
       >
-        {/* Background Foto Ruangan jika tersedia - Dibuat terang dan jelas */}
+        {/* Background Foto Ruangan jika tersedia - Foto 100% bersih tanpa kotak hitam */}
         {roomImage ? (
           <>
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
               style={{ backgroundImage: `url("${roomImage}")` }}
             />
-            {/* Overlay transparan lembut agar foto ruangan terang & jelas */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-black/55 pointer-events-none" />
+            {/* Gradien sangat lembut di tepi atas & bawah agar foto ruangan terlihat sepenuhnya */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/45 pointer-events-none" />
           </>
         ) : (
           <div className="absolute inset-0 bg-[#121c33]/90 pointer-events-none" />
@@ -118,53 +118,55 @@ export default function TVDisplay() {
         <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${borderColor} rounded-l-xl z-20`}></div>
 
         {/* Header Ruangan */}
-        <div className="relative z-10 flex justify-between items-start pl-2 mb-2 pb-2 border-b border-white/20 shrink-0">
+        <div className="relative z-10 flex justify-between items-start pl-2 mb-2 pb-2 border-b border-white/25 shrink-0">
           <div>
-            <h3 className="text-sm lg:text-base font-extrabold text-white mb-0.5 leading-tight drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)]">{room.name}</h3>
-            <p className="text-[9px] md:text-[10px] text-amber-300 uppercase tracking-widest leading-none mb-1 font-bold drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">{room.floor}</p>
-            <p className="text-[9px] md:text-[10px] text-slate-100 leading-none font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">{room.capacity}</p>
+            <h3 className="text-sm lg:text-base font-extrabold text-white mb-0.5 leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{room.name}</h3>
+            <p className="text-[9px] md:text-[10px] text-amber-300 uppercase tracking-widest leading-none mb-1 font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{room.floor}</p>
+            <p className="text-[9px] md:text-[10px] text-slate-100 leading-none font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{room.capacity}</p>
           </div>
-          <span className={`px-2.5 py-0.5 rounded-full text-[8px] lg:text-[9px] font-extrabold tracking-wider border ${badgeColor} bg-black/60 whitespace-nowrap ml-2 backdrop-blur-md shadow-lg`}>
+          <span className={`px-2.5 py-0.5 rounded-full text-[8px] lg:text-[9px] font-extrabold tracking-wider border ${badgeColor} bg-black/50 whitespace-nowrap ml-2 shadow-lg`}>
             {badgeText}
           </span>
         </div>
 
-        {/* Informasi Acara (Tengah) */}
+        {/* Informasi Acara (Tengah) - Bersih Tanpa Kotak Hitam */}
         <div className="relative z-10 pl-2 flex-1 flex flex-col justify-center py-1">
           {displayBooking ? (
-            <div className="bg-black/55 backdrop-blur-sm p-2 rounded-xl border border-white/15 space-y-1.5 shadow-xl">
+            <div className="space-y-1.5 lg:space-y-2">
               <div className="grid grid-cols-[60px_1fr] lg:grid-cols-[70px_1fr] gap-2 items-start">
-                <span className="text-slate-300 text-[10px] lg:text-xs font-medium">Diklat</span>
-                <span className="text-white text-[10px] lg:text-xs font-bold leading-snug drop-shadow">{displayBooking.diklat_acara}</span>
+                <span className="text-amber-300 text-[10px] lg:text-xs font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">Diklat</span>
+                <span className="text-white text-[10px] lg:text-xs font-extrabold leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{displayBooking.diklat_acara}</span>
               </div>
               <div className="grid grid-cols-[60px_1fr] lg:grid-cols-[70px_1fr] gap-2 items-start">
-                <span className="text-slate-300 text-[10px] lg:text-xs font-medium">Instruktur</span>
-                <span className="text-white text-[10px] lg:text-xs font-bold leading-snug drop-shadow">{displayBooking.instruktur_pic || '-'}</span>
+                <span className="text-slate-200 text-[10px] lg:text-xs font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">Instruktur</span>
+                <span className="text-white text-[10px] lg:text-xs font-bold leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{displayBooking.instruktur_pic || '-'}</span>
               </div>
               <div className="grid grid-cols-[60px_1fr] lg:grid-cols-[70px_1fr] gap-2 items-start">
-                <span className="text-slate-300 text-[10px] lg:text-xs font-medium">Materi</span>
-                <span className="text-white text-[10px] lg:text-xs font-bold leading-snug drop-shadow">{displayBooking.materi || '-'}</span>
+                <span className="text-slate-200 text-[10px] lg:text-xs font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">Materi</span>
+                <span className="text-white text-[10px] lg:text-xs font-bold leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{displayBooking.materi || '-'}</span>
               </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-full py-2">
-              <div className="inline-flex items-center gap-1.5 bg-black/60 backdrop-blur-md border border-emerald-400/50 px-3.5 py-1.5 rounded-full shadow-xl">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <p className="text-emerald-300 text-[10px] lg:text-xs tracking-wider uppercase font-extrabold drop-shadow">Silakan Digunakan</p>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,1)]"></span>
+                <p className="text-emerald-300 text-[11px] lg:text-xs tracking-wider uppercase font-extrabold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
+                  Silakan Digunakan
+                </p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Jam Acara (Bawah) */}
-        <div className="relative z-10 pl-2 mt-2 pt-2 border-t border-white/20 shrink-0">
+        {/* Jam Acara (Bawah) - Bersih Tanpa Kotak Hitam */}
+        <div className="relative z-10 pl-2 mt-2 pt-2 border-t border-white/25 shrink-0">
           {displayBooking ? (
-            <div className="inline-flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/15 text-white text-[10px] lg:text-xs font-bold tracking-wide shadow-md">
+            <p className="text-white text-[10px] lg:text-xs font-extrabold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,1)] flex items-center gap-1.5">
               <span>⏰</span>
               <span>{format(new Date(displayBooking.start_time), 'HH:mm')} – {format(new Date(displayBooking.end_time), 'HH:mm')}</span>
-            </div>
+            </p>
           ) : (
-            <p className="text-slate-300 text-[10px] lg:text-xs font-bold tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+            <p className="text-slate-300 text-[10px] lg:text-xs font-bold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
               -
             </p>
           )}
