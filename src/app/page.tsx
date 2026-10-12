@@ -66,12 +66,12 @@ export default function TVDisplay() {
   const educationRoom = rooms.find(r => r.name.toLowerCase().includes('education')) || rooms[0];
   const podcastRoom = rooms.find(r => r.name.toLowerCase().includes('podcast')) || rooms[4] || rooms[rooms.length - 1];
 
-  // Ruangan Baris Bawah: Development Room, Learning Room, Knowledge Room (berjejer 3)
+  // Ruangan Baris Bawah: Development Room, Knowledge Room, Learning Room (berjejer 3)
   const developmentRoom = rooms.find(r => r.name.toLowerCase().includes('development')) || rooms.find(r => String(r.id) === '4');
-  const learningRoom = rooms.find(r => r.name.toLowerCase().includes('learning')) || rooms.find(r => String(r.id) === '2');
   const knowledgeRoom = rooms.find(r => r.name.toLowerCase().includes('knowledge')) || rooms.find(r => String(r.id) === '3');
+  const learningRoom = rooms.find(r => r.name.toLowerCase().includes('learning')) || rooms.find(r => String(r.id) === '2');
 
-  const bottomRoomsList = [developmentRoom, learningRoom, knowledgeRoom].filter(Boolean);
+  const bottomRoomsList = [developmentRoom, knowledgeRoom, learningRoom].filter(Boolean);
   const bottomList = bottomRoomsList.length === 3 ? bottomRoomsList : rooms.filter(r => r !== educationRoom && r !== podcastRoom);
 
   const renderCard = (room: any) => {
