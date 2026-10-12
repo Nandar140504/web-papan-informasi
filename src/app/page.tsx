@@ -62,8 +62,17 @@ export default function TVDisplay() {
 
   if (!time) return <div className="min-h-screen bg-[#0a1128]"></div>
 
-  const topRooms = rooms.slice(0, 3)
-  const bottomRooms = rooms.slice(3, 5)
+  // Ruangan Baris Atas: Education Room (kiri), Podcast (kanan), Tengah Kosong
+  const educationRoom = rooms.find(r => r.name.toLowerCase().includes('education')) || rooms[0];
+  const podcastRoom = rooms.find(r => r.name.toLowerCase().includes('podcast')) || rooms[4] || rooms[rooms.length - 1];
+
+  // Ruangan Baris Bawah: Development Room, Learning Room, Knowledge Room (berjejer 3)
+  const developmentRoom = rooms.find(r => r.name.toLowerCase().includes('development')) || rooms.find(r => String(r.id) === '4');
+  const learningRoom = rooms.find(r => r.name.toLowerCase().includes('learning')) || rooms.find(r => String(r.id) === '2');
+  const knowledgeRoom = rooms.find(r => r.name.toLowerCase().includes('knowledge')) || rooms.find(r => String(r.id) === '3');
+
+  const bottomRoomsList = [developmentRoom, learningRoom, knowledgeRoom].filter(Boolean);
+  const bottomList = bottomRoomsList.length === 3 ? bottomRoomsList : rooms.filter(r => r !== educationRoom && r !== podcastRoom);
 
   const renderCard = (room: any) => {
     const activeBooking = room.bookings?.find((b: any) => 
@@ -98,17 +107,17 @@ export default function TVDisplay() {
     return (
       <div 
         key={room.id} 
-        className="w-full lg:flex-1 lg:max-w-[32%] border border-white/30 rounded-xl p-3 lg:p-4 shadow-2xl relative flex flex-col overflow-hidden group"
+        className="w-full lg:flex-1 lg:max-w-[32%] border border-white/30 rounded-2xl p-3 lg:p-4 shadow-2xl relative flex flex-col overflow-hidden group backdrop-blur-md"
       >
-        {/* Background Foto Ruangan jika tersedia - Foto 100% bersih tanpa kotak hitam */}
+        {/* Background Foto Ruangan jika tersedia - Diberi sedikit blur agar estetik & tidak menghalangi foto gedung diklat */}
         {roomImage ? (
           <>
             <div 
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
+              className="absolute -inset-2 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110 filter blur-[2px] opacity-85 scale-105"
               style={{ backgroundImage: `url("${roomImage}")` }}
             />
-            {/* Gradien sangat lembut di tepi atas & bawah agar foto ruangan terlihat sepenuhnya */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/45 pointer-events-none" />
+            {/* Gradien sangat lembut di tepi atas & bawah */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/50 pointer-events-none" />
           </>
         ) : (
           <div className="absolute inset-0 bg-[#121c33]/90 pointer-events-none" />
@@ -217,12 +226,17 @@ export default function TVDisplay() {
         {/* Zona Kartu Ruangan - Selalu Tampil 24 Jam */}
         <div className="flex-1 min-h-0 flex flex-col justify-center w-full max-w-[98%] xl:max-w-[90%] mx-auto px-2 lg:px-0 py-2">
           
-          <div className="flex flex-col lg:flex-row justify-center gap-3 lg:gap-4 mb-3 lg:gap-4 lg:mb-4">
-            {topRooms.map(room => renderCard(room))}
+          {/* Baris Atas: Education Room di Kiri, Tengah KOSONG, Podcast di Kanan - Naik sedikit ke atas */}
+          <div className="flex flex-col lg:flex-row justify-between gap-3 lg:gap-4 mb-3 lg:gap-4 lg:mb-4 lg:-translate-y-2">
+            {educationRoom ? renderCard(educationRoom) : null}
+            {/* Bagian tengah sengaja dikosongkan agar foto gedung Rumah Diklat terlihat jelas */}
+            <div className="hidden lg:block lg:flex-1 lg:max-w-[32%] pointer-events-none"></div>
+            {podcastRoom ? renderCard(podcastRoom) : null}
           </div>
           
+          {/* Baris Bawah: Development Room, Learning Room, Knowledge Room berjejer 3 */}
           <div className="flex flex-col lg:flex-row justify-center gap-3 lg:gap-4">
-            {bottomRooms.map(room => renderCard(room))}
+            {bottomList.map(room => renderCard(room))}
           </div>
 
         </div>
