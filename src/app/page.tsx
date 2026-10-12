@@ -5,16 +5,22 @@ import { id } from 'date-fns/locale'
 
 const ROOM_IMAGES: Record<string, string> = {
   '1': '/room-education.jpg',
+  '2': '/room-learning.jpg',
+  '3': '/room-knowledge.jpg',
+  '4': '/room-development.jpg',
   '5': '/room-podcast.jpg',
   'Education Room': '/room-education.jpg',
+  'Learning Room': '/room-learning.jpg',
+  'Knowledge Room': '/room-knowledge.jpg',
+  'Development Room': '/room-development.jpg',
   'Podcast': '/room-podcast.jpg',
 };
 
 const DEFAULT_ROOMS = [
   { id: 1, name: 'Education Room', floor: 'Lantai 2', capacity: 'Kapasitas 50/60 orang', image: '/room-education.jpg' },
-  { id: 2, name: 'Learning Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang' },
-  { id: 3, name: 'Knowledge Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang' },
-  { id: 4, name: 'Development Room', floor: 'Lantai 1', capacity: 'Kapasitas 20/25 orang' },
+  { id: 2, name: 'Learning Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang', image: '/room-learning.jpg' },
+  { id: 3, name: 'Knowledge Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang', image: '/room-knowledge.jpg' },
+  { id: 4, name: 'Development Room', floor: 'Lantai 1', capacity: 'Kapasitas 20/25 orang', image: '/room-development.jpg' },
   { id: 5, name: 'Podcast', floor: 'Lantai 2', capacity: 'Kapasitas 6/10 orang', image: '/room-podcast.jpg' }
 ];
 
