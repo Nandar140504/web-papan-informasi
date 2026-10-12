@@ -109,31 +109,49 @@ export default function AdminPage() {
 
       <div className="relative z-10 max-w-7xl mx-auto w-full flex-grow flex flex-col gap-3 md:gap-4 p-3 md:p-4 lg:p-5 min-h-0">
         
-        {/* Header dengan Logo SIG di Kiri dan Logo Semen Tonasa di Paling Pojok Kanan */}
+        {/* Header dengan Logo SIG di Kiri dan Logo Semen Tonasa Selalu di Pojok Kanan Atas (Desktop & Mobile HP) */}
         <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between pb-2 border-b border-white/10 gap-2">
-          <div className="flex items-center gap-3">
-            <img src="/logo-sig-white.png" alt="Logo SIG" className="h-7 md:h-8 w-auto object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 tracking-tight">
-                Admin Dashboard
-              </h1>
-              <p className="text-slate-300 mt-0.5 text-[10px] md:text-xs">Corporate Learning Development Room Management</p>
+          
+          {/* Baris Utama: Logo SIG, Judul, dan di Mobile Logo Semen Tonasa langsung di Pojok Kanan Atas */}
+          <div className="flex items-center justify-between md:justify-start gap-3 w-full md:w-auto">
+            <div className="flex items-center gap-2.5 md:gap-3">
+              <img src="/logo-sig-white.png" alt="Logo SIG" className="h-6 md:h-8 w-auto object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]" />
+              <div>
+                <h1 className="text-lg md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 tracking-tight leading-tight">
+                  Admin Dashboard
+                </h1>
+                <p className="text-slate-300 text-[9px] md:text-xs leading-none mt-0.5">Corporate Learning Development Room Management</p>
+              </div>
             </div>
+
+            {/* Logo Semen Tonasa di Mobile (HP Android) - Tetap di Pojok Kanan Atas Sejajar Header */}
+            <img 
+              src="/logo-semen-tonasa.png" 
+              alt="Logo Semen Tonasa" 
+              className="h-8 w-8 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] shrink-0 md:hidden ml-auto" 
+            />
           </div>
-          <div className="flex items-center gap-2.5">
+
+          {/* Bagian Tombol, Jam, dan Logo Semen Tonasa (di Desktop) */}
+          <div className="flex items-center justify-between md:justify-end gap-2 md:gap-2.5 w-full md:w-auto">
             <a 
               href="/" 
-              className="bg-indigo-600/40 hover:bg-indigo-600/60 text-indigo-200 hover:text-white border border-indigo-500/40 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-semibold transition-all flex items-center gap-1.5"
+              className="bg-indigo-600/40 hover:bg-indigo-600/60 text-indigo-200 hover:text-white border border-indigo-500/40 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0"
             >
               <span>📺</span>
               <span>Lihat Layar TV</span>
             </a>
-            <div className="bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-semibold border border-emerald-500/30 text-center">
+            <div className="bg-emerald-500/20 text-emerald-300 px-2.5 md:px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-semibold border border-emerald-500/30 text-center truncate">
               {now.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' })}
             </div>
-            {/* Logo PT Semen Tonasa di Paling Pojok Kanan - Tanpa Background Putih */}
-            <img src="/logo-semen-tonasa.png" alt="Logo Semen Tonasa" className="h-8 md:h-9 w-8 md:w-9 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] ml-1" />
+            {/* Logo PT Semen Tonasa di Desktop (md ke atas) di Paling Pojok Kanan */}
+            <img 
+              src="/logo-semen-tonasa.png" 
+              alt="Logo Semen Tonasa" 
+              className="hidden md:block h-8 md:h-9 w-8 md:w-9 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] ml-1 shrink-0" 
+            />
           </div>
+
         </div>
 
         {/* Peringatan jika Supabase belum aktif di Vercel */}
