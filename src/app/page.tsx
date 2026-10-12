@@ -137,20 +137,31 @@ export default function TVDisplay() {
   }
 
   return (
-    <div className="min-h-screen lg:h-screen bg-[#0a1128] text-white relative flex flex-col overflow-y-auto lg:overflow-hidden" 
-         style={{ backgroundImage: 'url("/bg-building.jpg")', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className="min-h-screen lg:h-screen text-white relative flex flex-col overflow-y-auto lg:overflow-hidden bg-cover bg-center bg-no-repeat" 
+         style={{ backgroundImage: 'url("/bg-building.jpg")' }}>
       
-      {/* Tombol Akses Masuk Admin di pojok kanan atas */}
-      <a 
-        href="/admin" 
-        className="fixed top-3 right-3 z-50 bg-slate-900/80 hover:bg-indigo-600/80 text-slate-300 hover:text-white border border-white/20 hover:border-indigo-400 px-3 py-1.5 rounded-full text-[11px] font-semibold backdrop-blur-md transition-all shadow-lg flex items-center gap-1.5 group"
-        title="Buka Halaman Admin"
-      >
-        <span className="text-xs group-hover:rotate-45 transition-transform duration-300">⚙️</span>
-        <span>Admin</span>
-      </a>
+      {/* Logo SIG di Sebelah Kiri Atas */}
+      <div className="fixed top-3 left-4 z-50 flex items-center bg-white/95 px-3 py-1 rounded-xl shadow-lg border border-white/20 backdrop-blur-md">
+        <img src="/logo-sig.png" alt="Logo SIG" className="h-6 md:h-7 w-auto object-contain" />
+      </div>
 
-      <div className="absolute inset-0 z-0 bg-[#0a1128]/85 backdrop-blur-sm fixed"></div>
+      {/* Logo PT Semen Tonasa & Tombol Admin di Sebelah Kanan Atas */}
+      <div className="fixed top-3 right-4 z-50 flex items-center gap-2.5">
+        <div className="flex items-center bg-white/95 p-1 rounded-full shadow-lg border border-white/20 backdrop-blur-md">
+          <img src="/logo-semen-tonasa.png" alt="Logo Semen Tonasa" className="h-7 md:h-8 w-7 md:w-8 object-contain" />
+        </div>
+        <a 
+          href="/admin" 
+          className="bg-slate-900/80 hover:bg-indigo-600/80 text-slate-200 hover:text-white border border-white/20 hover:border-indigo-400 px-3 py-1.5 rounded-full text-[11px] font-semibold backdrop-blur-md transition-all shadow-lg flex items-center gap-1.5 group"
+          title="Buka Halaman Admin"
+        >
+          <span className="text-xs group-hover:rotate-45 transition-transform duration-300">⚙️</span>
+          <span>Admin</span>
+        </a>
+      </div>
+
+      {/* Soft overlay tipis tanpa warna biru agar foto gedung rumah diklat terlihat jelas 100% */}
+      <div className="absolute inset-0 z-0 bg-black/30 fixed pointer-events-none"></div>
 
       <div className="relative z-10 flex-1 flex flex-col justify-between w-full min-h-0">
         
