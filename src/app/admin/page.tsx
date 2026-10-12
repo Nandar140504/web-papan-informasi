@@ -88,20 +88,18 @@ export default function AdminPage() {
   if (!now) return <div className="h-screen bg-slate-950"></div>;
 
   return (
-    <div className="h-screen text-white relative font-sans flex flex-col overflow-y-auto lg:overflow-hidden bg-cover bg-center bg-no-repeat"
-         style={{ backgroundImage: 'url("/bg-building.jpg")' }}>
+    <div className="h-screen text-white relative font-sans flex flex-col overflow-y-auto lg:overflow-hidden bg-cover lg:bg-[length:100%_100%] bg-center bg-no-repeat"
+         style={{ backgroundImage: 'url("/bg-building.png")' }}>
       
-      {/* Soft overlay tipis tanpa warna biru agar foto gedung terlihat jelas */}
-      <div className="absolute inset-0 bg-black/40 z-0 fixed pointer-events-none"></div>
+      {/* Soft overlay tipis tanpa warna biru agar foto HD gedung terlihat luas dan jelas */}
+      <div className="absolute inset-0 bg-black/35 z-0 fixed pointer-events-none"></div>
 
       <div className="relative z-10 max-w-7xl mx-auto w-full flex-grow flex flex-col gap-3 md:gap-4 p-3 md:p-4 lg:p-5 min-h-0">
         
-        {/* Header dengan Logo SIG di Kiri dan Logo Semen Tonasa di Kanan */}
+        {/* Header dengan Logo SIG di Kiri dan Logo Semen Tonasa di Paling Pojok Kanan */}
         <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between pb-2 border-b border-white/10 gap-2">
           <div className="flex items-center gap-3">
-            <div className="bg-white/95 px-2.5 py-1 rounded-xl shadow-md border border-white/20 shrink-0">
-              <img src="/logo-sig.png" alt="Logo SIG" className="h-6 md:h-7 w-auto object-contain" />
-            </div>
+            <img src="/logo-sig-white.png" alt="Logo SIG" className="h-7 md:h-8 w-auto object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]" />
             <div>
               <h1 className="text-xl md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 tracking-tight">
                 Admin Dashboard
@@ -110,9 +108,6 @@ export default function AdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-2.5">
-            <div className="bg-white/95 p-1 rounded-full shadow-md border border-white/20 shrink-0">
-              <img src="/logo-semen-tonasa.png" alt="Logo Semen Tonasa" className="h-7 md:h-8 w-7 md:w-8 object-contain" />
-            </div>
             <a 
               href="/" 
               className="bg-indigo-600/40 hover:bg-indigo-600/60 text-indigo-200 hover:text-white border border-indigo-500/40 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-semibold transition-all flex items-center gap-1.5"
@@ -123,6 +118,8 @@ export default function AdminPage() {
             <div className="bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-semibold border border-emerald-500/30 text-center">
               {now.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' })}
             </div>
+            {/* Logo PT Semen Tonasa di Paling Pojok Kanan - Tanpa Background Putih */}
+            <img src="/logo-semen-tonasa.png" alt="Logo Semen Tonasa" className="h-8 md:h-9 w-8 md:w-9 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] ml-1" />
           </div>
         </div>
 
