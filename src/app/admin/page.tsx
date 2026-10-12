@@ -1,12 +1,19 @@
 'use client'
 import { useState, useEffect } from 'react'
 
+const ROOM_IMAGES: Record<string, string> = {
+  '1': '/room-education.jpg',
+  '5': '/room-podcast.jpg',
+  'Education Room': '/room-education.jpg',
+  'Podcast': '/room-podcast.jpg',
+};
+
 const DEFAULT_ROOMS = [
-  { id: 1, name: 'Education Room', floor: 'Lantai 2', capacity: 'Kapasitas 50/60 orang' },
+  { id: 1, name: 'Education Room', floor: 'Lantai 2', capacity: 'Kapasitas 50/60 orang', image: '/room-education.jpg' },
   { id: 2, name: 'Learning Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang' },
   { id: 3, name: 'Knowledge Room', floor: 'Lantai 1', capacity: 'Kapasitas 30/40 orang' },
   { id: 4, name: 'Development Room', floor: 'Lantai 1', capacity: 'Kapasitas 20/25 orang' },
-  { id: 5, name: 'Podcast', floor: 'Lantai 2', capacity: 'Kapasitas 6/10 orang' }
+  { id: 5, name: 'Podcast', floor: 'Lantai 2', capacity: 'Kapasitas 6/10 orang', image: '/room-podcast.jpg' }
 ];
 
 export default function AdminPage() {
@@ -152,13 +159,21 @@ export default function AdminPage() {
               desc = `Akan Datang: ${new Date(nextBooking.start_time).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}`
             }
 
+            const roomImage = room.image || ROOM_IMAGES[String(room.id)] || ROOM_IMAGES[room.name];
+
             return (
-              <div key={room.id} className={`p-2 rounded-lg border flex flex-col justify-center ${statusColor} backdrop-blur-sm`}>
-                 <div className="flex justify-between items-center mb-0.5">
+              <div key={room.id} className={`p-2 rounded-lg border flex flex-col justify-center relative overflow-hidden ${statusColor} backdrop-blur-sm group`}>
+                 {roomImage && (
+                   <div 
+                     className="absolute inset-0 bg-cover bg-center opacity-25 group-hover:opacity-40 transition-opacity pointer-events-none"
+                     style={{ backgroundImage: `url("${roomImage}")` }}
+                   />
+                 )}
+                 <div className="relative z-10 flex justify-between items-center mb-0.5">
                     <span className="font-bold text-[10px] md:text-xs text-slate-100 truncate pr-1">{room.name}</span>
                     <span className="text-[8px] md:text-[10px]">{icon}</span>
                  </div>
-                 <div className="text-[9px] opacity-90 truncate">{desc}</div>
+                 <div className="relative z-10 text-[9px] opacity-90 truncate">{desc}</div>
               </div>
             )
           })}
@@ -276,11 +291,22 @@ export default function AdminPage() {
                       statusColor = 'bg-amber-500/20 text-amber-400 border-amber-500/30'; 
                     }
 
-                    return (
-                      <tr key={b.id} className="border-b border-slate-800/50 hover:bg-white/5 transition-colors text-[9px] md:text-[10px]">
-                        <td className="py-2 px-3 text-indigo-300 font-medium">
-                          {r?.name || '-'}
-                        </td>
+                      const rowRoomImage = r?.image || ROOM_IMAGES[String(b.room_id)] || ROOM_IMAGES[r?.name || ''];
+
+                      return (
+                        <tr key={b.id} className="border-b border-slate-800/50 hover:bg-white/5 transition-colors text-[9px] md:text-[10px]">
+                          <td className="py-2 px-3 text-indigo-300 font-medium">
+                            <div className="flex items-center gap-2">
+                              {rowRoomImage ? (
+                                <img 
+                                  src={rowRoomImage} 
+                                  alt={r?.name || ''} 
+                                  className="w-7 h-5 rounded object-cover border border-white/20 shrink-0 shadow-sm" 
+                                />
+                              ) : null}
+                              <span>{r?.name || '-'}</span>
+                            </div>
+                          </td>
                         <td className="py-2 px-3">
                           <p className="font-semibold text-slate-200">{b.diklat_acara}</p>
                           <p className="text-slate-400 text-[8px] md:text-[9px]">Oleh: {b.instruktur_pic || '-'}</p>
