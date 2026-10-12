@@ -107,7 +107,7 @@ export default function TVDisplay() {
     return (
       <div 
         key={room.id} 
-        className="w-full lg:flex-1 lg:max-w-[32%] border border-white/30 rounded-2xl p-3 lg:p-4 shadow-2xl relative flex flex-col overflow-hidden group backdrop-blur-md"
+        className="w-full lg:flex-1 lg:max-w-[31%] border border-white/30 rounded-2xl p-3 lg:p-4 shadow-2xl relative flex flex-col overflow-hidden group backdrop-blur-md"
       >
         {/* Background Foto Ruangan jika tersedia - Diberi sedikit blur agar estetik & tidak menghalangi foto gedung diklat */}
         {roomImage ? (
@@ -226,18 +226,18 @@ export default function TVDisplay() {
         </div>
 
         {/* Zona Kartu Ruangan - Selalu Tampil 24 Jam */}
-        <div className="flex-1 min-h-0 flex flex-col justify-center w-full max-w-[98%] xl:max-w-[90%] mx-auto px-2 lg:px-0 py-2">
+        <div className="flex-1 min-h-0 flex flex-col justify-center w-full max-w-[98%] xl:max-w-[96%] mx-auto px-2 lg:px-4 py-2">
           
-          {/* Baris Atas: Education Room di Kiri, Tengah KOSONG, Podcast di Kanan - Naik sedikit ke atas */}
+          {/* Baris Atas: Education Room (Pojok Kiri), Tengah KOSONG, Podcast (Pojok Kanan) - Naik sedikit ke atas */}
           <div className="flex flex-col lg:flex-row justify-between gap-3 lg:gap-4 mb-3 lg:gap-4 lg:mb-4 lg:-translate-y-2">
             {educationRoom ? renderCard(educationRoom) : null}
             {/* Bagian tengah sengaja dikosongkan agar foto gedung Rumah Diklat terlihat jelas */}
-            <div className="hidden lg:block lg:flex-1 lg:max-w-[32%] pointer-events-none"></div>
+            <div className="hidden lg:block lg:flex-1 lg:max-w-[31%] pointer-events-none"></div>
             {podcastRoom ? renderCard(podcastRoom) : null}
           </div>
           
-          {/* Baris Bawah: Development Room, Learning Room, Knowledge Room berjejer 3 */}
-          <div className="flex flex-col lg:flex-row justify-center gap-3 lg:gap-4">
+          {/* Baris Bawah: Development Room (Pojok Kiri), Knowledge Room (TETAP DI TENGAH), Learning Room (Pojok Kanan) */}
+          <div className="flex flex-col lg:flex-row justify-between gap-3 lg:gap-4">
             {bottomList.map(room => renderCard(room))}
           </div>
 
