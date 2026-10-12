@@ -188,20 +188,22 @@ export default function TVDisplay() {
     <div className="min-h-screen lg:h-screen text-white relative flex flex-col overflow-y-auto lg:overflow-hidden bg-cover lg:bg-[length:100%_100%] bg-center bg-no-repeat" 
          style={{ backgroundImage: 'url("/bg-building.png")' }}>
       
-      {/* Logo SIG di Sebelah Kiri Atas - Tanpa Background Putih */}
-      <div className="fixed top-4 left-5 z-50 flex items-center">
+      {/* Logo SIG di Sebelah Kiri Atas - Digeser masuk tidak terlalu pojok */}
+      <div className="fixed top-5 left-7 md:left-10 lg:left-12 z-50 flex items-center">
         <img src="/logo-sig-white.png" alt="Logo SIG" className="h-8 md:h-10 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
       </div>
 
-      {/* Tombol Admin & Logo PT Semen Tonasa di Sebelah Kanan Atas - Tanpa Background Putih */}
-      <div className="fixed top-4 right-5 z-50 flex items-center gap-3">
+      {/* Simbol User Admin & Logo PT Semen Tonasa di Sebelah Kanan Atas - Digeser masuk tidak terlalu pojok */}
+      <div className="fixed top-5 right-7 md:right-10 lg:right-12 z-50 flex items-center gap-3">
         <a 
           href="/admin" 
-          className="bg-slate-900/80 hover:bg-indigo-600/80 text-slate-200 hover:text-white border border-white/20 hover:border-indigo-400 px-3.5 py-1.5 rounded-full text-[11px] font-semibold backdrop-blur-md transition-all shadow-lg flex items-center gap-1.5 group"
+          className="bg-slate-900/75 hover:bg-indigo-600/80 text-slate-200 hover:text-white border border-white/25 hover:border-white/50 p-2 md:p-2.5 rounded-full backdrop-blur-md transition-all shadow-lg flex items-center justify-center group"
           title="Buka Halaman Admin"
         >
-          <span className="text-xs group-hover:rotate-45 transition-transform duration-300">⚙️</span>
-          <span>Admin</span>
+          {/* Simbol Pengguna / Profil Admin */}
+          <svg className="w-5 h-5 md:w-6 md:h-6 text-slate-200 group-hover:text-white group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>
         </a>
         <img src="/logo-semen-tonasa.png" alt="Logo Semen Tonasa" className="h-9 md:h-11 w-9 md:w-11 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
       </div>
