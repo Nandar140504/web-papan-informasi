@@ -171,7 +171,7 @@ export default function AdminPage() {
               <div key={room.id} className={`p-2 rounded-lg border flex flex-col justify-center relative overflow-hidden ${statusColor} backdrop-blur-sm group`}>
                  {roomImage && (
                    <div 
-                     className="absolute inset-0 bg-cover bg-center opacity-25 group-hover:opacity-40 transition-opacity pointer-events-none"
+                     className="absolute inset-0 bg-cover bg-center opacity-45 group-hover:opacity-65 transition-opacity pointer-events-none"
                      style={{ backgroundImage: `url("${roomImage}")` }}
                    />
                  )}
