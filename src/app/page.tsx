@@ -226,15 +226,15 @@ export default function TVDisplay() {
             )}
           </div>
 
-          {/* LOGO SIG BESAR & JERNIH DI SEBELAH KIRI */}
+          {/* LOGO SIG LEBIH BESAR & JERNIH DI SEBELAH KIRI */}
           <img 
             src="/logo-sig-white.png" 
             alt="Logo SIG" 
-            className="h-9 md:h-11 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" 
+            className="h-11 md:h-13 lg:h-14 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" 
           />
         </div>
 
-        {/* SISI TENGAH: Weather Widget & Profil Diklat */}
+        {/* SISI TENGAH: Weather Widget */}
         <div className="hidden md:flex items-center gap-4 text-white">
           <div className="h-8 w-px bg-white/20"></div>
           <div className="flex items-center gap-2.5">
@@ -247,14 +247,6 @@ export default function TVDisplay() {
               <p className="text-[10px] text-amber-200 font-medium mt-0.5">Pangkep, Sulsel</p>
             </div>
           </div>
-          <div className="h-8 w-px bg-white/20"></div>
-          <button 
-            onClick={() => setShowInfoModal(true)}
-            className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3.5 py-1.5 rounded-full border border-white/25 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
-          >
-            <span>🏛️</span>
-            <span>Profil Diklat</span>
-          </button>
         </div>
 
         {/* SISI KANAN: LOGO PT SEMEN TONASA DI KANAN SESUAI PERMINTAAN USER */}
@@ -293,32 +285,26 @@ export default function TVDisplay() {
       </div>
 
       {/* 2. HERO BANNER: KURVA MERAH DI KIRI & FOTO GEDUNG DIKLAT TAJAM DI KANAN */}
-      <div className="shrink-0 h-[36vh] xl:h-[38vh] w-full relative overflow-hidden bg-slate-900 border-b border-red-800/40">
+      <div className="shrink-0 h-[36vh] xl:h-[38vh] w-full relative overflow-hidden bg-[#6e070e] border-b border-red-800/40">
         
-        {/* Foto Gedung Diklat Asli Tajam 100% Tanpa Efek Buram */}
+        {/* Foto Gedung Diklat Asli Tajam 100% Diposisikan ke Kanan agar Bangunan Tampak Jelas */}
         <div 
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute right-0 inset-y-0 w-full md:w-[72%] lg:w-[65%] xl:w-[60%] bg-cover bg-[center_20%] md:bg-[45%_22%]"
           style={{ backgroundImage: 'url("/bg-building.png")' }}
         />
 
-        {/* Gradien Kurva Merah Elegan di sisi kiri persis seperti Mockup */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#8a0b12] via-[#9e1b22]/95 via-45% to-transparent pointer-events-none" />
+        {/* Gradien Kurva Merah Elegan di sisi kiri membaur mulus ke foto gedung */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#6e070e] via-[#8c1017] via-35% md:via-42% to-transparent pointer-events-none" />
 
-        {/* Konten Hero Informasi Ruang */}
-        <div className="relative z-10 h-full w-full max-w-[55%] flex flex-col justify-center px-6 md:px-10 lg:px-14">
-          <div className="flex items-center gap-3.5 mb-2">
-            {/* Icon Grid Ruang */}
-            <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/10 border-2 border-white/30 flex items-center justify-center text-white text-2xl md:text-3xl shadow-lg shrink-0">
-              🏢
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-wide leading-tight drop-shadow-md">
-                Informasi Ruang
-              </h1>
-              <h2 className="text-lg md:text-xl font-bold text-amber-200 tracking-wider drop-shadow-sm">
-                PT Semen Tonasa
-              </h2>
-            </div>
+        {/* Konten Hero Informasi Ruang (Ikon Gedung Dihapus Sesuai Permintaan) */}
+        <div className="relative z-10 h-full w-full max-w-[55%] md:max-w-[42%] flex flex-col justify-center px-6 md:px-10 lg:px-14">
+          <div className="mb-2">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-wide leading-tight drop-shadow-md">
+              Informasi Ruang
+            </h1>
+            <h2 className="text-lg md:text-xl font-bold text-amber-200 tracking-wider drop-shadow-sm">
+              PT Semen Tonasa
+            </h2>
           </div>
           <p className="text-xs md:text-sm text-white/95 font-medium leading-relaxed max-w-md drop-shadow">
             Lihat ketersediaan dan informasi ruangan yang tersedia untuk kegiatan Anda.
