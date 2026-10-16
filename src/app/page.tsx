@@ -284,38 +284,78 @@ export default function TVDisplay() {
 
       </div>
 
-      {/* 2. HERO BANNER: KURVA MERAH DI KIRI & FOTO GEDUNG DIKLAT TAJAM DI KANAN */}
+      {/* 2. HERO BANNER: KURVA MERAH DI KIRI & FOTO GEDUNG DIKLAT PERSIS GAMBAR 2 */}
       <div className="shrink-0 h-[36vh] xl:h-[38vh] w-full relative overflow-hidden bg-[#6e070e] border-b border-red-800/40">
         
-        {/* Foto Gedung Diklat Asli Tajam 100% - Diperkecil & Proporsional di Sisi Kanan (Seluruh Gedung Tampak Jelas) */}
+        {/* Foto Gedung Diklat Asli Tajam 100% Membentang Menyeluruh - Tanpa Batasan Kotak Kaku */}
         <div 
-          className="absolute right-0 inset-y-0 w-full md:w-[75%] lg:w-[65%] xl:w-[60%] bg-no-repeat transition-all"
-          style={{ 
-            backgroundImage: 'url("/bg-building.png")',
-            backgroundSize: 'auto 115%',
-            backgroundPosition: 'right 5% center',
-          }}
+          className="absolute inset-0 bg-cover bg-[68%_25%] md:bg-[72%_28%]"
+          style={{ backgroundImage: 'url("/bg-building.png")' }}
         />
 
-        {/* Gradien Kurva Merah Elegan di sisi kiri membaur mulus ke foto gedung */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#6e070e] via-[#8c1017] via-30% md:via-38% to-transparent pointer-events-none" />
+        {/* Gelombang Kurva Merah Dinamis (SVG Wave & Swoosh persis seperti Referensi Gambar 2) */}
+        <svg 
+          className="absolute inset-0 w-full h-full pointer-events-none z-[5]"
+          viewBox="0 0 1440 360" 
+          preserveAspectRatio="none"
+        >
+          <defs>
+            {/* Gradien Merah Korporat Utama */}
+            <linearGradient id="mainRedWave" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#60050b" />
+              <stop offset="45%" stopColor="#8a0b12" />
+              <stop offset="100%" stopColor="#60050b" />
+            </linearGradient>
 
-        {/* Konten Hero Informasi Ruang (Ikon Gedung Dihapus Sesuai Permintaan) */}
-        <div className="relative z-10 h-full w-full max-w-[55%] md:max-w-[42%] flex flex-col justify-center px-6 md:px-10 lg:px-14">
-          <div className="mb-2">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-wide leading-tight drop-shadow-md">
+            {/* Gradien Merah Transparan Pembaur ke Pepohonan */}
+            <linearGradient id="transRedWave" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#8a0b12" stopOpacity="0.98" />
+              <stop offset="60%" stopColor="#9e1b22" stopOpacity="0.65" />
+              <stop offset="100%" stopColor="#9e1b22" stopOpacity="0" />
+            </linearGradient>
+
+            {/* Gradien Highlight Garis Gelombang Berkilau */}
+            <linearGradient id="waveHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#fca5a5" stopOpacity="0.7" />
+              <stop offset="40%" stopColor="#ffffff" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#ef4444" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+
+          {/* Layer 1: Gelombang Pembaur Halus ke Pepohonan */}
+          <path d="M 0,0 L 700,0 C 600,110 500,230 360,360 L 0,360 Z" fill="url(#transRedWave)" />
+
+          {/* Layer 2: Gelombang Merah Solid Melengkung Organik */}
+          <path d="M 0,0 L 590,0 C 500,110 410,230 260,360 L 0,360 Z" fill="url(#mainRedWave)" />
+
+          {/* Layer 3: Garis Aksen Berkilau Sepanjang Kurva Gelombang */}
+          <path d="M 590,0 C 500,110 410,230 260,360" fill="none" stroke="url(#waveHighlight)" strokeWidth="3" />
+
+          {/* Layer 4: Aksen Melengkung Bawah Kanan (Bottom-Right Swoosh) persis Gambar 2 */}
+          <path d="M 1160,360 C 1260,295 1360,250 1440,210 L 1440,360 Z" fill="url(#mainRedWave)" />
+          <path d="M 1160,360 C 1260,295 1360,250 1440,210" fill="none" stroke="url(#waveHighlight)" strokeWidth="2.5" />
+        </svg>
+
+        {/* Konten Hero Informasi Ruang dengan Garis Pembatas Putih Tipis persis Gambar 2 */}
+        <div className="relative z-10 h-full w-full max-w-[500px] flex flex-col justify-center px-6 md:px-10 lg:px-12 select-none">
+          <div>
+            <h1 className="text-2xl md:text-3xl lg:text-[34px] font-black text-white tracking-wide leading-tight drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">
               Informasi Ruang
             </h1>
-            <h2 className="text-lg md:text-xl font-bold text-amber-200 tracking-wider drop-shadow-sm">
+            <h2 className="text-lg md:text-xl lg:text-[22px] font-bold text-amber-200 tracking-wider mt-0.5 drop-shadow-sm">
               PT Semen Tonasa
             </h2>
           </div>
-          <p className="text-xs md:text-sm text-white/95 font-medium leading-relaxed max-w-md drop-shadow">
+
+          {/* Garis Horizontal Tipis persis seperti di Referensi Gambar 2 */}
+          <div className="w-full max-w-[340px] h-[1.5px] bg-white/40 my-2.5 rounded-full shadow-sm"></div>
+
+          <p className="text-xs md:text-sm text-white/95 font-medium leading-relaxed max-w-sm drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
             Lihat ketersediaan dan informasi ruangan yang tersedia untuk kegiatan Anda.
           </p>
 
           {/* Live Status Pill */}
-          <div className="mt-3 inline-flex items-center gap-2 bg-black/40 border border-white/20 px-3.5 py-1 rounded-full self-start backdrop-blur-sm">
+          <div className="mt-3.5 inline-flex items-center gap-2 bg-black/45 border border-white/25 px-3.5 py-1 rounded-full self-start backdrop-blur-sm shadow-md">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span className="text-[11px] font-bold text-emerald-300">
               {availableRoomsCount} dari 5 Ruangan Tersedia
