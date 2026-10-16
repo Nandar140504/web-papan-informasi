@@ -30,6 +30,7 @@ export default function TVDisplay() {
   const [rooms, setRooms] = useState<any[]>(DEFAULT_ROOMS)
   const [showInfoModal, setShowInfoModal] = useState<boolean>(false)
   const [activeInfoTab, setActiveInfoTab] = useState<'profil' | 'ruangan' | 'program'>('profil')
+  const [menuOpen, setMenuOpen] = useState<boolean>(false)
 
   useEffect(() => {
     setTime(new Date())
@@ -190,8 +191,62 @@ export default function TVDisplay() {
     <div className="min-h-screen lg:h-screen text-white relative flex flex-col overflow-y-auto lg:overflow-hidden bg-cover lg:bg-[length:100%_100%] bg-center bg-no-repeat" 
          style={{ backgroundImage: 'url("/bg-building.png")' }}>
       
-      {/* Logo SIG di Sebelah Kiri Atas - Diberi ukuran lebih besar dan posisi proporsional */}
-      <div className="fixed top-4 md:top-5 left-5 md:left-8 lg:left-10 z-50 flex items-center">
+      {/* Pojok Kiri Atas: Tombol Garis Tiga (Menu) & Logo SIG */}
+      <div className="fixed top-4 md:top-5 left-4 md:left-7 lg:left-8 z-50 flex items-center gap-3">
+        
+        {/* Tombol Garis Tiga (Hamburger Menu) */}
+        <div className="relative">
+          <button 
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="bg-slate-900/85 hover:bg-slate-800 text-white p-2.5 md:p-3 rounded-2xl border border-white/20 hover:border-amber-400/50 backdrop-blur-md shadow-2xl transition-all cursor-pointer flex items-center justify-center group hover:scale-105"
+            title="Menu Utama (Info Diklat & Admin)"
+            aria-label="Menu Navigasi"
+          >
+            <svg className="w-5 h-5 md:w-6 md:h-6 text-slate-200 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {menuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+
+          {/* Dropdown Menu Saat Garis Tiga Diklik */}
+          {menuOpen && (
+            <div className="absolute top-full left-0 mt-2.5 w-60 bg-slate-900/95 border border-slate-700/90 rounded-2xl shadow-2xl p-2.5 backdrop-blur-xl z-50 flex flex-col gap-1.5 animate-fadeIn">
+              
+              {/* Opsi 1: Info Diklat */}
+              <button 
+                onClick={() => {
+                  setShowInfoModal(true);
+                  setMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-xs md:text-sm font-bold text-amber-300 hover:text-white hover:bg-gradient-to-r hover:from-amber-500/25 hover:to-red-600/30 transition-all cursor-pointer border border-transparent hover:border-amber-500/40 group"
+              >
+                <span className="text-xl group-hover:scale-110 transition-transform">🏛️</span>
+                <div>
+                  <p className="leading-tight">Info Diklat</p>
+                  <p className="text-[10px] text-slate-400 font-normal">Profil & Fasilitas Ruangan</p>
+                </div>
+              </button>
+
+              {/* Opsi 2: Admin Dashboard */}
+              <a 
+                href="/admin"
+                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-xs md:text-sm font-bold text-slate-200 hover:text-white hover:bg-indigo-600/30 transition-all border border-transparent hover:border-indigo-500/40 group"
+              >
+                <span className="text-xl group-hover:scale-110 transition-transform">👤</span>
+                <div>
+                  <p className="leading-tight">Admin Dashboard</p>
+                  <p className="text-[10px] text-slate-400 font-normal">Kelola Peminjaman Ruangan</p>
+                </div>
+              </a>
+
+            </div>
+          )}
+        </div>
+
+        {/* Logo SIG - Ukuran Besar & Tajam */}
         <img 
           src="/logo-sig-white.png" 
           alt="Logo SIG" 
@@ -199,31 +254,8 @@ export default function TVDisplay() {
         />
       </div>
 
-      {/* Tombol Info Diklat, Simbol User Admin & Logo PT Semen Tonasa di Sebelah Kanan Atas */}
-      <div className="fixed top-4 md:top-5 right-5 md:right-8 lg:right-10 z-50 flex items-center gap-2.5 md:gap-3.5">
-        
-        {/* Tombol Fitur Informasi Diklat PT Semen Tonasa */}
-        <button 
-          onClick={() => setShowInfoModal(true)}
-          className="bg-gradient-to-r from-amber-500/20 to-red-600/30 hover:from-amber-500/40 hover:to-red-600/50 text-amber-300 hover:text-white border border-amber-400/40 hover:border-amber-300 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[11px] md:text-xs font-extrabold backdrop-blur-md transition-all shadow-lg flex items-center gap-1.5 cursor-pointer group"
-          title="Buka Informasi Diklat PT Semen Tonasa"
-        >
-          <span className="text-sm md:text-base group-hover:rotate-12 transition-transform">🏛️</span>
-          <span className="hidden sm:inline tracking-wide">Info Diklat</span>
-        </button>
-
-        {/* Simbol User / Profil Admin */}
-        <a 
-          href="/admin" 
-          className="bg-slate-900/80 hover:bg-indigo-600/85 text-slate-200 hover:text-white border border-white/25 hover:border-white/50 p-2 md:p-2.5 rounded-full backdrop-blur-md transition-all shadow-lg flex items-center justify-center group"
-          title="Buka Halaman Admin"
-        >
-          <svg className="w-5 h-5 md:w-6 md:h-6 text-slate-200 group-hover:text-white group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-          </svg>
-        </a>
-
-        {/* Logo PT Semen Tonasa - Diberi ukuran lebih besar dan tajam */}
+      {/* Pojok Kanan Atas: HANYA Logo PT Semen Tonasa (Bersih tanpa tombol berserakan) */}
+      <div className="fixed top-4 md:top-5 right-5 md:right-8 lg:right-10 z-50 flex items-center">
         <img 
           src="/logo-semen-tonasa.png" 
           alt="Logo PT Semen Tonasa" 
@@ -269,7 +301,7 @@ export default function TVDisplay() {
         {/* Footer Running Text */}
         <div className="shrink-0 w-full bg-[#0a1128]/95 border-t border-slate-700 py-2.5 lg:py-3 mt-2 lg:mt-0 flex items-center overflow-hidden">
           <div className="whitespace-nowrap animate-marquee text-[10px] md:text-xs lg:text-sm font-bold tracking-[0.3em] text-slate-300">
-            UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • SIG CORPORATE UNIVERSITY •
+            UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT •
           </div>
         </div>
 
@@ -370,11 +402,40 @@ export default function TVDisplay() {
                     </div>
                   </div>
 
-                  <div className="bg-slate-800/40 p-3.5 rounded-xl border border-slate-700/40 flex items-center gap-3">
-                    <span className="text-2xl">📍</span>
-                    <div>
-                      <p className="font-bold text-white text-xs md:text-sm">Lokasi Gedung Diklat PT Semen Tonasa</p>
-                      <p className="text-[11px] text-slate-400">Kompleks Pabrik PT Semen Tonasa, Biringere, Kec. Bungoro, Kab. Pangkajene & Kepulauan (Pangkep), Sulawesi Selatan.</p>
+                  {/* Lokasi & Peta Google Maps Gedung Diklat PT Semen Tonasa */}
+                  <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60 flex flex-col gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-2xl">📍</span>
+                        <div>
+                          <p className="font-bold text-white text-xs md:text-sm">Lokasi Gedung Diklat PT Semen Tonasa</p>
+                          <p className="text-[11px] text-slate-300">Kompleks Pabrik PT Semen Tonasa, Biringere, Kec. Bungoro, Kab. Pangkep, Sulawesi Selatan</p>
+                        </div>
+                      </div>
+                      <a 
+                        href="https://maps.google.com/?q=Gedung+Diklat+PT+Semen+Tonasa+Biringere+Pangkep" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 hover:text-white border border-blue-500/40 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 self-start sm:self-auto shrink-0"
+                      >
+                        <span>🗺️ Buka Google Maps</span>
+                        <span>↗</span>
+                      </a>
+                    </div>
+
+                    {/* Google Maps Embed Iframe */}
+                    <div className="w-full h-48 md:h-56 rounded-xl overflow-hidden border border-slate-700/80 shadow-inner bg-slate-950">
+                      <iframe
+                        title="Google Maps Gedung Diklat PT Semen Tonasa"
+                        src="https://maps.google.com/maps?q=Gedung+Diklat+PT+Semen+Tonasa+Biringere+Bungoro+Pangkep&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen={true}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        className="w-full h-full filter contrast-[1.05]"
+                      ></iframe>
                     </div>
                   </div>
                 </div>

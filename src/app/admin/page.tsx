@@ -553,7 +553,7 @@ export default function AdminPage() {
       {/* Footer Running Text */}
       <div className="relative z-20 shrink-0 w-full bg-slate-950 border-t border-slate-800 py-2 flex items-center overflow-hidden mt-auto">
         <div className="whitespace-nowrap animate-marquee text-[10px] md:text-xs font-bold tracking-[0.2em] text-slate-400">
-          UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • SIG CORPORATE UNIVERSITY •
+          UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT •
         </div>
       </div>
     </div>
