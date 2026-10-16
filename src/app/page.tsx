@@ -31,6 +31,7 @@ export default function TVDisplay() {
   const [showInfoModal, setShowInfoModal] = useState<boolean>(false)
   const [activeInfoTab, setActiveInfoTab] = useState<'profil' | 'ruangan' | 'program'>('profil')
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
+  const [selectedRoom, setSelectedRoom] = useState<any | null>(null)
 
   useEffect(() => {
     setTime(new Date())
@@ -108,7 +109,8 @@ export default function TVDisplay() {
     return (
       <div 
         key={room.id}
-        className="bg-white rounded-2xl shadow-md hover:shadow-xl border border-slate-200 overflow-hidden flex flex-col justify-between transition-all duration-300 group hover:-translate-y-1 h-full min-h-0"
+        onClick={() => setSelectedRoom(room)}
+        className="bg-white rounded-2xl shadow-md hover:shadow-xl border border-slate-200 overflow-hidden flex flex-col justify-between transition-all duration-300 group hover:-translate-y-1 h-full min-h-0 cursor-pointer"
       >
         {/* Foto Ruangan Asli Tajam 100% Tanpa Efek Buram */}
         <div className="relative h-[48%] min-h-[125px] w-full overflow-hidden bg-slate-100 shrink-0">
@@ -146,31 +148,23 @@ export default function TVDisplay() {
                 <span>{room.capacity}</span>
               </div>
             </div>
-
-            {/* Info Peminjaman Aktif secara Dinamis */}
-            {activeBooking ? (
-              <div className="mt-2 p-1.5 bg-red-50 border border-red-200 rounded-lg text-[10px] xl:text-[11px] text-red-900">
-                <p className="font-bold truncate">🏷️ {activeBooking.diklat_acara}</p>
-                <p className="text-slate-600 truncate">👤 {activeBooking.instruktur_pic || '-'}</p>
-                <p className="font-extrabold text-red-700 mt-0.5">
-                  ⏰ {format(new Date(activeBooking.start_time), 'HH:mm')} – {format(new Date(activeBooking.end_time), 'HH:mm')} WITA
-                </p>
-              </div>
-            ) : nextBooking ? (
-              <div className="mt-2 p-1.5 bg-amber-50 border border-amber-200 rounded-lg text-[10px] xl:text-[11px] text-amber-900">
-                <p className="font-bold truncate">🕒 {nextBooking.diklat_acara}</p>
-                <p className="font-extrabold text-amber-700">
-                  ⏰ Mulai {format(new Date(nextBooking.start_time), 'HH:mm')} WITA
-                </p>
-              </div>
-            ) : null}
           </div>
 
           {/* Tombol Chevron Lingkaran Merah di Pojok Kanan Bawah persis Mockup */}
-          <div className="flex justify-end pt-1 shrink-0">
-            <div className="w-6 h-6 xl:w-7 xl:h-7 rounded-full border border-red-500 text-red-600 flex items-center justify-center text-xs font-bold group-hover:bg-red-600 group-hover:text-white transition-colors shadow-sm">
+          <div className="flex items-center justify-between pt-1.5 border-t border-slate-100 mt-1 shrink-0">
+            <span className={`text-[10px] xl:text-[11px] font-bold ${activeBooking ? 'text-rose-600' : 'text-slate-400'}`}>
+              {activeBooking ? '● Sedang Digunakan' : '● Ruangan Bebas'}
+            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedRoom(room);
+              }}
+              className="w-7 h-7 xl:w-8 xl:h-8 rounded-full border border-red-500 text-red-600 flex items-center justify-center text-xs font-bold group-hover:bg-red-600 group-hover:text-white transition-all shadow-sm hover:scale-110 cursor-pointer"
+              title="Lihat Detail Peminjaman Ruangan"
+            >
               ➔
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -633,6 +627,172 @@ export default function TVDisplay() {
           </div>
         </div>
       )}
+
+      {/* MODAL DETAIL INFORMASI RUANGAN & PEMINJAMAN (SAAT KLIK TOMBOL PANAH MERAH ➔ ATAU KARTU) */}
+      {selectedRoom && (() => {
+        const curRoom = rooms.find(r => String(r.id) === String(selectedRoom.id)) || selectedRoom;
+        const curActiveBooking = curRoom.bookings?.find((b: any) => 
+          new Date(b.start_time) <= time && new Date(b.end_time) >= time
+        );
+        const curNextBookings = curRoom.bookings
+          ?.filter((b: any) => new Date(b.start_time) > time)
+          ?.sort((a: any, b: any) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
+
+        const roomImg = curRoom.image || ROOM_IMAGES[String(curRoom.id)] || ROOM_IMAGES[curRoom.name] || '/room-education.jpg';
+
+        return (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 md:p-6 animate-fadeIn">
+            <div className="bg-white rounded-3xl border border-slate-200 max-w-xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+              
+              {/* Header Modal Merah Semen Tonasa */}
+              <div className="bg-gradient-to-r from-[#6e070e] via-[#8c1017] to-[#6e070e] p-4 text-white flex items-center justify-between shrink-0 shadow-md">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center text-xl shrink-0 shadow-inner">
+                    🏢
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-base md:text-lg leading-tight text-white drop-shadow">
+                      {curRoom.name}
+                    </h3>
+                    <p className="text-xs text-amber-200 font-semibold mt-0.5">
+                      Gedung Diklat PT Semen Tonasa • {curRoom.floor}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedRoom(null)}
+                  className="w-8 h-8 rounded-full bg-black/30 hover:bg-black/60 text-white flex items-center justify-center text-sm font-bold transition-all cursor-pointer"
+                  title="Tutup"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Body Modal */}
+              <div className="p-4 md:p-6 overflow-y-auto space-y-4 text-slate-800">
+                
+                {/* Foto Ruangan Asli HD Jernih */}
+                <div className="relative h-48 md:h-56 w-full rounded-2xl overflow-hidden shadow-md bg-slate-100 border border-slate-200">
+                  <img 
+                    src={roomImg} 
+                    alt={curRoom.name}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Status Badge */}
+                  <div className="absolute top-3 right-3">
+                    <span className={`${curActiveBooking ? 'bg-rose-700 animate-pulse' : 'bg-emerald-600'} text-white text-xs font-extrabold px-3.5 py-1.5 rounded-full shadow-lg flex items-center gap-2 uppercase tracking-wider`}>
+                      <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                      {curActiveBooking ? 'SEDANG DIGUNAKAN' : 'RUANGAN TERSEDIA'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Spesifikasi Fasilitas Dasar */}
+                <div className="grid grid-cols-2 gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-red-600 font-bold text-lg">📍</span>
+                    <div>
+                      <p className="text-slate-500 font-medium">Lokasi Lantai</p>
+                      <p className="font-extrabold text-slate-900 text-sm">{curRoom.floor}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-red-600 font-bold text-lg">👥</span>
+                    <div>
+                      <p className="text-slate-500 font-medium">Kapasitas Maksimal</p>
+                      <p className="font-extrabold text-slate-900 text-sm">{curRoom.capacity}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rincian Peminjaman Aktif */}
+                {curActiveBooking ? (
+                  <div className="bg-red-50/90 border-2 border-red-300 rounded-2xl p-4 space-y-3 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-red-200/80 pb-2">
+                      <span className="text-xs font-extrabold uppercase text-red-700 tracking-wider flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping"></span> Peminjaman Yang Sedang Berlangsung
+                      </span>
+                      <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-red-600 text-white shadow-sm">
+                        LIVE SAAT INI
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 text-xs md:text-sm">
+                      <div className="grid grid-cols-[110px_1fr] gap-2 items-start">
+                        <span className="text-slate-500 font-bold">Acara / Diklat:</span>
+                        <span className="font-black text-slate-900 text-sm md:text-base leading-snug">{curActiveBooking.diklat_acara}</span>
+                      </div>
+                      <div className="grid grid-cols-[110px_1fr] gap-2 items-start">
+                        <span className="text-slate-500 font-bold">Instruktur / PIC:</span>
+                        <span className="font-bold text-slate-800">{curActiveBooking.instruktur_pic || '-'}</span>
+                      </div>
+                      <div className="grid grid-cols-[110px_1fr] gap-2 items-start">
+                        <span className="text-slate-500 font-bold">Materi:</span>
+                        <span className="font-bold text-slate-800">{curActiveBooking.materi || '-'}</span>
+                      </div>
+                      <div className="grid grid-cols-[110px_1fr] gap-2 items-start">
+                        <span className="text-slate-500 font-bold">Jam Pelaksanaan:</span>
+                        <span className="font-black text-red-700 bg-red-100/90 border border-red-200 px-2.5 py-1 rounded-lg self-start text-xs md:text-sm">
+                          ⏰ {format(new Date(curActiveBooking.start_time), 'HH:mm')} – {format(new Date(curActiveBooking.end_time), 'HH:mm')} WITA
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center">
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center text-xl font-bold mb-2 shadow-sm">
+                      ✓
+                    </div>
+                    <h4 className="font-black text-sm md:text-base text-emerald-900">
+                      Ruangan Siap & Bebas Digunakan
+                    </h4>
+                    <p className="text-xs text-emerald-700 mt-1 max-w-sm mx-auto">
+                      Saat ini tidak ada kegiatan aktif di ruangan ini. Ruangan dalam kondisi bersih, sejuk ber-AC, dan siap dipakai untuk pelatihan atau rapat.
+                    </p>
+                  </div>
+                )}
+
+                {/* Jadwal Kegiatan Selanjutnya Hari Ini jika ada */}
+                {curNextBookings && curNextBookings.length > 0 && (
+                  <div className="border border-slate-200 rounded-2xl p-3.5 bg-slate-50 space-y-2">
+                    <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      <span>📅</span> Jadwal Terjadwal Selanjutnya Hari Ini:
+                    </p>
+                    <div className="space-y-2">
+                      {curNextBookings.map((b: any, idx: number) => (
+                        <div key={idx} className="bg-white p-3 rounded-xl border border-slate-200 text-xs flex justify-between items-center shadow-sm">
+                          <div>
+                            <p className="font-bold text-slate-900">{b.diklat_acara}</p>
+                            <p className="text-slate-500 text-[11px] mt-0.5">PIC: {b.instruktur_pic || '-'}</p>
+                          </div>
+                          <span className="font-extrabold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-xs shrink-0">
+                            ⏰ {format(new Date(b.start_time), 'HH:mm')} – {format(new Date(b.end_time), 'HH:mm')} WITA
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+              {/* Footer Modal */}
+              <div className="p-3.5 md:p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+                <span className="text-[11px] text-slate-500 font-medium">
+                  Unit Learning & Development • PT Semen Tonasa
+                </span>
+                <button 
+                  onClick={() => setSelectedRoom(null)}
+                  className="bg-red-700 hover:bg-red-800 text-white font-extrabold text-xs px-5 py-2 rounded-xl transition-all cursor-pointer shadow-md hover:scale-105"
+                >
+                  Tutup
+                </button>
+              </div>
+
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   )
