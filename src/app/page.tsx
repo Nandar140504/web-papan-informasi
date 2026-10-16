@@ -197,29 +197,38 @@ export default function TVDisplay() {
             </button>
 
             {menuOpen && (
-              <div className="absolute top-full left-0 mt-2 w-60 bg-slate-900/98 border border-slate-700 rounded-2xl shadow-2xl p-2.5 z-50 flex flex-col gap-1.5 animate-fadeIn">
+              <div className="absolute top-full left-0 mt-2 w-64 bg-gradient-to-b from-[#5c060c] via-[#450308] to-[#2d0205] border-2 border-red-500/35 rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.7)] p-2 z-50 flex flex-col gap-1.5 animate-fadeIn backdrop-blur-xl">
+                {/* Header Menu Label */}
+                <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-amber-300/80 border-b border-red-700/40 pb-1.5 mb-0.5">
+                  Menu Utama • Diklat Tonasa
+                </div>
+
                 <button 
                   onClick={() => {
                     setShowInfoModal(true);
                     setMenuOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-xs md:text-sm font-bold text-amber-300 hover:text-white hover:bg-red-700/40 transition-all cursor-pointer border border-transparent hover:border-amber-500/40 group"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs md:text-sm font-extrabold text-white hover:bg-gradient-to-r hover:from-red-600/80 hover:to-red-700/80 transition-all cursor-pointer border border-transparent hover:border-amber-400/40 group shadow-sm"
                 >
-                  <span className="text-xl group-hover:scale-110 transition-transform">🏛️</span>
+                  <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-lg group-hover:scale-110 group-hover:bg-amber-400/20 group-hover:border-amber-300/50 transition-all shrink-0">
+                    🏛️
+                  </div>
                   <div>
-                    <p className="leading-tight">Info Diklat</p>
-                    <p className="text-[10px] text-slate-400 font-normal">Profil & Fasilitas Ruangan</p>
+                    <p className="leading-tight text-white group-hover:text-amber-200 font-bold">Info Diklat</p>
+                    <p className="text-[10px] text-red-200/80 font-medium">Profil & Fasilitas Ruangan</p>
                   </div>
                 </button>
 
                 <a 
                   href="/admin"
-                  className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-xs md:text-sm font-bold text-slate-200 hover:text-white hover:bg-slate-800 transition-all border border-transparent hover:border-slate-600 group"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs md:text-sm font-extrabold text-white hover:bg-gradient-to-r hover:from-red-600/80 hover:to-red-700/80 transition-all border border-transparent hover:border-amber-400/40 group shadow-sm"
                 >
-                  <span className="text-xl group-hover:scale-110 transition-transform">👤</span>
+                  <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-lg group-hover:scale-110 group-hover:bg-amber-400/20 group-hover:border-amber-300/50 transition-all shrink-0">
+                    👤
+                  </div>
                   <div>
-                    <p className="leading-tight">Admin Dashboard</p>
-                    <p className="text-[10px] text-slate-400 font-normal">Kelola Peminjaman Ruangan</p>
+                    <p className="leading-tight text-white group-hover:text-amber-200 font-bold">Admin Dashboard</p>
+                    <p className="text-[10px] text-red-200/80 font-medium">Kelola Peminjaman Ruangan</p>
                   </div>
                 </a>
               </div>
@@ -389,60 +398,60 @@ export default function TVDisplay() {
         </div>
       </div>
 
-      {/* MODAL INTERAKTIF: Informasi Diklat PT SEMEN TONASA */}
+      {/* MODAL INTERAKTIF: Informasi Diklat PT SEMEN TONASA (Tema Merah Korporat & Emas Matching) */}
       {showInfoModal && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 md:p-6 animate-fadeIn">
-          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+          <div className="bg-[#1f0306] border-2 border-red-700/60 rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-[0_25px_60px_-15px_rgba(110,7,14,0.7)] overflow-hidden">
             
-            {/* Header Modal */}
-            <div className="p-4 md:p-5 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900">
+            {/* Header Modal - Merah Korporat Mewah */}
+            <div className="p-4 md:p-5 border-b border-red-800/80 flex items-center justify-between bg-gradient-to-r from-[#6e070e] via-[#8c1017] to-[#500307]">
               <div className="flex items-center gap-3">
-                <img src="/logo-sig-white.png" alt="SIG" className="h-8 md:h-10 w-auto" />
-                <div className="h-8 w-px bg-slate-700"></div>
-                <img src="/logo-semen-tonasa.png" alt="Semen Tonasa" className="h-9 md:h-11 w-9 md:w-11 object-contain" />
+                <img src="/logo-sig-white.png" alt="SIG" className="h-8 md:h-10 w-auto object-contain drop-shadow" />
+                <div className="h-8 w-px bg-white/20"></div>
+                <img src="/logo-semen-tonasa.png" alt="Semen Tonasa" className="h-9 md:h-11 w-9 md:w-11 object-contain drop-shadow" />
                 <div>
-                  <h2 className="text-base md:text-xl font-bold text-white tracking-wide">
+                  <h2 className="text-base md:text-xl font-black text-white tracking-wide drop-shadow">
                     Pusat Pendidikan & Pelatihan (Diklat)
                   </h2>
-                  <p className="text-xs text-amber-400 font-medium">Unit Learning & Development • PT Semen Tonasa</p>
+                  <p className="text-xs text-amber-300 font-semibold mt-0.5">Unit Learning & Development • PT Semen Tonasa</p>
                 </div>
               </div>
               <button 
                 onClick={() => setShowInfoModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-rose-600/80 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer text-lg font-bold"
+                className="w-8 h-8 rounded-full bg-black/40 hover:bg-rose-600 text-white flex items-center justify-center transition-all cursor-pointer text-base font-bold border border-white/20 shadow-sm"
               >
                 ✕
               </button>
             </div>
 
-            {/* Navigasi Tab */}
-            <div className="flex border-b border-slate-800 bg-slate-950/60 px-4 pt-2 gap-2">
+            {/* Navigasi Tab - Merah & Aksen Emas Matching */}
+            <div className="flex border-b border-red-800/80 bg-[#160204] px-4 pt-2.5 gap-2">
               <button 
                 onClick={() => setActiveInfoTab('profil')}
-                className={`px-4 py-2 text-xs md:text-sm font-bold rounded-t-lg transition-all cursor-pointer ${
+                className={`px-4 py-2 text-xs md:text-sm font-extrabold rounded-t-xl transition-all cursor-pointer ${
                   activeInfoTab === 'profil' 
-                    ? 'bg-slate-900 text-blue-400 border-t-2 border-blue-500' 
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-gradient-to-t from-[#6e070e] to-[#8c1017] text-white border-t-2 border-amber-400 shadow-md' 
+                    : 'text-red-200/70 hover:text-white hover:bg-red-950/40'
                 }`}
               >
                 🏛️ Profil & Visi L&D
               </button>
               <button 
                 onClick={() => setActiveInfoTab('ruangan')}
-                className={`px-4 py-2 text-xs md:text-sm font-bold rounded-t-lg transition-all cursor-pointer ${
+                className={`px-4 py-2 text-xs md:text-sm font-extrabold rounded-t-xl transition-all cursor-pointer ${
                   activeInfoTab === 'ruangan' 
-                    ? 'bg-slate-900 text-amber-400 border-t-2 border-amber-500' 
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-gradient-to-t from-[#6e070e] to-[#8c1017] text-white border-t-2 border-amber-400 shadow-md' 
+                    : 'text-red-200/70 hover:text-white hover:bg-red-950/40'
                 }`}
               >
                 🏢 Fasilitas Ruangan
               </button>
               <button 
                 onClick={() => setActiveInfoTab('program')}
-                className={`px-4 py-2 text-xs md:text-sm font-bold rounded-t-lg transition-all cursor-pointer ${
+                className={`px-4 py-2 text-xs md:text-sm font-extrabold rounded-t-xl transition-all cursor-pointer ${
                   activeInfoTab === 'program' 
-                    ? 'bg-slate-900 text-emerald-400 border-t-2 border-emerald-500' 
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-gradient-to-t from-[#6e070e] to-[#8c1017] text-white border-t-2 border-amber-400 shadow-md' 
+                    : 'text-red-200/70 hover:text-white hover:bg-red-950/40'
                 }`}
               >
                 🎯 Program & Sertifikasi
@@ -450,55 +459,55 @@ export default function TVDisplay() {
             </div>
 
             {/* Isi Konten Tab */}
-            <div className="p-4 md:p-6 overflow-y-auto flex-1 space-y-4 text-slate-300 text-xs md:text-sm leading-relaxed">
+            <div className="p-4 md:p-6 overflow-y-auto flex-1 space-y-4 text-red-50 text-xs md:text-sm leading-relaxed">
               
               {activeInfoTab === 'profil' && (
                 <div className="space-y-4">
-                  <div className="bg-gradient-to-r from-blue-950/50 to-indigo-950/30 p-4 rounded-xl border border-blue-800/30">
-                    <h3 className="text-sm md:text-base font-bold text-white mb-1 flex items-center gap-2">
+                  <div className="bg-gradient-to-r from-[#500409] via-[#6e070e] to-[#3a0205] p-4 rounded-2xl border-2 border-red-500/40 shadow-lg">
+                    <h3 className="text-sm md:text-base font-black text-amber-300 mb-1 flex items-center gap-2">
                       <span>🌟</span>
                       <span>Bagian dari SIG Corporate University</span>
                     </h3>
-                    <p className="text-slate-300">
-                      Unit <strong>Learning & Development (L&D) PT Semen Tonasa</strong> terintegrasi dengan ekosistem <em>SIG Corporate University</em>, yang berperan strategis menjembatani kesenjangan kompetensi (*competency gap*) karyawan menuju standar industri semen berkelas dunia (*World-Class Cement Manufacturer*).
+                    <p className="text-red-50/95 leading-relaxed">
+                      Unit <strong className="text-white">Learning & Development (L&D) PT Semen Tonasa</strong> terintegrasi dengan ekosistem <em className="text-amber-200">SIG Corporate University</em>, yang berperan strategis menjembatani kesenjangan kompetensi (*competency gap*) karyawan menuju standar industri semen berkelas dunia (*World-Class Cement Manufacturer*).
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
-                      <h4 className="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+                    <div className="bg-[#2b0509] p-4 rounded-2xl border border-red-800/60 shadow-md">
+                      <h4 className="font-extrabold text-amber-300 mb-1.5 flex items-center gap-1.5">
                         <span>🎯</span> Visi Pembelajaran
                       </h4>
-                      <p className="text-xs text-slate-300">
+                      <p className="text-xs text-red-100/90 leading-relaxed">
                         Menjadi pusat keunggulan (*Center of Excellence*) pengembangan kapabilitas SDM yang adaptif, inovatif, berdaya saing global, serta berorientasi pada keberlanjutan (*Green Industry & Decarbonization*).
                       </p>
                     </div>
 
-                    <div className="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
-                      <h4 className="font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
+                    <div className="bg-[#2b0509] p-4 rounded-2xl border border-red-800/60 shadow-md">
+                      <h4 className="font-extrabold text-amber-300 mb-1.5 flex items-center gap-1.5">
                         <span>⚡</span> Nilai Utama
                       </h4>
-                      <p className="text-xs text-slate-300">
-                        Menanamkan core values <strong>AKHLAK BUMN</strong> (Amanah, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif) pada setiap insan Semen Tonasa demi operational excellence.
+                      <p className="text-xs text-red-100/90 leading-relaxed">
+                        Menanamkan core values <strong className="text-amber-200">AKHLAK BUMN</strong> (Amanah, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif) pada setiap insan Semen Tonasa demi operational excellence.
                       </p>
                     </div>
                   </div>
 
                   {/* Lokasi & Peta Google Maps Gedung Diklat PT Semen Tonasa */}
-                  <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60 flex flex-col gap-3">
+                  <div className="bg-[#2b0509] p-4 rounded-2xl border border-red-800/60 flex flex-col gap-3 shadow-md">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div className="flex items-center gap-2.5">
                         <span className="text-2xl">📍</span>
                         <div>
-                          <p className="font-bold text-white text-xs md:text-sm">Lokasi Gedung Diklat PT Semen Tonasa</p>
-                          <p className="text-[11px] text-slate-300">Kompleks Pabrik PT Semen Tonasa, Biringere, Kec. Bungoro, Kab. Pangkep, Sulawesi Selatan</p>
+                          <p className="font-extrabold text-white text-xs md:text-sm">Lokasi Gedung Diklat PT Semen Tonasa</p>
+                          <p className="text-[11px] text-red-200/80">Kompleks Pabrik PT Semen Tonasa, Biringere, Kec. Bungoro, Kab. Pangkep, Sulawesi Selatan</p>
                         </div>
                       </div>
                       <a 
                         href="https://maps.google.com/?q=Gedung+Diklat+PT+Semen+Tonasa+Biringere+Pangkep" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 hover:text-white border border-blue-500/40 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 self-start sm:self-auto shrink-0"
+                        className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white border border-red-400/50 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 self-start sm:self-auto shrink-0 shadow-md"
                       >
                         <span>🗺️ Buka Google Maps</span>
                         <span>↗</span>
@@ -506,7 +515,7 @@ export default function TVDisplay() {
                     </div>
 
                     {/* Google Maps Embed Iframe */}
-                    <div className="w-full h-48 md:h-56 rounded-xl overflow-hidden border border-slate-700/80 shadow-inner bg-slate-950">
+                    <div className="w-full h-48 md:h-56 rounded-xl overflow-hidden border-2 border-red-900/80 shadow-inner bg-[#140204]">
                       <iframe
                         title="Google Maps Gedung Diklat PT Semen Tonasa"
                         src="https://maps.google.com/maps?q=Gedung+Diklat+PT+Semen+Tonasa+Biringere+Bungoro+Pangkep&t=&z=15&ie=UTF8&iwloc=&output=embed"
@@ -525,67 +534,67 @@ export default function TVDisplay() {
 
               {activeInfoTab === 'ruangan' && (
                 <div className="space-y-3">
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-red-200/90 font-medium">
                     Gedung Diklat PT Semen Tonasa dilengkapi 5 sarana ruang pembelajaran berteknologi modern dengan pendingin udara, Smart TV interaktif, dan sound system profesional:
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {/* Education Room */}
-                    <div className="bg-slate-800/70 rounded-xl overflow-hidden border border-slate-700/60 flex flex-col">
-                      <img src="/room-education.jpg" alt="Education Room" className="h-28 w-full object-cover" />
+                    <div className="bg-[#2b0509] rounded-2xl overflow-hidden border border-red-800/60 hover:border-amber-400/60 flex flex-col transition-all shadow-md group">
+                      <img src="/room-education.jpg" alt="Education Room" className="h-28 w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       <div className="p-3 flex-1 flex flex-col justify-between">
                         <div>
-                          <span className="text-[9px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded font-bold">Lantai 2</span>
-                          <h4 className="font-bold text-white text-sm mt-1">Education Room</h4>
-                          <p className="text-[11px] text-slate-400 mt-0.5">Kapasitas 50/60 orang. Aula utama untuk seminar akbar, pelatihan teori skala besar, dan pertemuan direksi.</p>
+                          <span className="text-[9px] bg-red-950 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full font-extrabold uppercase">Lantai 2</span>
+                          <h4 className="font-extrabold text-white text-sm mt-1.5 group-hover:text-amber-300 transition-colors">Education Room</h4>
+                          <p className="text-[11px] text-red-200/80 mt-1 leading-relaxed">Kapasitas 50/60 orang. Aula utama untuk seminar akbar, pelatihan teori skala besar, dan pertemuan direksi.</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Learning Room */}
-                    <div className="bg-slate-800/70 rounded-xl overflow-hidden border border-slate-700/60 flex flex-col">
-                      <img src="/room-learning.jpg" alt="Learning Room" className="h-28 w-full object-cover" />
+                    <div className="bg-[#2b0509] rounded-2xl overflow-hidden border border-red-800/60 hover:border-amber-400/60 flex flex-col transition-all shadow-md group">
+                      <img src="/room-learning.jpg" alt="Learning Room" className="h-28 w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       <div className="p-3 flex-1 flex flex-col justify-between">
                         <div>
-                          <span className="text-[9px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-bold">Lantai 1</span>
-                          <h4 className="font-bold text-white text-sm mt-1">Learning Room</h4>
-                          <p className="text-[11px] text-slate-400 mt-0.5">Kapasitas 30/40 orang. Dilengkapi Smart TV interaktif untuk kelas teknis, sertifikasi, dan lokakarya operasional.</p>
+                          <span className="text-[9px] bg-red-950 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full font-extrabold uppercase">Lantai 1</span>
+                          <h4 className="font-extrabold text-white text-sm mt-1.5 group-hover:text-amber-300 transition-colors">Learning Room</h4>
+                          <p className="text-[11px] text-red-200/80 mt-1 leading-relaxed">Kapasitas 30/40 orang. Dilengkapi Smart TV interaktif untuk kelas teknis, sertifikasi, dan lokakarya operasional.</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Knowledge Room */}
-                    <div className="bg-slate-800/70 rounded-xl overflow-hidden border border-slate-700/60 flex flex-col">
-                      <img src="/room-knowledge.jpg" alt="Knowledge Room" className="h-28 w-full object-cover" />
+                    <div className="bg-[#2b0509] rounded-2xl overflow-hidden border border-red-800/60 hover:border-amber-400/60 flex flex-col transition-all shadow-md group">
+                      <img src="/room-knowledge.jpg" alt="Knowledge Room" className="h-28 w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       <div className="p-3 flex-1 flex flex-col justify-between">
                         <div>
-                          <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">Lantai 1</span>
-                          <h4 className="font-bold text-white text-sm mt-1">Knowledge Room</h4>
-                          <p className="text-[11px] text-slate-400 mt-0.5">Kapasitas 30/40 orang. Suasana modern berpanel kayu untuk sharing session ilmu dan transfer pengetahuan ahli.</p>
+                          <span className="text-[9px] bg-red-950 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full font-extrabold uppercase">Lantai 1</span>
+                          <h4 className="font-extrabold text-white text-sm mt-1.5 group-hover:text-amber-300 transition-colors">Knowledge Room</h4>
+                          <p className="text-[11px] text-red-200/80 mt-1 leading-relaxed">Kapasitas 30/40 orang. Suasana modern berpanel kayu untuk sharing session ilmu dan transfer pengetahuan ahli.</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Development Room */}
-                    <div className="bg-slate-800/70 rounded-xl overflow-hidden border border-slate-700/60 flex flex-col">
-                      <img src="/room-development.jpg" alt="Development Room" className="h-28 w-full object-cover" />
+                    <div className="bg-[#2b0509] rounded-2xl overflow-hidden border border-red-800/60 hover:border-amber-400/60 flex flex-col transition-all shadow-md group">
+                      <img src="/room-development.jpg" alt="Development Room" className="h-28 w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       <div className="p-3 flex-1 flex flex-col justify-between">
                         <div>
-                          <span className="text-[9px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded font-bold">Lantai 1</span>
-                          <h4 className="font-bold text-white text-sm mt-1">Development Room</h4>
-                          <p className="text-[11px] text-slate-400 mt-0.5">Kapasitas 20/25 orang. Dinding hijau modern untuk pelatihan kepemimpinan intensif, FGD, dan problem solving.</p>
+                          <span className="text-[9px] bg-red-950 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full font-extrabold uppercase">Lantai 1</span>
+                          <h4 className="font-extrabold text-white text-sm mt-1.5 group-hover:text-amber-300 transition-colors">Development Room</h4>
+                          <p className="text-[11px] text-red-200/80 mt-1 leading-relaxed">Kapasitas 20/25 orang. Dinding hijau modern untuk pelatihan kepemimpinan intensif, FGD, dan problem solving.</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Podcast Room */}
-                    <div className="bg-slate-800/70 rounded-xl overflow-hidden border border-slate-700/60 flex flex-col sm:col-span-2 lg:col-span-1">
-                      <img src="/room-podcast.jpg" alt="Podcast Room" className="h-28 w-full object-cover" />
+                    <div className="bg-[#2b0509] rounded-2xl overflow-hidden border border-red-800/60 hover:border-amber-400/60 flex flex-col sm:col-span-2 lg:col-span-1 transition-all shadow-md group">
+                      <img src="/room-podcast.jpg" alt="Podcast Room" className="h-28 w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       <div className="p-3 flex-1 flex flex-col justify-between">
                         <div>
-                          <span className="text-[9px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded font-bold">Lantai 2</span>
-                          <h4 className="font-bold text-white text-sm mt-1">Podcast Room</h4>
-                          <p className="text-[11px] text-slate-400 mt-0.5">Kapasitas 6/10 orang. Studio rekaman profesional, mic condenser, acoustic treatment untuk konten edukasi digital.</p>
+                          <span className="text-[9px] bg-red-950 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full font-extrabold uppercase">Lantai 2</span>
+                          <h4 className="font-extrabold text-white text-sm mt-1.5 group-hover:text-amber-300 transition-colors">Podcast Room</h4>
+                          <p className="text-[11px] text-red-200/80 mt-1 leading-relaxed">Kapasitas 6/10 orang. Studio rekaman profesional, mic condenser, acoustic treatment untuk konten edukasi digital.</p>
                         </div>
                       </div>
                     </div>
@@ -597,42 +606,42 @@ export default function TVDisplay() {
                 <div className="space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     
-                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="p-1.5 rounded-lg bg-red-500/20 text-red-400 text-lg">🏭</span>
-                        <h4 className="font-bold text-white text-sm">Technical Cement Training</h4>
+                    <div className="bg-[#2b0509] p-4 rounded-2xl border border-red-800/60 shadow-md">
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <span className="w-8 h-8 rounded-xl bg-red-700/30 border border-red-500/40 text-amber-300 flex items-center justify-center text-lg shrink-0">🏭</span>
+                        <h4 className="font-extrabold text-white text-sm">Technical Cement Training</h4>
                       </div>
-                      <p className="text-xs text-slate-300">
+                      <p className="text-xs text-red-100/90 leading-relaxed">
                         Pelatihan keahlian teknis pemeliharaan mesin pabrik, operasi kiln, penggilingan semen (*finish mill*), kimia semen, efisiensi energi thermal, dan teknologi otomatisasi industri 4.0.
                       </p>
                     </div>
 
-                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 text-lg">🦺</span>
-                        <h4 className="font-bold text-white text-sm">Keselamatan & K3 (HSE)</h4>
+                    <div className="bg-[#2b0509] p-4 rounded-2xl border border-red-800/60 shadow-md">
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <span className="w-8 h-8 rounded-xl bg-red-700/30 border border-red-500/40 text-amber-300 flex items-center justify-center text-lg shrink-0">🦺</span>
+                        <h4 className="font-extrabold text-white text-sm">Keselamatan & K3 (HSE)</h4>
                       </div>
-                      <p className="text-xs text-slate-300">
+                      <p className="text-xs text-red-100/90 leading-relaxed">
                         Pembinaan komprehensif Keselamatan dan Kesehatan Kerja, sertifikasi K3 umum, penanganan bahan B3, tanggap darurat, serta standar perlindungan lingkungan ISO 14001 dan ISO 45001.
                       </p>
                     </div>
 
-                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 text-lg">👑</span>
-                        <h4 className="font-bold text-white text-sm">Leadership & Assessment</h4>
+                    <div className="bg-[#2b0509] p-4 rounded-2xl border border-red-800/60 shadow-md">
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <span className="w-8 h-8 rounded-xl bg-red-700/30 border border-red-500/40 text-amber-300 flex items-center justify-center text-lg shrink-0">👑</span>
+                        <h4 className="font-extrabold text-white text-sm">Leadership & Assessment</h4>
                       </div>
-                      <p className="text-xs text-slate-300">
+                      <p className="text-xs text-red-100/90 leading-relaxed">
                         Pelatihan *Leadership Assessment & Evaluation*, pembentukan karakter manajerial, kepemimpinan transformasional, dan persiapan kader pimpinan di seluruh lini unit kerja.
                       </p>
                     </div>
 
-                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 text-lg">🎓</span>
-                        <h4 className="font-bold text-white text-sm">Kemitraan Akademik & Magang</h4>
+                    <div className="bg-[#2b0509] p-4 rounded-2xl border border-red-800/60 shadow-md">
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <span className="w-8 h-8 rounded-xl bg-red-700/30 border border-red-500/40 text-amber-300 flex items-center justify-center text-lg shrink-0">🎓</span>
+                        <h4 className="font-extrabold text-white text-sm">Kemitraan Akademik & Magang</h4>
                       </div>
-                      <p className="text-xs text-slate-300">
+                      <p className="text-xs text-red-100/90 leading-relaxed">
                         Kolaborasi riset industri dengan universitas terkemuka (Unhas dll), Program Magang Mahasiswa Bersertifikat (PMMB) BUMN, serta beasiswa vokasi bagi masyarakat sekitar.
                       </p>
                     </div>
@@ -644,11 +653,11 @@ export default function TVDisplay() {
             </div>
 
             {/* Footer Modal */}
-            <div className="p-3 md:p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
-              <span className="text-[11px] text-slate-400">© PT Semen Tonasa • SIG Group • Papan Informasi Diklat Online</span>
+            <div className="p-3.5 md:p-4 border-t border-red-800/80 bg-[#160204] flex items-center justify-between">
+              <span className="text-[11px] text-red-300/80 font-semibold">© PT Semen Tonasa • SIG Group • Papan Informasi Diklat Online</span>
               <button 
                 onClick={() => setShowInfoModal(false)}
-                className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                className="bg-gradient-to-r from-red-700 to-red-800 hover:from-red-600 hover:to-red-700 text-white px-5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer shadow-md border border-red-500/40"
               >
                 Tutup
               </button>
