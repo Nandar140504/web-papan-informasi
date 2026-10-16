@@ -287,14 +287,18 @@ export default function TVDisplay() {
       {/* 2. HERO BANNER: KURVA MERAH DI KIRI & FOTO GEDUNG DIKLAT TAJAM DI KANAN */}
       <div className="shrink-0 h-[36vh] xl:h-[38vh] w-full relative overflow-hidden bg-[#6e070e] border-b border-red-800/40">
         
-        {/* Foto Gedung Diklat Asli Tajam 100% Diposisikan ke Kanan agar Bangunan Tampak Jelas */}
+        {/* Foto Gedung Diklat Asli Tajam 100% - Diperkecil & Proporsional di Sisi Kanan (Seluruh Gedung Tampak Jelas) */}
         <div 
-          className="absolute right-0 inset-y-0 w-full md:w-[72%] lg:w-[65%] xl:w-[60%] bg-cover bg-[center_20%] md:bg-[45%_22%]"
-          style={{ backgroundImage: 'url("/bg-building.png")' }}
+          className="absolute right-0 inset-y-0 w-full md:w-[75%] lg:w-[65%] xl:w-[60%] bg-no-repeat transition-all"
+          style={{ 
+            backgroundImage: 'url("/bg-building.png")',
+            backgroundSize: 'auto 115%',
+            backgroundPosition: 'right 5% center',
+          }}
         />
 
         {/* Gradien Kurva Merah Elegan di sisi kiri membaur mulus ke foto gedung */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#6e070e] via-[#8c1017] via-35% md:via-42% to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#6e070e] via-[#8c1017] via-30% md:via-38% to-transparent pointer-events-none" />
 
         {/* Konten Hero Informasi Ruang (Ikon Gedung Dihapus Sesuai Permintaan) */}
         <div className="relative z-10 h-full w-full max-w-[55%] md:max-w-[42%] flex flex-col justify-center px-6 md:px-10 lg:px-14">
@@ -341,7 +345,7 @@ export default function TVDisplay() {
       {/* 4. FOOTER RUNNING TEXT MERAH KORPORAT */}
       <div className="shrink-0 h-[34px] xl:h-[38px] w-full bg-[#8a0b12] text-white flex items-center overflow-hidden z-20 border-t-2 border-red-400/40">
         <div className="whitespace-nowrap animate-marquee text-[11px] xl:text-xs font-extrabold tracking-[0.25em] text-white">
-          UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH MEMBANGUN NEGERI • SIG CORPORATE UNIVERSITY • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA •
+          UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA •
         </div>
       </div>
 
