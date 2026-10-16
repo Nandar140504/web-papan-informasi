@@ -96,8 +96,16 @@ export default function AdminPage() {
     }
   }
 
-  const recentBookings = [...bookings].reverse().slice(0, 10)
   const [selectedPreviewRoom, setSelectedPreviewRoom] = useState<string>('1')
+  const [tableLimit, setTableLimit] = useState<number>(5)
+  const [tableRoomFilter, setTableRoomFilter] = useState<string>('all')
+  const [isTableOpen, setIsTableOpen] = useState<boolean>(true)
+
+  const filteredBookings = [...bookings].reverse().filter(b => {
+    if (tableRoomFilter === 'all') return true;
+    return String(b.room_id) === String(tableRoomFilter);
+  });
+  const displayedBookings = tableLimit === 0 ? filteredBookings : filteredBookings.slice(0, tableLimit);
 
   // Sinkronkan preview foto ketika user memilih ruangan di form
   const handleRoomSelect = (roomId: string) => {
@@ -448,100 +456,175 @@ export default function AdminPage() {
             {/* TABEL DAFTAR & PANTAUAN MASUK / KELUAR (60%) */}
             <div className="flex-grow flex flex-col bg-[#1f0306] border-2 border-red-800/60 rounded-2xl p-3 md:p-3.5 shadow-xl min-h-0">
               
-              <div className="shrink-0 flex items-center justify-between mb-2.5">
+              {/* Header Kontrol & Dropdown */}
+              <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 mb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-base">📋</span>
-                  <h2 className="text-xs md:text-sm font-black text-white">
-                    Daftar Pantauan Masuk / Keluar ({bookings.length} Data)
-                  </h2>
+                  <button 
+                    type="button"
+                    onClick={() => setIsTableOpen(!isTableOpen)}
+                    className="flex items-center gap-1.5 text-xs md:text-sm font-black text-white hover:text-amber-300 transition-colors cursor-pointer group"
+                  >
+                    <span className="text-base group-hover:scale-110 transition-transform">📋</span>
+                    <span>Daftar Pantauan ({filteredBookings.length} Data)</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-950 text-amber-300 border border-amber-500/30 ml-1">
+                      {isTableOpen ? '▲ Ciutkan' : '▼ Buka Dropdown'}
+                    </span>
+                  </button>
                 </div>
-                <a 
-                  href="/api/download-excel" 
-                  target="_blank" 
-                  className="text-[10px] bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full font-bold hover:bg-emerald-600/50 transition-colors flex items-center gap-1 shadow-sm"
-                >
-                  <span>📥</span> Unduh Excel
-                </a>
+
+                <div className="flex items-center flex-wrap gap-2">
+                  {/* Dropdown Filter Ruangan */}
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-red-200">
+                    <label htmlFor="filter-room" className="hidden sm:inline">Ruang:</label>
+                    <select 
+                      id="filter-room"
+                      value={tableRoomFilter} 
+                      onChange={e => setTableRoomFilter(e.target.value)}
+                      className="bg-[#2b0509] text-white text-[10px] font-bold border border-red-700/60 rounded-lg px-2 py-1 outline-none focus:border-amber-400 cursor-pointer"
+                    >
+                      <option value="all">Semua Ruangan ▾</option>
+                      {rooms.map(r => (
+                        <option key={r.id} value={r.id}>{r.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Dropdown Jumlah Data (Limit) */}
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-red-200">
+                    <label htmlFor="filter-limit" className="hidden sm:inline">Tampil:</label>
+                    <select 
+                      id="filter-limit"
+                      value={tableLimit} 
+                      onChange={e => setTableLimit(Number(e.target.value))}
+                      className="bg-[#2b0509] text-amber-300 text-[10px] font-extrabold border border-red-700/60 rounded-lg px-2 py-1 outline-none focus:border-amber-400 cursor-pointer"
+                    >
+                      <option value={5}>5 Data ▾</option>
+                      <option value={10}>10 Data ▾</option>
+                      <option value={20}>20 Data ▾</option>
+                      <option value={0}>Semua Data ▾</option>
+                    </select>
+                  </div>
+
+                  {/* Tombol Unduh Excel */}
+                  <a 
+                    href="/api/download-excel" 
+                    target="_blank" 
+                    className="text-[10px] bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-lg font-bold hover:bg-emerald-600/50 transition-colors flex items-center gap-1 shadow-sm"
+                  >
+                    <span>📥</span> Unduh Excel
+                  </a>
+                </div>
               </div>
 
-              <div className="flex-grow overflow-auto rounded-xl border border-red-900/60 bg-[#140204]">
-                <table className="w-full text-left border-collapse min-w-[620px]">
-                  <thead className="sticky top-0 bg-[#240407] z-10 shadow-sm border-b border-red-900/60">
-                    <tr className="text-[10px] text-amber-200/90 uppercase tracking-wider">
-                      <th className="py-2.5 px-3 font-bold">Ruangan</th>
-                      <th className="py-2.5 px-3 font-bold">Acara & Instruktur</th>
-                      <th className="py-2.5 px-3 font-bold">Jadwal</th>
-                      <th className="py-2.5 px-3 font-bold">Status</th>
-                      <th className="py-2.5 px-3 font-bold text-center">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentBookings.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="py-8 text-center text-red-300/50 text-xs">Belum ada daftar data peminjaman ruangan.</td>
-                      </tr>
-                    ) : (
-                      recentBookings.map((b: any) => {
-                        const r = rooms.find(room => String(room.id) === String(b.room_id))
-                        
-                        let status = 'Selesai';
-                        let statusColor = 'bg-slate-900/80 text-slate-400 border-slate-700';
-                        const start = new Date(b.start_time);
-                        const end = new Date(b.end_time);
-                        
-                        if (now >= start && now <= end) { 
-                          status = 'Sedang Dipakai'; 
-                          statusColor = 'bg-rose-950 text-rose-200 border-rose-500/60'; 
-                        } else if (now < start) { 
-                          status = 'Akan Datang'; 
-                          statusColor = 'bg-amber-950 text-amber-200 border-amber-500/60'; 
-                        }
-
-                        const rowRoomImage = r?.image || ROOM_IMAGES[String(b.room_id)] || ROOM_IMAGES[r?.name || ''];
-
-                        return (
-                          <tr key={b.id} className="border-b border-red-950/60 hover:bg-[#2b0509]/60 transition-colors text-xs">
-                            <td className="py-2 px-3 text-amber-200 font-extrabold">
-                              <div className="flex items-center gap-2">
-                                {rowRoomImage ? (
-                                  <img 
-                                    src={rowRoomImage} 
-                                    alt={r?.name || ''} 
-                                    className="w-8 h-5 rounded-md object-cover border border-red-800/60 shrink-0 shadow-sm" 
-                                  />
-                                ) : null}
-                                <span className="truncate">{r?.name || '-'}</span>
-                              </div>
-                            </td>
-                            <td className="py-2 px-3">
-                              <p className="font-bold text-white leading-tight">{b.diklat_acara}</p>
-                              <p className="text-red-200/80 text-[10px]">{b.instruktur_pic ? `Oleh: ${b.instruktur_pic}` : ''} {b.materi ? `(${b.materi})` : ''}</p>
-                            </td>
-                            <td className="py-2 px-3 text-red-100/90 text-[11px] whitespace-nowrap">
-                              {new Date(b.start_time).toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' })} 
-                              {' - '} 
-                              {new Date(b.end_time).toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit'})}
-                            </td>
-                            <td className="py-2 px-3">
-                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${statusColor} whitespace-nowrap shadow-sm`}>
-                                {status}
-                              </span>
-                            </td>
-                            <td className="py-2 px-3 text-center">
-                              <button 
-                                onClick={() => handleDelete(b.id)} 
-                                className="bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white border border-red-500/40 px-2.5 py-1 rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
-                              >
-                                Hapus
-                              </button>
+              {isTableOpen ? (
+                <>
+                  <div className="max-h-[260px] md:max-h-[290px] overflow-y-auto overflow-x-auto rounded-xl border border-red-900/60 bg-[#140204] shadow-inner">
+                    <table className="w-full text-left border-collapse min-w-[620px]">
+                      <thead className="sticky top-0 bg-[#240407] z-10 shadow-sm border-b border-red-900/60">
+                        <tr className="text-[10px] text-amber-200/90 uppercase tracking-wider">
+                          <th className="py-2.5 px-3 font-bold">Ruangan</th>
+                          <th className="py-2.5 px-3 font-bold">Acara & Instruktur</th>
+                          <th className="py-2.5 px-3 font-bold">Jadwal</th>
+                          <th className="py-2.5 px-3 font-bold">Status</th>
+                          <th className="py-2.5 px-3 font-bold text-center">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {displayedBookings.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} className="py-8 text-center text-red-300/50 text-xs">
+                              {tableRoomFilter !== 'all' ? 'Tidak ada data untuk ruangan yang dipilih.' : 'Belum ada daftar data peminjaman ruangan.'}
                             </td>
                           </tr>
-                        )
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                        ) : (
+                          displayedBookings.map((b: any) => {
+                            const r = rooms.find(room => String(room.id) === String(b.room_id))
+                            
+                            let status = 'Selesai';
+                            let statusColor = 'bg-slate-900/80 text-slate-400 border-slate-700';
+                            const start = new Date(b.start_time);
+                            const end = new Date(b.end_time);
+                            
+                            if (now >= start && now <= end) { 
+                              status = 'Sedang Dipakai'; 
+                              statusColor = 'bg-rose-950 text-rose-200 border-rose-500/60'; 
+                            } else if (now < start) { 
+                              status = 'Akan Datang'; 
+                              statusColor = 'bg-amber-950 text-amber-200 border-amber-500/60'; 
+                            }
+
+                            const rowRoomImage = r?.image || ROOM_IMAGES[String(b.room_id)] || ROOM_IMAGES[r?.name || ''];
+
+                            return (
+                              <tr key={b.id} className="border-b border-red-950/60 hover:bg-[#2b0509]/60 transition-colors text-xs">
+                                <td className="py-2 px-3 text-amber-200 font-extrabold">
+                                  <div className="flex items-center gap-2">
+                                    {rowRoomImage ? (
+                                      <img 
+                                        src={rowRoomImage} 
+                                        alt={r?.name || ''} 
+                                        className="w-8 h-5 rounded-md object-cover border border-red-800/60 shrink-0 shadow-sm" 
+                                      />
+                                    ) : null}
+                                    <span className="truncate">{r?.name || '-'}</span>
+                                  </div>
+                                </td>
+                                <td className="py-2 px-3">
+                                  <p className="font-bold text-white leading-tight">{b.diklat_acara}</p>
+                                  <p className="text-red-200/80 text-[10px]">{b.instruktur_pic ? `Oleh: ${b.instruktur_pic}` : ''} {b.materi ? `(${b.materi})` : ''}</p>
+                                </td>
+                                <td className="py-2 px-3 text-red-100/90 text-[11px] whitespace-nowrap">
+                                  {new Date(b.start_time).toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' })} 
+                                  {' - '} 
+                                  {new Date(b.end_time).toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit'})}
+                                </td>
+                                <td className="py-2 px-3">
+                                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${statusColor} whitespace-nowrap shadow-sm`}>
+                                    {status}
+                                  </span>
+                                </td>
+                                <td className="py-2 px-3 text-center">
+                                  <button 
+                                    onClick={() => handleDelete(b.id)} 
+                                    className="bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white border border-red-500/40 px-2.5 py-1 rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
+                                  >
+                                    Hapus
+                                  </button>
+                                </td>
+                              </tr>
+                            )
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Keterangan Footer Tabel */}
+                  <div className="shrink-0 flex items-center justify-between text-[10px] text-red-300/70 pt-2 px-1">
+                    <span>
+                      Menampilkan <strong className="text-amber-300">{displayedBookings.length}</strong> dari <strong className="text-white">{filteredBookings.length}</strong> data
+                      {tableLimit > 0 && filteredBookings.length > tableLimit && (
+                        <span className="ml-1 text-red-400 font-medium">(Gunakan scroll atau dropdown untuk melihat lebih banyak)</span>
+                      )}
+                    </span>
+                    <button 
+                      type="button"
+                      onClick={() => setTableLimit(tableLimit === 0 ? 5 : 0)}
+                      className="text-amber-400 hover:text-amber-200 underline font-bold cursor-pointer"
+                    >
+                      {tableLimit === 0 ? 'Tampilkan 5 saja' : 'Lihat semua data'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div 
+                  onClick={() => setIsTableOpen(true)}
+                  className="p-3 text-center bg-[#140204] rounded-xl border border-red-900/40 text-xs text-red-300/80 cursor-pointer hover:bg-[#2b0509]/40 transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>📋 Tabel sedang diciutkan ({filteredBookings.length} data tersimpan).</span>
+                  <span className="text-amber-400 font-bold underline">Klik untuk membuka dropdown tabel ▾</span>
+                </div>
+              )}
             </div>
 
           </div>
