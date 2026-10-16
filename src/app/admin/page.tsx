@@ -115,19 +115,19 @@ export default function AdminPage() {
   )
 
   return (
-    <div className="min-h-screen lg:h-screen text-white relative font-sans flex flex-col overflow-y-auto lg:overflow-hidden bg-[#090e1a]">
+    <div className="min-h-screen lg:h-screen text-white relative font-sans flex flex-col overflow-y-auto lg:overflow-hidden bg-[#120204]">
       
       {/* Background Gedung dengan overlay gelap solid agar tidak transparan & teks sangat jelas */}
       <div 
-        className="absolute inset-0 bg-cover lg:bg-[length:100%_100%] bg-center bg-no-repeat opacity-20 pointer-events-none fixed"
+        className="absolute inset-0 bg-cover lg:bg-[length:100%_100%] bg-center bg-no-repeat opacity-15 pointer-events-none fixed"
         style={{ backgroundImage: 'url("/bg-building.png")' }}
       ></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/90 via-slate-900/90 to-slate-950/95 fixed pointer-events-none"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-[#1c0307]/95 via-[#120204]/95 to-[#0a0102]/98 fixed pointer-events-none"></div>
 
       <div className="relative z-10 max-w-7xl mx-auto w-full flex-grow flex flex-col gap-3 p-3 md:p-4 lg:p-4 min-h-0">
         
         {/* Header dengan Logo SIG Lebih Besar di Kiri & Logo Semen Tonasa Lebih Besar di Kanan */}
-        <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-slate-800 gap-2 bg-slate-900/90 p-3 rounded-2xl border border-slate-800/80 shadow-xl">
+        <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-red-800/60 gap-2 bg-gradient-to-r from-[#6e070e] via-[#8c1017] to-[#500307] p-3 rounded-2xl border-2 border-red-700/60 shadow-xl">
           
           {/* Logo SIG & Judul Admin */}
           <div className="flex items-center justify-between md:justify-start gap-3 w-full md:w-auto">
@@ -135,14 +135,14 @@ export default function AdminPage() {
               <img 
                 src="/logo-sig-white.png" 
                 alt="Logo SIG" 
-                className="h-8 md:h-11 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" 
+                className="h-9 md:h-12 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" 
               />
-              <div className="h-7 w-px bg-slate-700 hidden sm:block"></div>
+              <div className="h-8 w-px bg-white/20 hidden sm:block"></div>
               <div>
-                <h1 className="text-lg md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-indigo-400 tracking-tight leading-tight">
+                <h1 className="text-lg md:text-2xl font-black text-white tracking-wide leading-tight drop-shadow">
                   Admin Dashboard
                 </h1>
-                <p className="text-slate-300 text-[9px] md:text-xs leading-none mt-0.5 font-medium">Unit Learning & Development • PT Semen Tonasa</p>
+                <p className="text-amber-200 text-[10px] md:text-xs leading-none mt-0.5 font-semibold">Unit Learning & Development • PT Semen Tonasa</p>
               </div>
             </div>
 
@@ -158,13 +158,13 @@ export default function AdminPage() {
           <div className="flex items-center justify-between md:justify-end gap-2.5 w-full md:w-auto">
             <a 
               href="/" 
-              className="bg-indigo-600/80 hover:bg-indigo-600 text-white px-3.5 py-1.5 rounded-full text-[10px] md:text-xs font-bold transition-all shadow-md flex items-center gap-1.5 shrink-0 hover:scale-105"
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black transition-all shadow-md flex items-center gap-1.5 shrink-0 hover:scale-105 border border-red-400/40"
             >
               <span>📺</span>
               <span>Lihat Layar TV</span>
             </a>
             
-            <div className="bg-slate-800 text-emerald-300 px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-bold border border-slate-700 text-center truncate shadow-sm">
+            <div className="bg-black/40 text-amber-300 px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-bold border border-white/20 text-center truncate shadow-inner">
               {now.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' })}
             </div>
 
@@ -186,23 +186,23 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Live Status Mini Cards 5 Ruangan (Solid, Tidak Transparan) */}
+        {/* Live Status Mini Cards 5 Ruangan (Tema Merah Matching) */}
         <div className="shrink-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
           {rooms.map(room => {
             const roomBookings = bookings.filter(b => String(b.room_id) === String(room.id))
             const activeBooking = roomBookings.find(b => new Date(b.start_time) <= now && new Date(b.end_time) >= now)
             const nextBooking = roomBookings.filter(b => new Date(b.start_time) > now).sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())[0]
 
-            let statusColor = 'bg-slate-900 border-slate-700 text-emerald-400'
+            let statusColor = 'bg-[#1f0306] border-red-900/60 text-emerald-300'
             let icon = '🟢'
             let desc = 'Kosong / Tersedia'
 
             if (activeBooking) {
-              statusColor = 'bg-rose-950/40 border-rose-600/50 text-rose-300'
+              statusColor = 'bg-rose-950/70 border-rose-600/70 text-rose-200'
               icon = '🔴'
               desc = `Dipakai: ${activeBooking.diklat_acara}`
             } else if (nextBooking) {
-              statusColor = 'bg-amber-950/40 border-amber-600/50 text-amber-300'
+              statusColor = 'bg-amber-950/70 border-amber-600/70 text-amber-200'
               icon = '🟡'
               desc = `Akan Datang: ${new Date(nextBooking.start_time).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}`
             }
@@ -215,14 +215,14 @@ export default function AdminPage() {
                 type="button"
                 onClick={() => setSelectedPreviewRoom(String(room.id))}
                 className={`p-2 rounded-xl border flex flex-col justify-center text-left transition-all cursor-pointer ${statusColor} ${
-                  isSelected ? 'ring-2 ring-indigo-500 border-indigo-400 shadow-lg' : 'hover:border-slate-500'
+                  isSelected ? 'ring-2 ring-red-500 border-amber-400 shadow-[0_0_12px_rgba(239,68,68,0.4)]' : 'hover:border-red-600/60'
                 }`}
               >
                 <div className="flex justify-between items-center mb-0.5">
-                  <span className="font-bold text-[10px] md:text-xs text-white truncate pr-1">{room.name}</span>
+                  <span className="font-extrabold text-[10px] md:text-xs text-white truncate pr-1">{room.name}</span>
                   <span className="text-[9px]">{icon}</span>
                 </div>
-                <div className="text-[9px] text-slate-300 truncate">{desc}</div>
+                <div className="text-[9px] text-red-200/80 truncate font-medium">{desc}</div>
               </button>
             )
           })}
@@ -237,43 +237,43 @@ export default function AdminPage() {
           <div className="lg:w-[40%] flex flex-col gap-3 min-h-0">
             
             {/* Layar Utama Foto Diklat */}
-            <div className="bg-slate-900 border border-slate-700/80 rounded-2xl p-3 shadow-xl flex flex-col">
+            <div className="bg-[#1f0306] border-2 border-red-800/60 rounded-2xl p-3 shadow-xl flex flex-col">
               
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                  <h3 className="text-xs md:text-sm font-bold text-white tracking-wide">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                  <h3 className="text-xs md:text-sm font-black text-white tracking-wide">
                     Layar Pantauan Foto Diklat
                   </h3>
                 </div>
-                <span className="text-[10px] font-bold bg-slate-800 text-blue-300 border border-slate-700 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-extrabold bg-red-950/80 text-amber-300 border border-amber-400/40 px-2.5 py-0.5 rounded-full">
                   {currentPreviewRoom.floor}
                 </span>
               </div>
 
               {/* Frame Foto Diklat HD */}
-              <div className="relative rounded-xl overflow-hidden aspect-video bg-black border border-slate-800 group shadow-inner">
+              <div className="relative rounded-xl overflow-hidden aspect-video bg-black border-2 border-red-900/60 group shadow-inner">
                 <img 
                   src={previewImage} 
                   alt={currentPreviewRoom.name} 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/30 pointer-events-none"></div>
                 
                 {/* Overlay Info Ruangan pada Foto */}
-                <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between pointer-events-none">
+                <div className="absolute bottom-2 left-2.5 right-2.5 flex items-end justify-between pointer-events-none">
                   <div>
-                    <p className="text-white font-extrabold text-sm md:text-base drop-shadow-md leading-tight">
+                    <p className="text-white font-black text-sm md:text-base drop-shadow-md leading-tight">
                       {currentPreviewRoom.name}
                     </p>
-                    <p className="text-amber-300 text-[10px] md:text-xs font-semibold drop-shadow">
+                    <p className="text-amber-300 text-[10px] md:text-xs font-bold drop-shadow">
                       {currentPreviewRoom.capacity}
                     </p>
                   </div>
-                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold border ${
+                  <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black border ${
                     activeBookingPreview 
-                      ? 'bg-rose-950/80 border-rose-500 text-rose-300' 
-                      : 'bg-emerald-950/80 border-emerald-500 text-emerald-300'
+                      ? 'bg-rose-950/90 border-rose-500 text-rose-200' 
+                      : 'bg-emerald-950/90 border-emerald-500 text-emerald-300'
                   } shadow-md`}>
                     {activeBookingPreview ? 'SEDANG DIGUNAKAN' : 'KOSONG / TERSEDIA'}
                   </span>
@@ -281,8 +281,8 @@ export default function AdminPage() {
               </div>
 
               {/* Pemilih Tab Ruangan Cepat untuk Layar 40% */}
-              <div className="mt-2.5 pt-2 border-t border-slate-800">
-                <p className="text-[9px] text-slate-400 uppercase tracking-wider font-bold mb-1.5">Pilih Ruangan Layar 40%:</p>
+              <div className="mt-2.5 pt-2 border-t border-red-900/60">
+                <p className="text-[9px] text-amber-300/80 uppercase tracking-wider font-extrabold mb-1.5">Pilih Ruangan Layar 40%:</p>
                 <div className="grid grid-cols-5 gap-1">
                   {rooms.map(r => (
                     <button
@@ -291,8 +291,8 @@ export default function AdminPage() {
                       onClick={() => setSelectedPreviewRoom(String(r.id))}
                       className={`py-1 px-1 text-[9px] font-bold rounded-lg border text-center transition-all truncate cursor-pointer ${
                         String(currentPreviewRoom.id) === String(r.id)
-                          ? 'bg-indigo-600 text-white border-indigo-400 shadow'
-                          : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                          ? 'bg-gradient-to-r from-red-600 to-red-700 text-white border-amber-400 shadow-md font-extrabold'
+                          : 'bg-[#2b0509] text-red-200/80 border-red-900/60 hover:bg-red-900/50 hover:text-white'
                       }`}
                     >
                       {r.name.replace(' Room', '')}
@@ -304,22 +304,22 @@ export default function AdminPage() {
             </div>
 
             {/* Card Informasi Kilas Diklat PT Semen Tonasa */}
-            <div className="bg-slate-900 border border-slate-700/80 rounded-2xl p-3 shadow-xl flex-1 flex flex-col justify-between">
+            <div className="bg-[#1f0306] border-2 border-red-800/60 rounded-2xl p-3 shadow-xl flex-1 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-base">🏛️</span>
-                  <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wide">
+                  <h4 className="text-xs font-black text-amber-300 uppercase tracking-wide">
                     Informasi Diklat PT Semen Tonasa
                   </h4>
                 </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  Unit <strong>Learning & Development</strong> merupakan pusat keunggulan (*Corporate University*) PT Semen Tonasa & SIG Group dalam mencetak SDM industri semen berdaya saing global, mengedepankan aspek <em>Operational Excellence, K3, Efisiensi Energi,</em> dan <em>Green Industry</em>.
+                <p className="text-[11px] text-red-100/90 leading-relaxed">
+                  Unit <strong className="text-white">Learning & Development</strong> merupakan pusat keunggulan (*Corporate University*) PT Semen Tonasa & SIG Group dalam mencetak SDM industri semen berdaya saing global, mengedepankan aspek <em className="text-amber-200">Operational Excellence, K3, Efisiensi Energi,</em> dan <em className="text-amber-200">Green Industry</em>.
                 </p>
               </div>
 
-              <div className="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+              <div className="mt-2 pt-2 border-t border-red-900/60 flex items-center justify-between text-[10px] text-red-300/80">
                 <span>📍 Gedung Diklat, Biringere, Pangkep</span>
-                <span className="text-emerald-400 font-semibold">● Layanan 24 Jam</span>
+                <span className="text-emerald-400 font-bold">● Layanan 24 Jam</span>
               </div>
             </div>
 
@@ -329,7 +329,7 @@ export default function AdminPage() {
           {/* PEMBATAS ANTARA LAYAR FOTO 40% DAN DAFTAR 60% */}
           {/* ========================================================= */}
           <div className="hidden lg:flex items-center justify-center px-0.5">
-            <div className="w-[2px] h-full bg-gradient-to-b from-blue-500/20 via-indigo-500/50 to-blue-500/20 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.3)]"></div>
+            <div className="w-[2px] h-full bg-gradient-to-b from-red-500/20 via-red-500/60 to-red-500/20 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
           </div>
 
           {/* ========================================================= */}
@@ -337,10 +337,10 @@ export default function AdminPage() {
           {/* ========================================================= */}
           <div className="lg:w-[60%] flex flex-col gap-3 min-h-0">
             
-            {/* Form Input Peminjaman (Masuk) - Solid & Tajam */}
-            <div className="shrink-0 bg-slate-900 border border-slate-700/80 rounded-2xl p-3 md:p-3.5 shadow-xl">
-              <h2 className="text-xs md:text-sm font-bold mb-2.5 flex items-center gap-2 text-white">
-                <div className="bg-indigo-600 text-white w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold shadow">
+            {/* Form Input Peminjaman (Masuk) - Tema Merah Matching */}
+            <div className="shrink-0 bg-[#1f0306] border-2 border-red-800/60 rounded-2xl p-3 md:p-3.5 shadow-xl">
+              <h2 className="text-xs md:text-sm font-black mb-2.5 flex items-center gap-2 text-white">
+                <div className="bg-gradient-to-r from-red-600 to-red-700 text-white w-5 h-5 rounded-md flex items-center justify-center text-xs font-black shadow border border-red-400/30">
                   +
                 </div>
                 <span>Form Peminjaman & Tampilkan ke Layar TV</span>
@@ -351,12 +351,12 @@ export default function AdminPage() {
                   
                   {/* Pilihan Ruangan */}
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Ruangan</label>
+                    <label className="text-[9px] font-extrabold text-amber-300/90 uppercase tracking-wider">Ruangan</label>
                     <select 
                       required 
                       value={form.room_id} 
                       onChange={e => handleRoomSelect(e.target.value)} 
-                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium cursor-pointer"
+                      className="w-full bg-[#2b0509] p-2 text-xs rounded-xl outline-none border border-red-800/60 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-white font-medium cursor-pointer"
                     >
                       <option value="">-- Pilih Ruangan --</option>
                       {rooms.map(r => {
@@ -372,72 +372,72 @@ export default function AdminPage() {
                   
                   {/* Nama Acara / Diklat */}
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Acara / Diklat</label>
+                    <label className="text-[9px] font-extrabold text-amber-300/90 uppercase tracking-wider">Acara / Diklat</label>
                     <input 
                       required 
                       type="text" 
                       placeholder="Nama Acara" 
                       value={form.diklat_acara} 
                       onChange={e => setForm({...form, diklat_acara: e.target.value})} 
-                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium" 
+                      className="w-full bg-[#2b0509] p-2 text-xs rounded-xl outline-none border border-red-800/60 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-white font-medium" 
                     />
                   </div>
                   
                   {/* PIC / Instruktur */}
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">PIC / Instruktur</label>
+                    <label className="text-[9px] font-extrabold text-amber-300/90 uppercase tracking-wider">PIC / Instruktur</label>
                     <input 
                       type="text" 
                       placeholder="Instruktur" 
                       value={form.instruktur_pic} 
                       onChange={e => setForm({...form, instruktur_pic: e.target.value})} 
-                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium" 
+                      className="w-full bg-[#2b0509] p-2 text-xs rounded-xl outline-none border border-red-800/60 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-white font-medium" 
                     />
                   </div>
                   
                   {/* Materi */}
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Materi</label>
+                    <label className="text-[9px] font-extrabold text-amber-300/90 uppercase tracking-wider">Materi</label>
                     <input 
                       type="text" 
                       placeholder="Materi Pelatihan" 
                       value={form.materi} 
                       onChange={e => setForm({...form, materi: e.target.value})} 
-                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium" 
+                      className="w-full bg-[#2b0509] p-2 text-xs rounded-xl outline-none border border-red-800/60 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-white font-medium" 
                     />
                   </div>
                   
                   {/* Waktu Mulai */}
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Waktu Mulai</label>
+                    <label className="text-[9px] font-extrabold text-amber-300/90 uppercase tracking-wider">Waktu Mulai</label>
                     <input 
                       required 
                       type="datetime-local" 
                       value={form.start_time} 
                       onChange={e => setForm({...form, start_time: e.target.value})} 
-                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium" 
+                      className="w-full bg-[#2b0509] p-2 text-xs rounded-xl outline-none border border-red-800/60 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-white font-medium" 
                     />
                   </div>
                   
                   {/* Waktu Selesai */}
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Waktu Selesai</label>
+                    <label className="text-[9px] font-extrabold text-amber-300/90 uppercase tracking-wider">Waktu Selesai</label>
                     <input 
                       required 
                       type="datetime-local" 
                       value={form.end_time} 
                       onChange={e => setForm({...form, end_time: e.target.value})} 
-                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium" 
+                      className="w-full bg-[#2b0509] p-2 text-xs rounded-xl outline-none border border-red-800/60 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-white font-medium" 
                     />
                   </div>
                   
                 </div>
 
-                <div className="flex justify-end pt-2 border-t border-slate-800">
+                <div className="flex justify-end pt-2 border-t border-red-900/60">
                   <button 
                     type="submit" 
                     disabled={loading} 
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-2 px-6 rounded-xl transition-all shadow-lg text-xs tracking-wide w-full sm:w-auto cursor-pointer"
+                    className="bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-600 text-white font-black py-2 px-6 rounded-xl transition-all shadow-lg text-xs tracking-wide w-full sm:w-auto cursor-pointer border border-red-400/40"
                   >
                     {loading ? 'Menyimpan...' : '🚀 Pinjam & Tampilkan'}
                   </button>
@@ -446,12 +446,12 @@ export default function AdminPage() {
             </div>
 
             {/* TABEL DAFTAR & PANTAUAN MASUK / KELUAR (60%) */}
-            <div className="flex-grow flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl p-3 md:p-3.5 shadow-xl min-h-0">
+            <div className="flex-grow flex flex-col bg-[#1f0306] border-2 border-red-800/60 rounded-2xl p-3 md:p-3.5 shadow-xl min-h-0">
               
               <div className="shrink-0 flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-2">
                   <span className="text-base">📋</span>
-                  <h2 className="text-xs md:text-sm font-bold text-white">
+                  <h2 className="text-xs md:text-sm font-black text-white">
                     Daftar Pantauan Masuk / Keluar ({bookings.length} Data)
                   </h2>
                 </div>
@@ -464,10 +464,10 @@ export default function AdminPage() {
                 </a>
               </div>
 
-              <div className="flex-grow overflow-auto rounded-xl border border-slate-800 bg-slate-950/60">
+              <div className="flex-grow overflow-auto rounded-xl border border-red-900/60 bg-[#140204]">
                 <table className="w-full text-left border-collapse min-w-[620px]">
-                  <thead className="sticky top-0 bg-slate-950 z-10 shadow-sm border-b border-slate-800">
-                    <tr className="text-[10px] text-slate-400 uppercase tracking-wider">
+                  <thead className="sticky top-0 bg-[#240407] z-10 shadow-sm border-b border-red-900/60">
+                    <tr className="text-[10px] text-amber-200/90 uppercase tracking-wider">
                       <th className="py-2.5 px-3 font-bold">Ruangan</th>
                       <th className="py-2.5 px-3 font-bold">Acara & Instruktur</th>
                       <th className="py-2.5 px-3 font-bold">Jadwal</th>
@@ -478,36 +478,36 @@ export default function AdminPage() {
                   <tbody>
                     {recentBookings.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="py-8 text-center text-slate-500 text-xs">Belum ada daftar data peminjaman ruangan.</td>
+                        <td colSpan={5} className="py-8 text-center text-red-300/50 text-xs">Belum ada daftar data peminjaman ruangan.</td>
                       </tr>
                     ) : (
                       recentBookings.map((b: any) => {
                         const r = rooms.find(room => String(room.id) === String(b.room_id))
                         
                         let status = 'Selesai';
-                        let statusColor = 'bg-slate-800 text-slate-400 border-slate-700';
+                        let statusColor = 'bg-slate-900/80 text-slate-400 border-slate-700';
                         const start = new Date(b.start_time);
                         const end = new Date(b.end_time);
                         
                         if (now >= start && now <= end) { 
                           status = 'Sedang Dipakai'; 
-                          statusColor = 'bg-rose-950 text-rose-300 border-rose-500/50'; 
+                          statusColor = 'bg-rose-950 text-rose-200 border-rose-500/60'; 
                         } else if (now < start) { 
                           status = 'Akan Datang'; 
-                          statusColor = 'bg-amber-950 text-amber-300 border-amber-500/50'; 
+                          statusColor = 'bg-amber-950 text-amber-200 border-amber-500/60'; 
                         }
 
                         const rowRoomImage = r?.image || ROOM_IMAGES[String(b.room_id)] || ROOM_IMAGES[r?.name || ''];
 
                         return (
-                          <tr key={b.id} className="border-b border-slate-800/80 hover:bg-slate-800/50 transition-colors text-xs">
-                            <td className="py-2 px-3 text-indigo-300 font-bold">
+                          <tr key={b.id} className="border-b border-red-950/60 hover:bg-[#2b0509]/60 transition-colors text-xs">
+                            <td className="py-2 px-3 text-amber-200 font-extrabold">
                               <div className="flex items-center gap-2">
                                 {rowRoomImage ? (
                                   <img 
                                     src={rowRoomImage} 
                                     alt={r?.name || ''} 
-                                    className="w-8 h-5 rounded-md object-cover border border-slate-700 shrink-0 shadow-sm" 
+                                    className="w-8 h-5 rounded-md object-cover border border-red-800/60 shrink-0 shadow-sm" 
                                   />
                                 ) : null}
                                 <span className="truncate">{r?.name || '-'}</span>
@@ -515,9 +515,9 @@ export default function AdminPage() {
                             </td>
                             <td className="py-2 px-3">
                               <p className="font-bold text-white leading-tight">{b.diklat_acara}</p>
-                              <p className="text-slate-400 text-[10px]">{b.instruktur_pic ? `Oleh: ${b.instruktur_pic}` : ''} {b.materi ? `(${b.materi})` : ''}</p>
+                              <p className="text-red-200/80 text-[10px]">{b.instruktur_pic ? `Oleh: ${b.instruktur_pic}` : ''} {b.materi ? `(${b.materi})` : ''}</p>
                             </td>
-                            <td className="py-2 px-3 text-slate-300 text-[11px] whitespace-nowrap">
+                            <td className="py-2 px-3 text-red-100/90 text-[11px] whitespace-nowrap">
                               {new Date(b.start_time).toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' })} 
                               {' - '} 
                               {new Date(b.end_time).toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit'})}
@@ -530,7 +530,7 @@ export default function AdminPage() {
                             <td className="py-2 px-3 text-center">
                               <button 
                                 onClick={() => handleDelete(b.id)} 
-                                className="bg-red-500/20 text-red-400 hover:bg-red-600 hover:text-white border border-red-500/30 px-2.5 py-1 rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
+                                className="bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white border border-red-500/40 px-2.5 py-1 rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
                               >
                                 Hapus
                               </button>
@@ -550,10 +550,10 @@ export default function AdminPage() {
 
       </div>
 
-      {/* Footer Running Text */}
-      <div className="relative z-20 shrink-0 w-full bg-slate-950 border-t border-slate-800 py-2 flex items-center overflow-hidden mt-auto">
-        <div className="whitespace-nowrap animate-marquee text-[10px] md:text-xs font-bold tracking-[0.2em] text-slate-400">
-          UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT •
+      {/* Footer Running Text - Merah Korporat & Teks Sama Persis dengan Tampilan Utama */}
+      <div className="relative z-20 shrink-0 w-full bg-[#8a0b12] border-t-2 border-red-400/40 py-2 flex items-center overflow-hidden mt-auto">
+        <div className="whitespace-nowrap animate-marquee text-[11px] xl:text-xs font-extrabold tracking-[0.25em] text-white">
+          UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA •
         </div>
       </div>
     </div>
