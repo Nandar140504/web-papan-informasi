@@ -87,7 +87,7 @@ export default function TVDisplay() {
     return r.bookings?.some((b: any) => new Date(b.start_time) <= time && new Date(b.end_time) >= time);
   }).length;
 
-  const renderCard = (room: any) => {
+  const renderCard = (room: any, customClass: string = "flex-1") => {
     const activeBooking = room.bookings?.find((b: any) => 
       new Date(b.start_time) <= time && new Date(b.end_time) >= time
     )
@@ -120,17 +120,17 @@ export default function TVDisplay() {
     return (
       <div 
         key={room.id} 
-        className="w-full lg:flex-1 lg:max-w-[32%] h-full border border-white/20 hover:border-amber-400/60 rounded-2xl p-2.5 lg:p-3 shadow-xl relative flex flex-col justify-between overflow-hidden group backdrop-blur-md transition-all duration-300"
+        className={`w-full ${customClass} h-full border border-white/20 hover:border-amber-400/60 rounded-2xl p-2.5 lg:p-3 xl:p-4 shadow-xl relative flex flex-col justify-between overflow-hidden group backdrop-blur-md transition-all duration-300 min-h-[160px]`}
       >
         {/* Background Foto Ruangan jika tersedia */}
         {roomImage ? (
           <>
             <div 
-              className="absolute -inset-2 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110 filter blur-[1px] opacity-85 scale-105"
+              className="absolute -inset-2 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105 filter blur-[2px] opacity-80 scale-105"
               style={{ backgroundImage: `url("${roomImage}")` }}
             />
             {/* Gradien gelap agar teks selalu tajam terbaca */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/35 to-black/75 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/35 to-black/80 pointer-events-none" />
           </>
         ) : (
           <div className="absolute inset-0 bg-[#0f172a]/90 pointer-events-none" />
@@ -144,9 +144,9 @@ export default function TVDisplay() {
           <div>
             <h3 className="text-xs lg:text-sm xl:text-base font-extrabold text-white mb-0.5 leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{room.name}</h3>
             <div className="flex items-center gap-2">
-              <span className="text-[9px] text-amber-300 uppercase tracking-widest font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{room.floor}</span>
+              <span className="text-[9px] xl:text-[10px] text-amber-300 uppercase tracking-widest font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{room.floor}</span>
               <span className="text-slate-400 text-[8px]">•</span>
-              <span className="text-[9px] text-slate-200 font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{room.capacity}</span>
+              <span className="text-[9px] xl:text-[10px] text-slate-200 font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{room.capacity}</span>
             </div>
           </div>
           <span className={`px-2 py-0.5 rounded-full text-[8px] lg:text-[9px] font-extrabold tracking-wider border ${badgeColor} whitespace-nowrap ml-2 shadow-lg`}>
@@ -155,33 +155,30 @@ export default function TVDisplay() {
         </div>
 
         {/* Informasi Acara (Tengah) */}
-        <div className="relative z-10 pl-2 flex-1 flex flex-col justify-center py-1 min-h-0">
+        <div className="relative z-10 pl-2 flex-1 flex flex-col justify-center py-1.5 min-h-0">
           {displayBooking ? (
             <div className="space-y-1">
-              <div className="grid grid-cols-[55px_1fr] lg:grid-cols-[65px_1fr] gap-1.5 items-start">
-                <span className="text-amber-300 text-[9px] lg:text-[10px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">Diklat</span>
-                <span className="text-white text-[10px] lg:text-[11px] font-extrabold leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,1)] line-clamp-2">{displayBooking.diklat_acara}</span>
+              <div className="grid grid-cols-[55px_1fr] xl:grid-cols-[65px_1fr] gap-1.5 items-start">
+                <span className="text-amber-300 text-[9px] xl:text-[10px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">Diklat</span>
+                <span className="text-white text-[10px] xl:text-[11px] font-extrabold leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,1)] line-clamp-2">{displayBooking.diklat_acara}</span>
               </div>
-              <div className="grid grid-cols-[55px_1fr] lg:grid-cols-[65px_1fr] gap-1.5 items-start">
-                <span className="text-slate-200 text-[9px] lg:text-[10px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">Instruktur</span>
-                <span className="text-white text-[9px] lg:text-[10px] font-bold leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate">{displayBooking.instruktur_pic || '-'}</span>
+              <div className="grid grid-cols-[55px_1fr] xl:grid-cols-[65px_1fr] gap-1.5 items-start">
+                <span className="text-slate-200 text-[9px] xl:text-[10px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">Instruktur</span>
+                <span className="text-white text-[9px] xl:text-[10px] font-bold leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate">{displayBooking.instruktur_pic || '-'}</span>
               </div>
-              <div className="grid grid-cols-[55px_1fr] lg:grid-cols-[65px_1fr] gap-1.5 items-start">
-                <span className="text-slate-200 text-[9px] lg:text-[10px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">Materi</span>
-                <span className="text-white text-[9px] lg:text-[10px] font-bold leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate">{displayBooking.materi || '-'}</span>
+              <div className="grid grid-cols-[55px_1fr] xl:grid-cols-[65px_1fr] gap-1.5 items-start">
+                <span className="text-slate-200 text-[9px] xl:text-[10px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">Materi</span>
+                <span className="text-white text-[9px] xl:text-[10px] font-bold leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate">{displayBooking.materi || '-'}</span>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full py-1">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,1)]"></span>
-                <p className="text-emerald-300 text-[10px] lg:text-xs tracking-wider uppercase font-extrabold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
-                  Silakan Digunakan
+            <div className="flex flex-col items-center justify-center h-full py-1.5">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,1)]"></span>
+                <p className="text-emerald-400 text-xs xl:text-sm tracking-wider uppercase font-black drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
+                  SILAKAN DIGUNAKAN
                 </p>
               </div>
-              <p className="text-[9px] text-slate-300 drop-shadow mt-0.5 hidden sm:block">
-                Ruangan bebas & siap untuk kegiatan
-              </p>
             </div>
           )}
         </div>
@@ -189,13 +186,13 @@ export default function TVDisplay() {
         {/* Jam Acara (Bawah) */}
         <div className="relative z-10 pl-2 pt-1 border-t border-white/20 shrink-0">
           {displayBooking ? (
-            <p className="text-white text-[9px] lg:text-[10px] font-extrabold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,1)] flex items-center gap-1.5">
+            <p className="text-white text-[9px] xl:text-[10px] font-extrabold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,1)] flex items-center gap-1.5">
               <span>⏰</span>
               <span>{format(new Date(displayBooking.start_time), 'HH:mm')} – {format(new Date(displayBooking.end_time), 'HH:mm')} WITA</span>
             </p>
           ) : (
-            <p className="text-slate-300 text-[9px] lg:text-[10px] font-medium tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
-              Status: Bebas Reservasi
+            <p className="text-slate-400 text-[10px] xl:text-xs font-medium tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
+              -
             </p>
           )}
         </div>
@@ -204,219 +201,207 @@ export default function TVDisplay() {
   }
 
   return (
-    <div className="min-h-screen lg:h-screen text-white relative flex flex-col justify-between overflow-y-auto lg:overflow-hidden bg-cover lg:bg-[length:100%_100%] bg-center bg-no-repeat" 
-         style={{ backgroundImage: 'url("/bg-building.png")' }}>
+    <div className="min-h-screen lg:h-screen text-white relative flex flex-col justify-between overflow-y-auto lg:overflow-hidden bg-[#070d1e]">
       
-      {/* Pojok Kiri Atas: Tombol Garis Tiga (Menu) & Logo SIG */}
-      <div className="fixed top-3 md:top-4 left-3 md:left-6 z-50 flex items-center gap-3">
+      {/* AREA UTAMA: MODEL SPLIT KIRI (30% FOTO GEDUNG) & KANAN (70% PAPAN RUANGAN) */}
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0 w-full">
         
-        {/* Tombol Garis Tiga (Hamburger Menu) */}
-        <div className="relative">
-          <button 
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="bg-slate-900/85 hover:bg-slate-800 text-white p-2.5 md:p-3 rounded-2xl border border-white/20 hover:border-amber-400/50 backdrop-blur-md shadow-2xl transition-all cursor-pointer flex items-center justify-center group hover:scale-105"
-            title="Menu Utama (Info Diklat & Admin)"
-            aria-label="Menu Navigasi"
-          >
-            <svg className="w-5 h-5 md:w-6 md:h-6 text-slate-200 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {menuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
-
-          {/* Dropdown Menu Saat Garis Tiga Diklik */}
-          {menuOpen && (
-            <div className="absolute top-full left-0 mt-2.5 w-60 bg-slate-900/95 border border-slate-700/90 rounded-2xl shadow-2xl p-2.5 backdrop-blur-xl z-50 flex flex-col gap-1.5 animate-fadeIn">
-              
-              {/* Opsi 1: Info Diklat */}
-              <button 
-                onClick={() => {
-                  setShowInfoModal(true);
-                  setMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-xs md:text-sm font-bold text-amber-300 hover:text-white hover:bg-gradient-to-r hover:from-amber-500/25 hover:to-red-600/30 transition-all cursor-pointer border border-transparent hover:border-amber-500/40 group"
-              >
-                <span className="text-xl group-hover:scale-110 transition-transform">🏛️</span>
-                <div>
-                  <p className="leading-tight">Info Diklat</p>
-                  <p className="text-[10px] text-slate-400 font-normal">Profil & Fasilitas Ruangan</p>
-                </div>
-              </button>
-
-              {/* Opsi 2: Admin Dashboard */}
-              <a 
-                href="/admin"
-                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-xs md:text-sm font-bold text-slate-200 hover:text-white hover:bg-indigo-600/30 transition-all border border-transparent hover:border-indigo-500/40 group"
-              >
-                <span className="text-xl group-hover:scale-110 transition-transform">👤</span>
-                <div>
-                  <p className="leading-tight">Admin Dashboard</p>
-                  <p className="text-[10px] text-slate-400 font-normal">Kelola Peminjaman Ruangan</p>
-                </div>
-              </a>
-
-            </div>
-          )}
-        </div>
-
-        {/* Logo SIG - Ukuran Besar & Tajam */}
-        <img 
-          src="/logo-sig-white.png" 
-          alt="Logo SIG" 
-          className="h-10 md:h-12 lg:h-14 w-auto object-contain drop-shadow-[0_3px_10px_rgba(0,0,0,0.85)] hover:scale-105 transition-transform duration-300" 
-        />
-      </div>
-
-      {/* Pojok Kanan Atas: HANYA Logo PT Semen Tonasa (Bersih tanpa tombol berserakan) */}
-      <div className="fixed top-3 md:top-4 right-3 md:right-6 z-50 flex items-center">
-        <img 
-          src="/logo-semen-tonasa.png" 
-          alt="Logo PT Semen Tonasa" 
-          className="h-11 md:h-14 lg:h-16 w-11 md:w-14 lg:w-16 object-contain drop-shadow-[0_3px_10px_rgba(0,0,0,0.85)] hover:scale-105 transition-transform duration-300" 
-        />
-      </div>
-
-      {/* Soft overlay tipis tanpa warna biru agar foto HD gedung terlihat luas dan jelas */}
-      <div className="absolute inset-0 z-0 bg-black/20 pointer-events-none"></div>
-
-      <div className="relative z-10 flex flex-col justify-between w-full h-full min-h-screen lg:min-h-0 lg:h-screen">
-        
-        {/* BAGIAN ATAS ~30%: Pemandangan Gedung Diklat, Jam Besar, Hari & Tanggal */}
-        <div className="h-[28vh] lg:h-[30vh] shrink-0 flex flex-col justify-center items-center text-center px-4 pt-3 pb-2 relative">
+        {/* SEBELAH KIRI ~30%-32%: Gedung Diklat, Jam Besar, Tanggal & Logo */}
+        <div className="w-full lg:w-[32%] xl:w-[30%] shrink-0 h-auto lg:h-full relative flex flex-col justify-between p-4 md:p-5 lg:p-6 xl:p-7 border-b lg:border-b-0 lg:border-r border-white/15 overflow-hidden bg-cover bg-center"
+             style={{ backgroundImage: 'url("/bg-building.png")' }}>
           
-          {/* Badge Sub-header */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/70 border border-white/20 backdrop-blur-md shadow-lg mb-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-[10px] md:text-xs font-bold tracking-widest text-amber-300 uppercase">
-              CORPORATE LEARNING & DEVELOPMENT • PT SEMEN TONASA
-            </span>
-          </div>
+          {/* Dark Glass Overlay agar foto gedung terlihat megah & teks kontras tinggi */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-slate-950/70 to-black/90 pointer-events-none"></div>
 
-          {/* Jam Digital Super Besar */}
-          <div className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-wider drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] font-mono leading-none my-1">
-            {format(time, 'HH:mm')}
-            <span className="text-2xl md:text-3xl lg:text-4xl text-amber-400 font-bold ml-1.5 opacity-90">
-              :{String(time.getSeconds()).padStart(2, '0')}
-            </span>
-          </div>
-
-          {/* Hari & Tanggal Lengkap */}
-          <div className="inline-flex items-center gap-2 text-xs md:text-sm text-slate-200 font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] bg-black/45 px-3.5 py-0.5 rounded-full backdrop-blur-sm border border-white/15 mt-1">
-            <span>📅</span>
-            <span>{format(time, 'EEEE, d MMMM yyyy', { locale: id })}</span>
-            <span className="text-amber-400 font-bold">•</span>
-            <span className="text-amber-300 font-bold">WITA</span>
-          </div>
-        </div>
-
-        {/* BAGIAN BAWAH ~64%: Papan Informasi Ruangan Modern & Terpadu */}
-        <div className="lg:h-[64.5vh] w-full max-w-[98%] xl:max-w-[97%] mx-auto px-2 pb-1.5 flex flex-col justify-between min-h-0">
-          <div className="w-full h-full bg-slate-950/75 border border-white/20 rounded-3xl p-3 lg:p-3.5 shadow-[0_12px_45px_rgba(0,0,0,0.85)] backdrop-blur-xl flex flex-col justify-between min-h-0">
-            
-            {/* Header Papan Informasi */}
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/15 shrink-0 px-1">
-              <div className="flex items-center gap-2.5">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                </span>
-                <h2 className="text-xs md:text-sm lg:text-base font-black tracking-wider text-white uppercase drop-shadow flex items-center gap-2">
-                  <span>📋</span>
-                  <span>PAPAN INFORMASI KETERSEDIAAN RUANGAN</span>
-                </h2>
-              </div>
-
-              {/* Status Ringkasan & Tombol Info */}
-              <div className="hidden sm:flex items-center gap-2 md:gap-3 text-[10px] md:text-xs font-bold">
-                <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 flex items-center gap-1.5 shadow-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  {availableRoomsCount} Ruangan Siap Pakai
-                </span>
-                {inUseRoomsCount > 0 && (
-                  <span className="px-2.5 py-1 rounded-full bg-rose-500/20 border border-rose-500/50 text-rose-300 flex items-center gap-1.5 shadow-sm">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span>
-                    {inUseRoomsCount} Sedang Digunakan
-                  </span>
-                )}
+          {/* Baris Atas Kiri: Menu Garis Tiga (☰), Logo SIG & Logo Semen Tonasa */}
+          <div className="relative z-20 flex items-center justify-between w-full">
+            <div className="flex items-center gap-2.5">
+              {/* Hamburger Menu Popover */}
+              <div className="relative">
                 <button 
-                  onClick={() => setShowInfoModal(true)}
-                  className="px-3 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/35 border border-amber-500/50 text-amber-300 hover:text-white transition-all cursor-pointer flex items-center gap-1 font-extrabold shadow-sm"
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  className="bg-slate-900/85 hover:bg-slate-800 text-white p-2.5 rounded-xl border border-white/20 hover:border-amber-400/50 backdrop-blur-md shadow-2xl transition-all cursor-pointer flex items-center justify-center group hover:scale-105"
+                  title="Menu Navigasi"
+                  aria-label="Menu Navigasi"
                 >
-                  <span>ℹ️ Info Fasilitas</span>
+                  <svg className="w-5 h-5 text-slate-200 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {menuOpen ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+                    )}
+                  </svg>
                 </button>
-              </div>
-            </div>
 
-            {/* 5 Ruangan Terpadu dalam 2 Baris */}
-            <div className="flex-1 flex flex-col justify-between gap-2.5 lg:gap-3 min-h-0">
-              
-              {/* Baris 1: Education Room (Kiri), Info Diklat Center (Tengah), Podcast (Kanan) */}
-              <div className="flex-1 flex flex-col lg:flex-row justify-between gap-2.5 lg:gap-3 min-h-0">
-                {educationRoom ? renderCard(educationRoom) : null}
-
-                {/* Center Widget: Live Identitas Diklat */}
-                <div className="hidden lg:flex lg:flex-1 lg:max-w-[32%] h-full bg-gradient-to-br from-slate-900/90 via-blue-950/50 to-slate-900/90 border border-blue-500/35 hover:border-blue-400/60 rounded-2xl p-2.5 lg:p-3 flex-col justify-between shadow-xl relative overflow-hidden group backdrop-blur-md transition-all">
-                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/15 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700 pointer-events-none"></div>
-
-                  <div className="relative z-10 flex items-center justify-between border-b border-white/15 pb-1.5 shrink-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">🏛️</span>
-                      <div>
-                        <h4 className="text-xs font-black text-amber-300 tracking-wider uppercase leading-none">RUMAH DIKLAT</h4>
-                        <p className="text-[9px] text-slate-300 font-semibold leading-tight mt-0.5">Center of Excellence</p>
-                      </div>
-                    </div>
-                    <span className="text-[8px] lg:text-[9px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-bold border border-blue-500/40">
-                      5 Ruang Terpadu
-                    </span>
-                  </div>
-
-                  <div className="relative z-10 my-auto py-1 text-center flex flex-col items-center justify-center">
-                    <p className="text-xs lg:text-sm font-extrabold text-white leading-tight drop-shadow">
-                      Unit Learning & Development
-                    </p>
-                    <p className="text-[9px] lg:text-[10px] text-slate-300 mt-0.5 line-clamp-2">
-                      Akselerasi kapabilitas & kompetensi insan Semen Tonasa
-                    </p>
-                    <div className="mt-1.5 inline-flex items-center gap-1.5 text-[9px] lg:text-[10px] text-amber-300 font-semibold bg-black/50 px-2.5 py-0.5 rounded-full border border-amber-500/30">
-                      <span>🕒</span>
-                      <span>Operasional: 07.30 - 17.00 WITA</span>
-                    </div>
-                  </div>
-
-                  <div className="relative z-10 pt-1.5 border-t border-white/15 flex justify-between items-center text-[9px] lg:text-[10px] text-slate-300 shrink-0">
-                    <span>📍 Biringere, Pangkep</span>
+                {menuOpen && (
+                  <div className="absolute top-full left-0 mt-2.5 w-60 bg-slate-900/95 border border-slate-700/90 rounded-2xl shadow-2xl p-2.5 backdrop-blur-xl z-50 flex flex-col gap-1.5 animate-fadeIn">
                     <button 
-                      onClick={() => setShowInfoModal(true)}
-                      className="text-amber-400 hover:text-white font-bold hover:underline flex items-center gap-1 cursor-pointer transition-colors"
+                      onClick={() => {
+                        setShowInfoModal(true);
+                        setMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-xs md:text-sm font-bold text-amber-300 hover:text-white hover:bg-gradient-to-r hover:from-amber-500/25 hover:to-red-600/30 transition-all cursor-pointer border border-transparent hover:border-amber-500/40 group"
                     >
-                      Detail Fasilitas ➔
+                      <span className="text-xl group-hover:scale-110 transition-transform">🏛️</span>
+                      <div>
+                        <p className="leading-tight">Info Diklat</p>
+                        <p className="text-[10px] text-slate-400 font-normal">Profil & Fasilitas Ruangan</p>
+                      </div>
                     </button>
+
+                    <a 
+                      href="/admin"
+                      className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-xs md:text-sm font-bold text-slate-200 hover:text-white hover:bg-indigo-600/30 transition-all border border-transparent hover:border-indigo-500/40 group"
+                    >
+                      <span className="text-xl group-hover:scale-110 transition-transform">👤</span>
+                      <div>
+                        <p className="leading-tight">Admin Dashboard</p>
+                        <p className="text-[10px] text-slate-400 font-normal">Kelola Peminjaman Ruangan</p>
+                      </div>
+                    </a>
                   </div>
-                </div>
-
-                {podcastRoom ? renderCard(podcastRoom) : null}
+                )}
               </div>
 
-              {/* Baris 2: Development Room (Kiri), Knowledge Room (Tengah), Learning Room (Kanan) */}
-              <div className="flex-1 flex flex-col lg:flex-row justify-between gap-2.5 lg:gap-3 min-h-0">
-                {bottomList.map(room => renderCard(room))}
-              </div>
+              {/* Logo SIG */}
+              <img 
+                src="/logo-sig-white.png" 
+                alt="Logo SIG" 
+                className="h-9 md:h-11 w-auto object-contain drop-shadow-[0_3px_10px_rgba(0,0,0,0.85)]" 
+              />
+            </div>
 
+            {/* Logo PT Semen Tonasa */}
+            <img 
+              src="/logo-semen-tonasa.png" 
+              alt="Logo PT Semen Tonasa" 
+              className="h-11 md:h-13 w-11 md:w-13 object-contain drop-shadow-[0_3px_10px_rgba(0,0,0,0.85)]" 
+            />
+          </div>
+
+          {/* Bagian Tengah Kiri: Identitas Diklat, Jam Besar & Tanggal */}
+          <div className="relative z-10 flex flex-col items-center justify-center text-center my-auto py-5">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/80 border border-amber-400/30 backdrop-blur-md mb-2 shadow-lg">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-[10px] xl:text-xs font-bold text-amber-300 tracking-wider uppercase">
+                DIKLAT PT SEMEN TONASA
+              </span>
+            </div>
+
+            <h1 className="text-lg md:text-xl xl:text-2xl font-black text-white tracking-widest drop-shadow-md">
+              AVAILABLE ROOMS
+            </h1>
+            <p className="text-[10px] xl:text-xs text-slate-300 font-semibold tracking-wider uppercase mb-2">
+              Corporate Learning Development
+            </p>
+
+            {/* Jam Digital Super Besar */}
+            <div className="text-5xl md:text-6xl xl:text-7xl font-mono font-black text-white tracking-wider drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)] leading-none my-1 flex items-baseline justify-center">
+              <span>{format(time, 'HH:mm')}</span>
+              <span className="text-2xl md:text-3xl xl:text-4xl font-bold text-amber-400 ml-1.5 opacity-90">
+                :{String(time.getSeconds()).padStart(2, '0')}
+              </span>
+            </div>
+
+            {/* Hari & Tanggal */}
+            <div className="inline-flex items-center gap-1.5 text-xs xl:text-sm text-slate-200 font-semibold bg-black/55 px-3.5 py-1 rounded-full border border-white/15 backdrop-blur-sm mt-2 shadow">
+              <span>📅</span>
+              <span>{format(time, 'EEEE, d MMMM yyyy', { locale: id })}</span>
+              <span className="text-amber-400 font-bold">•</span>
+              <span className="text-amber-300 font-bold">WITA</span>
             </div>
           </div>
-        </div>
 
-        {/* Footer Running Text */}
-        <div className="h-[4vh] lg:h-[4.5vh] shrink-0 w-full bg-[#0a1128]/95 border-t border-slate-700 flex items-center overflow-hidden">
-          <div className="whitespace-nowrap animate-marquee text-[10px] md:text-xs lg:text-sm font-bold tracking-[0.3em] text-slate-300">
-            UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT •
+          {/* Bagian Bawah Kiri: Live Ruangan & Info Diklat */}
+          <div className="relative z-10 w-full bg-slate-900/85 border border-slate-700/80 rounded-2xl p-3 md:p-3.5 backdrop-blur-md shadow-2xl flex flex-col gap-2.5">
+            <div className="flex items-center justify-between text-xs font-bold">
+              <span className="text-slate-300 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Status Ruangan Live:
+              </span>
+              <span className="text-emerald-400 font-extrabold">{availableRoomsCount} dari 5 Tersedia</span>
+            </div>
+            
+            <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden flex">
+              <div className="bg-emerald-500 h-full transition-all duration-500" style={{ width: `${(availableRoomsCount / 5) * 100}%` }}></div>
+              <div className="bg-rose-500 h-full transition-all duration-500" style={{ width: `${(inUseRoomsCount / 5) * 100}%` }}></div>
+            </div>
+
+            <div className="flex justify-between items-center text-[10px] xl:text-[11px] text-slate-300 pt-1.5 border-t border-slate-800">
+              <span className="truncate">📍 Biringere, Kec. Bungoro, Pangkep</span>
+              <button 
+                onClick={() => setShowInfoModal(true)} 
+                className="text-amber-400 hover:text-white font-bold flex items-center gap-1 cursor-pointer transition-colors shrink-0 ml-2"
+              >
+                <span>Info Fasilitas</span> <span>➔</span>
+              </button>
+            </div>
           </div>
+
         </div>
 
+        {/* SEBELAH KANAN ~68%-70%: Papan Informasi 5 Ruangan Seperti di Gambar 1 */}
+        <div className="flex-1 h-full flex flex-col justify-between p-3 lg:p-4 xl:p-5 min-h-0 bg-gradient-to-br from-[#070d1e] via-[#091326] to-[#070d1e]">
+          
+          {/* Header Papan Informasi */}
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/15 shrink-0 px-1">
+            <div className="flex items-center gap-2.5">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </span>
+              <h2 className="text-xs md:text-sm xl:text-base font-black tracking-wider text-white uppercase drop-shadow flex items-center gap-2">
+                <span>📋</span>
+                <span>PAPAN INFORMASI KETERSEDIAAN RUANGAN</span>
+              </h2>
+            </div>
+
+            {/* Indikator Pill Kanan */}
+            <div className="hidden sm:flex items-center gap-2 text-[10px] md:text-xs font-bold">
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 flex items-center gap-1.5 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                {availableRoomsCount} Ruangan Siap Digunakan
+              </span>
+              {inUseRoomsCount > 0 && (
+                <span className="px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/50 text-rose-300 flex items-center gap-1.5 shadow-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span>
+                  {inUseRoomsCount} Sedang Digunakan
+                </span>
+              )}
+              <button 
+                onClick={() => setShowInfoModal(true)}
+                className="px-2.5 py-0.5 rounded-full bg-amber-500/20 hover:bg-amber-500/35 border border-amber-500/50 text-amber-300 hover:text-white transition-all cursor-pointer flex items-center gap-1 font-extrabold shadow-sm"
+              >
+                <span>🏛️ Profil Diklat</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Area 5 Ruangan Terpadu dalam 2 Baris (Gaya Gambar 1) */}
+          <div className="flex-1 flex flex-col justify-between gap-3 xl:gap-3.5 min-h-0">
+            
+            {/* Baris 1: Education Room (Kiri) & Podcast (Kanan) */}
+            <div className="flex-1 flex flex-col sm:flex-row gap-3 xl:gap-3.5 min-h-0">
+              {educationRoom ? renderCard(educationRoom, "flex-1") : null}
+              {podcastRoom ? renderCard(podcastRoom, "flex-1") : null}
+            </div>
+
+            {/* Baris 2: Development Room (Kiri), Knowledge Room (Tengah), Learning Room (Kanan) */}
+            <div className="flex-1 flex flex-col sm:flex-row gap-3 xl:gap-3.5 min-h-0">
+              {bottomList.map(room => renderCard(room, "flex-1"))}
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* Footer Running Text */}
+      <div className="h-[38px] lg:h-[42px] shrink-0 w-full bg-[#0a1128] border-t border-slate-800 flex items-center overflow-hidden z-20">
+        <div className="whitespace-nowrap animate-marquee text-[10px] md:text-xs lg:text-sm font-bold tracking-[0.3em] text-slate-300">
+          UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT •
+        </div>
       </div>
 
       {/* MODAL INTERAKTIF: Informasi Diklat PT SEMEN TONASA */}
