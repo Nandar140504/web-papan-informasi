@@ -115,7 +115,7 @@ export default function AdminPage() {
   )
 
   return (
-    <div className="min-h-screen lg:h-screen text-white relative font-sans flex flex-col overflow-y-auto lg:overflow-hidden bg-[#120204]">
+    <div className="min-h-screen text-white relative font-sans flex flex-col overflow-y-auto bg-[#120204]">
       
       {/* Background Gedung dengan overlay gelap solid agar tidak transparan & teks sangat jelas */}
       <div 
@@ -124,10 +124,10 @@ export default function AdminPage() {
       ></div>
       <div className="absolute inset-0 bg-gradient-to-b from-[#1c0307]/95 via-[#120204]/95 to-[#0a0102]/98 fixed pointer-events-none"></div>
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full flex-grow flex flex-col gap-3 p-3 md:p-4 lg:p-4 min-h-0">
+      <div className="relative z-10 max-w-7xl mx-auto w-full flex-grow flex flex-col gap-2.5 p-2.5 md:p-3.5 min-h-0">
         
         {/* Header dengan Logo SIG Lebih Besar di Kiri & Logo Semen Tonasa Lebih Besar di Kanan */}
-        <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-red-800/60 gap-2 bg-gradient-to-r from-[#6e070e] via-[#8c1017] to-[#500307] p-3 rounded-2xl border-2 border-red-700/60 shadow-xl">
+        <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between pb-2.5 border-b border-red-800/60 gap-2 bg-gradient-to-r from-[#6e070e] via-[#8c1017] to-[#500307] p-2.5 md:p-3 rounded-2xl border-2 border-red-700/60 shadow-xl">
           
           {/* Logo SIG & Judul Admin */}
           <div className="flex items-center justify-between md:justify-start gap-3 w-full md:w-auto">
@@ -135,11 +135,11 @@ export default function AdminPage() {
               <img 
                 src="/logo-sig-white.png" 
                 alt="Logo SIG" 
-                className="h-9 md:h-12 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" 
+                className="h-8 md:h-11 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" 
               />
               <div className="h-8 w-px bg-white/20 hidden sm:block"></div>
               <div>
-                <h1 className="text-lg md:text-2xl font-black text-white tracking-wide leading-tight drop-shadow">
+                <h1 className="text-base md:text-xl font-black text-white tracking-wide leading-tight drop-shadow">
                   Admin Dashboard
                 </h1>
                 <p className="text-amber-200 text-[10px] md:text-xs leading-none mt-0.5 font-semibold">Unit Learning & Development • PT Semen Tonasa</p>
@@ -150,7 +150,7 @@ export default function AdminPage() {
             <img 
               src="/logo-semen-tonasa.png" 
               alt="Logo PT Semen Tonasa" 
-              className="h-10 w-10 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] shrink-0 md:hidden ml-auto" 
+              className="h-9 w-9 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] shrink-0 md:hidden ml-auto" 
             />
           </div>
 
@@ -158,7 +158,7 @@ export default function AdminPage() {
           <div className="flex items-center justify-between md:justify-end gap-2.5 w-full md:w-auto">
             <a 
               href="/" 
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black transition-all shadow-md flex items-center gap-1.5 shrink-0 hover:scale-105 border border-red-400/40"
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-3.5 py-1.5 rounded-full text-[10px] md:text-xs font-black transition-all shadow-md flex items-center gap-1.5 shrink-0 hover:scale-105 border border-red-400/40"
             >
               <span>📺</span>
               <span>Lihat Layar TV</span>
@@ -172,7 +172,7 @@ export default function AdminPage() {
             <img 
               src="/logo-semen-tonasa.png" 
               alt="Logo PT Semen Tonasa" 
-              className="hidden md:block h-10 md:h-12 w-10 md:w-12 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] ml-2 shrink-0 hover:scale-105 transition-transform" 
+              className="hidden md:block h-9 md:h-11 w-9 md:w-11 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] ml-2 shrink-0 hover:scale-105 transition-transform" 
             />
           </div>
 
@@ -214,7 +214,7 @@ export default function AdminPage() {
                 key={room.id} 
                 type="button"
                 onClick={() => setSelectedPreviewRoom(String(room.id))}
-                className={`p-2 rounded-xl border flex flex-col justify-center text-left transition-all cursor-pointer ${statusColor} ${
+                className={`p-1.5 md:p-2 rounded-xl border flex flex-col justify-center text-left transition-all cursor-pointer ${statusColor} ${
                   isSelected ? 'ring-2 ring-red-500 border-amber-400 shadow-[0_0_12px_rgba(239,68,68,0.4)]' : 'hover:border-red-600/60'
                 }`}
               >
@@ -234,25 +234,25 @@ export default function AdminPage() {
           {/* ========================================================= */}
           {/* TAMPILAN KIRI (40%): LAYAR FOTO DIKLAT & PANTAUAN RUANGAN */}
           {/* ========================================================= */}
-          <div className="lg:w-[40%] flex flex-col gap-3 min-h-0">
+          <div className="lg:w-[40%] flex flex-col gap-2.5">
             
-            {/* Layar Utama Foto Diklat */}
-            <div className="bg-[#1f0306] border-2 border-red-800/60 rounded-2xl p-3 shadow-xl flex flex-col">
+            {/* Layar Utama Foto Diklat (Proporsional & Ringkas agar Card Info di Bawahnya Selalu Kelihatan) */}
+            <div className="bg-[#1f0306] border-2 border-red-800/60 rounded-2xl p-2.5 md:p-3 shadow-xl flex flex-col shrink-0">
               
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
                   <h3 className="text-xs md:text-sm font-black text-white tracking-wide">
                     Layar Pantauan Foto Diklat
                   </h3>
                 </div>
-                <span className="text-[10px] font-extrabold bg-red-950/80 text-amber-300 border border-amber-400/40 px-2.5 py-0.5 rounded-full">
+                <span className="text-[10px] font-extrabold bg-red-950/80 text-amber-300 border border-amber-400/40 px-2 py-0.5 rounded-full">
                   {currentPreviewRoom.floor}
                 </span>
               </div>
 
-              {/* Frame Foto Diklat HD */}
-              <div className="relative rounded-xl overflow-hidden aspect-video bg-black border-2 border-red-900/60 group shadow-inner">
+              {/* Frame Foto Diklat HD (Tinggi Terkontrol agar Tidak Mendorong Card Informasi ke Bawah) */}
+              <div className="relative rounded-xl overflow-hidden h-36 sm:h-40 xl:h-44 w-full bg-black border-2 border-red-900/60 group shadow-inner">
                 <img 
                   src={previewImage} 
                   alt={currentPreviewRoom.name} 
@@ -270,7 +270,7 @@ export default function AdminPage() {
                       {currentPreviewRoom.capacity}
                     </p>
                   </div>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black border ${
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border ${
                     activeBookingPreview 
                       ? 'bg-rose-950/90 border-rose-500 text-rose-200' 
                       : 'bg-emerald-950/90 border-emerald-500 text-emerald-300'
@@ -281,8 +281,8 @@ export default function AdminPage() {
               </div>
 
               {/* Pemilih Tab Ruangan Cepat untuk Layar 40% */}
-              <div className="mt-2.5 pt-2 border-t border-red-900/60">
-                <p className="text-[9px] text-amber-300/80 uppercase tracking-wider font-extrabold mb-1.5">Pilih Ruangan Layar 40%:</p>
+              <div className="mt-2 pt-1.5 border-t border-red-900/60">
+                <p className="text-[9px] text-amber-300/80 uppercase tracking-wider font-extrabold mb-1">Pilih Ruangan Layar 40%:</p>
                 <div className="grid grid-cols-5 gap-1">
                   {rooms.map(r => (
                     <button
@@ -303,8 +303,8 @@ export default function AdminPage() {
 
             </div>
 
-            {/* Card Informasi Kilas Diklat PT Semen Tonasa */}
-            <div className="bg-[#1f0306] border-2 border-red-800/60 rounded-2xl p-3 shadow-xl flex-1 flex flex-col justify-between">
+            {/* Card Informasi Kilas Diklat PT Semen Tonasa (Tampil Utuh & Sangat Jelas Sesuai Gambar 1) */}
+            <div className="bg-[#1f0306] border-2 border-red-800/60 rounded-2xl p-3 shadow-xl flex flex-col justify-between shrink-0">
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-base">🏛️</span>
@@ -317,8 +317,8 @@ export default function AdminPage() {
                 </p>
               </div>
 
-              <div className="mt-2 pt-2 border-t border-red-900/60 flex items-center justify-between text-[10px] text-red-300/80">
-                <span>📍 Gedung Diklat, Biringere, Pangkep</span>
+              <div className="mt-2.5 pt-2 border-t border-red-900/60 flex items-center justify-between text-[10px] text-red-300/80">
+                <span className="flex items-center gap-1 font-semibold">📍 Gedung Diklat, Biringere, Pangkep</span>
                 <span className="text-emerald-400 font-bold">● Layanan 24 Jam</span>
               </div>
             </div>
