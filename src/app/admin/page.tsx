@@ -96,275 +96,464 @@ export default function AdminPage() {
     }
   }
 
-  const recentBookings = [...bookings].reverse().slice(0, 7)
+  const recentBookings = [...bookings].reverse().slice(0, 10)
+  const [selectedPreviewRoom, setSelectedPreviewRoom] = useState<string>('1')
+
+  // Sinkronkan preview foto ketika user memilih ruangan di form
+  const handleRoomSelect = (roomId: string) => {
+    setForm(prev => ({ ...prev, room_id: roomId }))
+    if (roomId) setSelectedPreviewRoom(roomId)
+  }
 
   if (!now) return <div className="h-screen bg-slate-950"></div>;
 
-  return (
-    <div className="h-screen text-white relative font-sans flex flex-col overflow-y-auto lg:overflow-hidden bg-cover lg:bg-[length:100%_100%] bg-center bg-no-repeat"
-         style={{ backgroundImage: 'url("/bg-building.png")' }}>
-      
-      {/* Soft overlay tipis tanpa warna biru agar foto HD gedung terlihat luas dan jelas */}
-      <div className="absolute inset-0 bg-black/35 z-0 fixed pointer-events-none"></div>
+  const currentPreviewRoom = rooms.find(r => String(r.id) === String(selectedPreviewRoom)) || rooms[0]
+  const previewImage = currentPreviewRoom?.image || ROOM_IMAGES[String(currentPreviewRoom?.id)] || '/room-education.jpg'
+  const activeBookingPreview = bookings.find(b => 
+    String(b.room_id) === String(currentPreviewRoom?.id) && 
+    now && new Date(b.start_time) <= now && new Date(b.end_time) >= now
+  )
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full flex-grow flex flex-col gap-3 md:gap-4 p-3 md:p-4 lg:p-5 min-h-0">
+  return (
+    <div className="min-h-screen lg:h-screen text-white relative font-sans flex flex-col overflow-y-auto lg:overflow-hidden bg-[#090e1a]">
+      
+      {/* Background Gedung dengan overlay gelap solid agar tidak transparan & teks sangat jelas */}
+      <div 
+        className="absolute inset-0 bg-cover lg:bg-[length:100%_100%] bg-center bg-no-repeat opacity-20 pointer-events-none fixed"
+        style={{ backgroundImage: 'url("/bg-building.png")' }}
+      ></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/90 via-slate-900/90 to-slate-950/95 fixed pointer-events-none"></div>
+
+      <div className="relative z-10 max-w-7xl mx-auto w-full flex-grow flex flex-col gap-3 p-3 md:p-4 lg:p-4 min-h-0">
         
-        {/* Header dengan Logo SIG di Kiri dan Logo Semen Tonasa Selalu di Pojok Kanan Atas (Desktop & Mobile HP) */}
-        <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between pb-2 border-b border-white/10 gap-2">
+        {/* Header dengan Logo SIG Lebih Besar di Kiri & Logo Semen Tonasa Lebih Besar di Kanan */}
+        <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-slate-800 gap-2 bg-slate-900/90 p-3 rounded-2xl border border-slate-800/80 shadow-xl">
           
-          {/* Baris Utama: Logo SIG, Judul, dan di Mobile Logo Semen Tonasa langsung di Pojok Kanan Atas */}
+          {/* Logo SIG & Judul Admin */}
           <div className="flex items-center justify-between md:justify-start gap-3 w-full md:w-auto">
-            <div className="flex items-center gap-2.5 md:gap-3">
-              <img src="/logo-sig-white.png" alt="Logo SIG" className="h-6 md:h-8 w-auto object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]" />
+            <div className="flex items-center gap-3">
+              <img 
+                src="/logo-sig-white.png" 
+                alt="Logo SIG" 
+                className="h-8 md:h-11 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" 
+              />
+              <div className="h-7 w-px bg-slate-700 hidden sm:block"></div>
               <div>
-                <h1 className="text-lg md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 tracking-tight leading-tight">
+                <h1 className="text-lg md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-indigo-400 tracking-tight leading-tight">
                   Admin Dashboard
                 </h1>
-                <p className="text-slate-300 text-[9px] md:text-xs leading-none mt-0.5">Corporate Learning Development Room Management</p>
+                <p className="text-slate-300 text-[9px] md:text-xs leading-none mt-0.5 font-medium">Unit Learning & Development • PT Semen Tonasa</p>
               </div>
             </div>
 
-            {/* Logo Semen Tonasa di Mobile (HP Android) - Tetap di Pojok Kanan Atas Sejajar Header */}
+            {/* Logo Semen Tonasa di Mobile (HP Android) */}
             <img 
               src="/logo-semen-tonasa.png" 
-              alt="Logo Semen Tonasa" 
-              className="h-8 w-8 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] shrink-0 md:hidden ml-auto" 
+              alt="Logo PT Semen Tonasa" 
+              className="h-10 w-10 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] shrink-0 md:hidden ml-auto" 
             />
           </div>
 
-          {/* Bagian Tombol, Jam, dan Logo Semen Tonasa (di Desktop) */}
-          <div className="flex items-center justify-between md:justify-end gap-2 md:gap-2.5 w-full md:w-auto">
+          {/* Tombol TV, Jam, dan Logo Semen Tonasa (Desktop) */}
+          <div className="flex items-center justify-between md:justify-end gap-2.5 w-full md:w-auto">
             <a 
               href="/" 
-              className="bg-indigo-600/40 hover:bg-indigo-600/60 text-indigo-200 hover:text-white border border-indigo-500/40 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0"
+              className="bg-indigo-600/80 hover:bg-indigo-600 text-white px-3.5 py-1.5 rounded-full text-[10px] md:text-xs font-bold transition-all shadow-md flex items-center gap-1.5 shrink-0 hover:scale-105"
             >
               <span>📺</span>
               <span>Lihat Layar TV</span>
             </a>
-            <div className="bg-emerald-500/20 text-emerald-300 px-2.5 md:px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-semibold border border-emerald-500/30 text-center truncate">
+            
+            <div className="bg-slate-800 text-emerald-300 px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-bold border border-slate-700 text-center truncate shadow-sm">
               {now.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' })}
             </div>
-            {/* Logo PT Semen Tonasa di Desktop (md ke atas) di Paling Pojok Kanan */}
+
+            {/* Logo PT Semen Tonasa di Desktop - Ukuran Lebih Besar */}
             <img 
               src="/logo-semen-tonasa.png" 
-              alt="Logo Semen Tonasa" 
-              className="hidden md:block h-8 md:h-9 w-8 md:w-9 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] ml-1 shrink-0" 
+              alt="Logo PT Semen Tonasa" 
+              className="hidden md:block h-10 md:h-12 w-10 md:w-12 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] ml-2 shrink-0 hover:scale-105 transition-transform" 
             />
           </div>
 
         </div>
 
-        {/* Peringatan jika Supabase belum aktif di Vercel */}
+        {/* Peringatan Supabase jika belum aktif di Vercel */}
         {supabaseConnected === false && typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') && (
           <div className="shrink-0 bg-amber-500/15 border border-amber-500/40 text-amber-200 px-3 py-2 rounded-xl text-xs flex items-center gap-2">
             <span className="text-base">⚠️</span>
-            <span><strong>Database Cloud (Supabase) belum terhubung di Vercel.</strong> Data tidak akan tersimpan online sebelum Anda memasukkan <em>Environment Variables</em> di Vercel.</span>
+            <span><strong>Database Cloud (Supabase) belum terhubung di Vercel.</strong> Masukkan Environment Variables di Vercel agar tersimpan online.</span>
           </div>
         )}
 
-        {/* Live Status Mini Cards - 24 Jam Selalu Tampil untuk Admin */}
-        <div className="shrink-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
+        {/* Live Status Mini Cards 5 Ruangan (Solid, Tidak Transparan) */}
+        <div className="shrink-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
           {rooms.map(room => {
             const roomBookings = bookings.filter(b => String(b.room_id) === String(room.id))
             const activeBooking = roomBookings.find(b => new Date(b.start_time) <= now && new Date(b.end_time) >= now)
             const nextBooking = roomBookings.filter(b => new Date(b.start_time) > now).sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())[0]
 
-            let statusColor = 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+            let statusColor = 'bg-slate-900 border-slate-700 text-emerald-400'
             let icon = '🟢'
             let desc = 'Kosong / Tersedia'
 
             if (activeBooking) {
-              statusColor = 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+              statusColor = 'bg-rose-950/40 border-rose-600/50 text-rose-300'
               icon = '🔴'
               desc = `Dipakai: ${activeBooking.diklat_acara}`
             } else if (nextBooking) {
-              statusColor = 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+              statusColor = 'bg-amber-950/40 border-amber-600/50 text-amber-300'
               icon = '🟡'
               desc = `Akan Datang: ${new Date(nextBooking.start_time).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}`
             }
 
-            const roomImage = room.image || ROOM_IMAGES[String(room.id)] || ROOM_IMAGES[room.name];
+            const isSelected = String(currentPreviewRoom?.id) === String(room.id)
 
             return (
-              <div key={room.id} className={`p-2 rounded-lg border flex flex-col justify-center relative overflow-hidden ${statusColor} backdrop-blur-sm group`}>
-                 {roomImage && (
-                   <div 
-                     className="absolute inset-0 bg-cover bg-center opacity-45 group-hover:opacity-65 transition-opacity pointer-events-none"
-                     style={{ backgroundImage: `url("${roomImage}")` }}
-                   />
-                 )}
-                 <div className="relative z-10 flex justify-between items-center mb-0.5">
-                    <span className="font-bold text-[10px] md:text-xs text-slate-100 truncate pr-1">{room.name}</span>
-                    <span className="text-[8px] md:text-[10px]">{icon}</span>
-                 </div>
-                 <div className="relative z-10 text-[9px] opacity-90 truncate">{desc}</div>
-              </div>
+              <button 
+                key={room.id} 
+                type="button"
+                onClick={() => setSelectedPreviewRoom(String(room.id))}
+                className={`p-2 rounded-xl border flex flex-col justify-center text-left transition-all cursor-pointer ${statusColor} ${
+                  isSelected ? 'ring-2 ring-indigo-500 border-indigo-400 shadow-lg' : 'hover:border-slate-500'
+                }`}
+              >
+                <div className="flex justify-between items-center mb-0.5">
+                  <span className="font-bold text-[10px] md:text-xs text-white truncate pr-1">{room.name}</span>
+                  <span className="text-[9px]">{icon}</span>
+                </div>
+                <div className="text-[9px] text-slate-300 truncate">{desc}</div>
+              </button>
             )
           })}
         </div>
 
-        {/* Card Form Input */}
-        <div className="shrink-0 bg-white/5 border border-white/10 rounded-xl p-3 lg:p-4 shadow-xl">
-          <h2 className="text-sm md:text-base font-bold mb-3 flex items-center gap-2">
-            <div className="bg-indigo-500 p-1 rounded-md"><span className="text-white text-[10px]">+</span></div>
-            Form Input Peminjaman (Masuk)
-          </h2>
+        {/* WORKSPACE DIBAGI 2 TAMPILAN DENGAN PEMBATAS: 40% FOTO DIKLAT : 60% DAFTAR & FORM */}
+        <div className="flex-grow flex flex-col lg:flex-row gap-3 min-h-0">
           
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2 md:gap-3 mb-3">
+          {/* ========================================================= */}
+          {/* TAMPILAN KIRI (40%): LAYAR FOTO DIKLAT & PANTAUAN RUANGAN */}
+          {/* ========================================================= */}
+          <div className="lg:w-[40%] flex flex-col gap-3 min-h-0">
+            
+            {/* Layar Utama Foto Diklat */}
+            <div className="bg-slate-900 border border-slate-700/80 rounded-2xl p-3 shadow-xl flex flex-col">
               
-              <div className="space-y-1">
-                <label className="text-[8px] md:text-[9px] font-semibold text-slate-300 uppercase tracking-wider">Ruangan</label>
-                <select required value={form.room_id} onChange={e => setForm({...form, room_id: e.target.value})} 
-                        className="w-full bg-slate-900/50 p-1.5 md:p-2 text-[10px] md:text-xs rounded-lg outline-none border border-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-200">
-                  <option value="">-- Pilih Ruangan --</option>
-                  {rooms.map(r => {
-                    const isActive = bookings.some(b => String(b.room_id) === String(r.id) && new Date(b.start_time) <= now && new Date(b.end_time) >= now)
-                    return (
-                      <option key={r.id} value={r.id}>
-                        {r.name} {isActive ? '(🔴 DIPAKAI)' : '(🟢 KOSONG)'}
-                      </option>
-                    )
-                  })}
-                </select>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                  <h3 className="text-xs md:text-sm font-bold text-white tracking-wide">
+                    Layar Pantauan Foto Diklat
+                  </h3>
+                </div>
+                <span className="text-[10px] font-bold bg-slate-800 text-blue-300 border border-slate-700 px-2 py-0.5 rounded-full">
+                  {currentPreviewRoom.floor}
+                </span>
               </div>
-              
-              <div className="space-y-1">
-                <label className="text-[8px] md:text-[9px] font-semibold text-slate-300 uppercase tracking-wider">Acara</label>
-                <input required type="text" placeholder="Nama Acara" value={form.diklat_acara} onChange={e => setForm({...form, diklat_acara: e.target.value})} 
-                       className="w-full bg-slate-900/50 p-1.5 md:p-2 text-[10px] md:text-xs rounded-lg outline-none border border-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-200" />
+
+              {/* Frame Foto Diklat HD */}
+              <div className="relative rounded-xl overflow-hidden aspect-video bg-black border border-slate-800 group shadow-inner">
+                <img 
+                  src={previewImage} 
+                  alt={currentPreviewRoom.name} 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+                
+                {/* Overlay Info Ruangan pada Foto */}
+                <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between pointer-events-none">
+                  <div>
+                    <p className="text-white font-extrabold text-sm md:text-base drop-shadow-md leading-tight">
+                      {currentPreviewRoom.name}
+                    </p>
+                    <p className="text-amber-300 text-[10px] md:text-xs font-semibold drop-shadow">
+                      {currentPreviewRoom.capacity}
+                    </p>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold border ${
+                    activeBookingPreview 
+                      ? 'bg-rose-950/80 border-rose-500 text-rose-300' 
+                      : 'bg-emerald-950/80 border-emerald-500 text-emerald-300'
+                  } shadow-md`}>
+                    {activeBookingPreview ? 'SEDANG DIGUNAKAN' : 'KOSONG / TERSEDIA'}
+                  </span>
+                </div>
               </div>
-              
-              <div className="space-y-1">
-                <label className="text-[8px] md:text-[9px] font-semibold text-slate-300 uppercase tracking-wider">PIC</label>
-                <input type="text" placeholder="Instruktur" value={form.instruktur_pic} onChange={e => setForm({...form, instruktur_pic: e.target.value})} 
-                       className="w-full bg-slate-900/50 p-1.5 md:p-2 text-[10px] md:text-xs rounded-lg outline-none border border-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-200" />
+
+              {/* Pemilih Tab Ruangan Cepat untuk Layar 40% */}
+              <div className="mt-2.5 pt-2 border-t border-slate-800">
+                <p className="text-[9px] text-slate-400 uppercase tracking-wider font-bold mb-1.5">Pilih Ruangan Layar 40%:</p>
+                <div className="grid grid-cols-5 gap-1">
+                  {rooms.map(r => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onClick={() => setSelectedPreviewRoom(String(r.id))}
+                      className={`py-1 px-1 text-[9px] font-bold rounded-lg border text-center transition-all truncate cursor-pointer ${
+                        String(currentPreviewRoom.id) === String(r.id)
+                          ? 'bg-indigo-600 text-white border-indigo-400 shadow'
+                          : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                      }`}
+                    >
+                      {r.name.replace(' Room', '')}
+                    </button>
+                  ))}
+                </div>
               </div>
-              
-              <div className="space-y-1">
-                <label className="text-[8px] md:text-[9px] font-semibold text-slate-300 uppercase tracking-wider">Materi</label>
-                <input type="text" placeholder="Materi" value={form.materi} onChange={e => setForm({...form, materi: e.target.value})} 
-                       className="w-full bg-slate-900/50 p-1.5 md:p-2 text-[10px] md:text-xs rounded-lg outline-none border border-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-200" />
-              </div>
-              
-              <div className="space-y-1">
-                <label className="text-[8px] md:text-[9px] font-semibold text-slate-300 uppercase tracking-wider">Mulai</label>
-                <input required type="datetime-local" value={form.start_time} onChange={e => setForm({...form, start_time: e.target.value})} 
-                       className="w-full bg-slate-900/50 p-1.5 md:p-2 text-[10px] md:text-xs rounded-lg outline-none border border-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-200" />
-              </div>
-              
-              <div className="space-y-1">
-                <label className="text-[8px] md:text-[9px] font-semibold text-slate-300 uppercase tracking-wider">Selesai</label>
-                <input required type="datetime-local" value={form.end_time} onChange={e => setForm({...form, end_time: e.target.value})} 
-                       className="w-full bg-slate-900/50 p-1.5 md:p-2 text-[10px] md:text-xs rounded-lg outline-none border border-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-200" />
-              </div>
-              
+
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end pt-2 border-t border-white/5">
-              <button type="submit" disabled={loading} 
-                      className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white font-bold py-1.5 md:py-2 px-5 rounded-lg transition-all shadow-lg text-[10px] md:text-xs tracking-wide w-full sm:w-auto">
-                {loading ? 'Menyimpan...' : '🚀 Pinjam & Tampilkan'}
-              </button>
-            </div>
-          </form>
-        </div>
+            {/* Card Informasi Kilas Diklat PT Semen Tonasa */}
+            <div className="bg-slate-900 border border-slate-700/80 rounded-2xl p-3 shadow-xl flex-1 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-base">🏛️</span>
+                  <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wide">
+                    Informasi Diklat PT Semen Tonasa
+                  </h4>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  Unit <strong>Learning & Development</strong> merupakan pusat keunggulan (*Corporate University*) PT Semen Tonasa & SIG Group dalam mencetak SDM industri semen berdaya saing global, mengedepankan aspek <em>Operational Excellence, K3, Efisiensi Energi,</em> dan <em>Green Industry</em>.
+                </p>
+              </div>
 
-        {/* Tabel Riwayat */}
-        <div className="flex-grow flex flex-col bg-white/5 border border-white/10 rounded-xl p-3 lg:p-4 shadow-xl min-h-0">
-          
-          <div className="shrink-0 flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
-            <h2 className="text-sm md:text-base font-bold flex items-center gap-2">
-              📊 Pantauan Masuk / Keluar
-            </h2>
-            <a href="/api/download-excel" target="_blank" className="text-[9px] md:text-[10px] bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1.5 rounded hover:bg-emerald-600/40 transition-colors">
-              📥 Unduh Excel
-            </a>
+              <div className="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+                <span>📍 Gedung Diklat, Biringere, Pangkep</span>
+                <span className="text-emerald-400 font-semibold">● Layanan 24 Jam</span>
+              </div>
+            </div>
+
           </div>
 
-          <div className="flex-grow overflow-auto rounded-md border border-white/5">
-            <table className="w-full text-left border-collapse min-w-[700px]">
-              <thead className="sticky top-0 bg-[#0f172a] z-10 shadow-sm">
-                <tr className="border-b border-slate-700 text-[9px] md:text-[10px] text-slate-400 uppercase tracking-wide">
-                  <th className="py-2 px-3 font-semibold">Ruangan</th>
-                  <th className="py-2 px-3 font-semibold">Acara & Instruktur</th>
-                  <th className="py-2 px-3 font-semibold">Jadwal</th>
-                  <th className="py-2 px-3 font-semibold">Status</th>
-                  <th className="py-2 px-3 font-semibold text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentBookings.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-6 text-center text-slate-500 text-[10px]">Belum ada data masuk.</td>
-                  </tr>
-                ) : (
-                  recentBookings.map((b: any) => {
-                    const r = rooms.find(room => String(room.id) === String(b.room_id))
-                    
-                    let status = 'Selesai';
-                    let statusColor = 'bg-slate-800 text-slate-400 border-slate-700';
-                    const start = new Date(b.start_time);
-                    const end = new Date(b.end_time);
-                    
-                    if (now >= start && now <= end) { 
-                      status = 'Sedang Dipakai'; 
-                      statusColor = 'bg-rose-500/20 text-rose-400 border-rose-500/30'; 
-                    } else if (now < start) { 
-                      status = 'Akan Datang'; 
-                      statusColor = 'bg-amber-500/20 text-amber-400 border-amber-500/30'; 
-                    }
+          {/* ========================================================= */}
+          {/* PEMBATAS ANTARA LAYAR FOTO 40% DAN DAFTAR 60% */}
+          {/* ========================================================= */}
+          <div className="hidden lg:flex items-center justify-center px-0.5">
+            <div className="w-[2px] h-full bg-gradient-to-b from-blue-500/20 via-indigo-500/50 to-blue-500/20 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.3)]"></div>
+          </div>
 
-                      const rowRoomImage = r?.image || ROOM_IMAGES[String(b.room_id)] || ROOM_IMAGES[r?.name || ''];
+          {/* ========================================================= */}
+          {/* TAMPILAN KANAN (60%): DAFTAR & FORM INPUT PEMINJAMAN */}
+          {/* ========================================================= */}
+          <div className="lg:w-[60%] flex flex-col gap-3 min-h-0">
+            
+            {/* Form Input Peminjaman (Masuk) - Solid & Tajam */}
+            <div className="shrink-0 bg-slate-900 border border-slate-700/80 rounded-2xl p-3 md:p-3.5 shadow-xl">
+              <h2 className="text-xs md:text-sm font-bold mb-2.5 flex items-center gap-2 text-white">
+                <div className="bg-indigo-600 text-white w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold shadow">
+                  +
+                </div>
+                <span>Form Peminjaman & Tampilkan ke Layar TV</span>
+              </h2>
+              
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-2.5 mb-2.5">
+                  
+                  {/* Pilihan Ruangan */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Ruangan</label>
+                    <select 
+                      required 
+                      value={form.room_id} 
+                      onChange={e => handleRoomSelect(e.target.value)} 
+                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium cursor-pointer"
+                    >
+                      <option value="">-- Pilih Ruangan --</option>
+                      {rooms.map(r => {
+                        const isActive = bookings.some(b => String(b.room_id) === String(r.id) && new Date(b.start_time) <= now && new Date(b.end_time) >= now)
+                        return (
+                          <option key={r.id} value={r.id}>
+                            {r.name} {isActive ? '(🔴 DIPAKAI)' : '(🟢 KOSONG)'}
+                          </option>
+                        )
+                      })}
+                    </select>
+                  </div>
+                  
+                  {/* Nama Acara / Diklat */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Acara / Diklat</label>
+                    <input 
+                      required 
+                      type="text" 
+                      placeholder="Nama Acara" 
+                      value={form.diklat_acara} 
+                      onChange={e => setForm({...form, diklat_acara: e.target.value})} 
+                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium" 
+                    />
+                  </div>
+                  
+                  {/* PIC / Instruktur */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">PIC / Instruktur</label>
+                    <input 
+                      type="text" 
+                      placeholder="Instruktur" 
+                      value={form.instruktur_pic} 
+                      onChange={e => setForm({...form, instruktur_pic: e.target.value})} 
+                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium" 
+                    />
+                  </div>
+                  
+                  {/* Materi */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Materi</label>
+                    <input 
+                      type="text" 
+                      placeholder="Materi Pelatihan" 
+                      value={form.materi} 
+                      onChange={e => setForm({...form, materi: e.target.value})} 
+                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium" 
+                    />
+                  </div>
+                  
+                  {/* Waktu Mulai */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Waktu Mulai</label>
+                    <input 
+                      required 
+                      type="datetime-local" 
+                      value={form.start_time} 
+                      onChange={e => setForm({...form, start_time: e.target.value})} 
+                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium" 
+                    />
+                  </div>
+                  
+                  {/* Waktu Selesai */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Waktu Selesai</label>
+                    <input 
+                      required 
+                      type="datetime-local" 
+                      value={form.end_time} 
+                      onChange={e => setForm({...form, end_time: e.target.value})} 
+                      className="w-full bg-slate-800 p-2 text-xs rounded-xl outline-none border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white font-medium" 
+                    />
+                  </div>
+                  
+                </div>
 
-                      return (
-                        <tr key={b.id} className="border-b border-slate-800/50 hover:bg-white/5 transition-colors text-[9px] md:text-[10px]">
-                          <td className="py-2 px-3 text-indigo-300 font-medium">
-                            <div className="flex items-center gap-2">
-                              {rowRoomImage ? (
-                                <img 
-                                  src={rowRoomImage} 
-                                  alt={r?.name || ''} 
-                                  className="w-7 h-5 rounded object-cover border border-white/20 shrink-0 shadow-sm" 
-                                />
-                              ) : null}
-                              <span>{r?.name || '-'}</span>
-                            </div>
-                          </td>
-                        <td className="py-2 px-3">
-                          <p className="font-semibold text-slate-200">{b.diklat_acara}</p>
-                          <p className="text-slate-400 text-[8px] md:text-[9px]">Oleh: {b.instruktur_pic || '-'}</p>
-                        </td>
-                        <td className="py-2 px-3 text-slate-300">
-                          {new Date(b.start_time).toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' })} 
-                          {' - '} 
-                          {new Date(b.end_time).toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit'})}
-                        </td>
-                        <td className="py-2 px-3">
-                          <span className={`px-2 py-1 rounded text-[8px] md:text-[9px] border ${statusColor} whitespace-nowrap`}>
-                            {status}
-                          </span>
-                        </td>
-                        <td className="py-2 px-3 text-center">
-                          <button onClick={() => handleDelete(b.id)} className="bg-red-500/20 text-red-400 hover:bg-red-500/40 border border-red-500/30 px-2 py-1 rounded transition-colors text-[8px] md:text-[9px]">
-                            Hapus
-                          </button>
-                        </td>
+                <div className="flex justify-end pt-2 border-t border-slate-800">
+                  <button 
+                    type="submit" 
+                    disabled={loading} 
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-2 px-6 rounded-xl transition-all shadow-lg text-xs tracking-wide w-full sm:w-auto cursor-pointer"
+                  >
+                    {loading ? 'Menyimpan...' : '🚀 Pinjam & Tampilkan'}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* TABEL DAFTAR & PANTAUAN MASUK / KELUAR (60%) */}
+            <div className="flex-grow flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl p-3 md:p-3.5 shadow-xl min-h-0">
+              
+              <div className="shrink-0 flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">📋</span>
+                  <h2 className="text-xs md:text-sm font-bold text-white">
+                    Daftar Pantauan Masuk / Keluar ({bookings.length} Data)
+                  </h2>
+                </div>
+                <a 
+                  href="/api/download-excel" 
+                  target="_blank" 
+                  className="text-[10px] bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full font-bold hover:bg-emerald-600/50 transition-colors flex items-center gap-1 shadow-sm"
+                >
+                  <span>📥</span> Unduh Excel
+                </a>
+              </div>
+
+              <div className="flex-grow overflow-auto rounded-xl border border-slate-800 bg-slate-950/60">
+                <table className="w-full text-left border-collapse min-w-[620px]">
+                  <thead className="sticky top-0 bg-slate-950 z-10 shadow-sm border-b border-slate-800">
+                    <tr className="text-[10px] text-slate-400 uppercase tracking-wider">
+                      <th className="py-2.5 px-3 font-bold">Ruangan</th>
+                      <th className="py-2.5 px-3 font-bold">Acara & Instruktur</th>
+                      <th className="py-2.5 px-3 font-bold">Jadwal</th>
+                      <th className="py-2.5 px-3 font-bold">Status</th>
+                      <th className="py-2.5 px-3 font-bold text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentBookings.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-8 text-center text-slate-500 text-xs">Belum ada daftar data peminjaman ruangan.</td>
                       </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
+                    ) : (
+                      recentBookings.map((b: any) => {
+                        const r = rooms.find(room => String(room.id) === String(b.room_id))
+                        
+                        let status = 'Selesai';
+                        let statusColor = 'bg-slate-800 text-slate-400 border-slate-700';
+                        const start = new Date(b.start_time);
+                        const end = new Date(b.end_time);
+                        
+                        if (now >= start && now <= end) { 
+                          status = 'Sedang Dipakai'; 
+                          statusColor = 'bg-rose-950 text-rose-300 border-rose-500/50'; 
+                        } else if (now < start) { 
+                          status = 'Akan Datang'; 
+                          statusColor = 'bg-amber-950 text-amber-300 border-amber-500/50'; 
+                        }
+
+                        const rowRoomImage = r?.image || ROOM_IMAGES[String(b.room_id)] || ROOM_IMAGES[r?.name || ''];
+
+                        return (
+                          <tr key={b.id} className="border-b border-slate-800/80 hover:bg-slate-800/50 transition-colors text-xs">
+                            <td className="py-2 px-3 text-indigo-300 font-bold">
+                              <div className="flex items-center gap-2">
+                                {rowRoomImage ? (
+                                  <img 
+                                    src={rowRoomImage} 
+                                    alt={r?.name || ''} 
+                                    className="w-8 h-5 rounded-md object-cover border border-slate-700 shrink-0 shadow-sm" 
+                                  />
+                                ) : null}
+                                <span className="truncate">{r?.name || '-'}</span>
+                              </div>
+                            </td>
+                            <td className="py-2 px-3">
+                              <p className="font-bold text-white leading-tight">{b.diklat_acara}</p>
+                              <p className="text-slate-400 text-[10px]">{b.instruktur_pic ? `Oleh: ${b.instruktur_pic}` : ''} {b.materi ? `(${b.materi})` : ''}</p>
+                            </td>
+                            <td className="py-2 px-3 text-slate-300 text-[11px] whitespace-nowrap">
+                              {new Date(b.start_time).toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' })} 
+                              {' - '} 
+                              {new Date(b.end_time).toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit'})}
+                            </td>
+                            <td className="py-2 px-3">
+                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${statusColor} whitespace-nowrap shadow-sm`}>
+                                {status}
+                              </span>
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              <button 
+                                onClick={() => handleDelete(b.id)} 
+                                className="bg-red-500/20 text-red-400 hover:bg-red-600 hover:text-white border border-red-500/30 px-2.5 py-1 rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
+                              >
+                                Hapus
+                              </button>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
+
         </div>
 
       </div>
 
       {/* Footer Running Text */}
-      <div className="relative z-20 shrink-0 w-full bg-slate-950/80 backdrop-blur-lg border-t border-white/10 py-2.5 md:py-3 flex items-center overflow-hidden mt-auto">
-        <div className="whitespace-nowrap animate-marquee text-[9px] md:text-xs font-bold tracking-[0.2em] text-slate-300">
-          UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT •
+      <div className="relative z-20 shrink-0 w-full bg-slate-950 border-t border-slate-800 py-2 flex items-center overflow-hidden mt-auto">
+        <div className="whitespace-nowrap animate-marquee text-[10px] md:text-xs font-bold tracking-[0.2em] text-slate-400">
+          UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • SIG CORPORATE UNIVERSITY •
         </div>
       </div>
     </div>

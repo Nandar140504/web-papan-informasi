@@ -28,6 +28,8 @@ export default function TVDisplay() {
   const [time, setTime] = useState<Date | null>(null)
   // Inisialisasi langsung dengan 5 ruangan default agar selalu tampil 24 jam dan tidak pernah kosong
   const [rooms, setRooms] = useState<any[]>(DEFAULT_ROOMS)
+  const [showInfoModal, setShowInfoModal] = useState<boolean>(false)
+  const [activeInfoTab, setActiveInfoTab] = useState<'profil' | 'ruangan' | 'program'>('profil')
 
   useEffect(() => {
     setTime(new Date())
@@ -188,24 +190,45 @@ export default function TVDisplay() {
     <div className="min-h-screen lg:h-screen text-white relative flex flex-col overflow-y-auto lg:overflow-hidden bg-cover lg:bg-[length:100%_100%] bg-center bg-no-repeat" 
          style={{ backgroundImage: 'url("/bg-building.png")' }}>
       
-      {/* Logo SIG di Sebelah Kiri Atas - Digeser masuk tidak terlalu pojok */}
-      <div className="fixed top-5 left-7 md:left-10 lg:left-12 z-50 flex items-center">
-        <img src="/logo-sig-white.png" alt="Logo SIG" className="h-8 md:h-10 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
+      {/* Logo SIG di Sebelah Kiri Atas - Diberi ukuran lebih besar dan posisi proporsional */}
+      <div className="fixed top-4 md:top-5 left-5 md:left-8 lg:left-10 z-50 flex items-center">
+        <img 
+          src="/logo-sig-white.png" 
+          alt="Logo SIG" 
+          className="h-10 md:h-12 lg:h-14 w-auto object-contain drop-shadow-[0_3px_10px_rgba(0,0,0,0.85)] hover:scale-105 transition-transform duration-300" 
+        />
       </div>
 
-      {/* Simbol User Admin & Logo PT Semen Tonasa di Sebelah Kanan Atas - Digeser masuk tidak terlalu pojok */}
-      <div className="fixed top-5 right-7 md:right-10 lg:right-12 z-50 flex items-center gap-3">
+      {/* Tombol Info Diklat, Simbol User Admin & Logo PT Semen Tonasa di Sebelah Kanan Atas */}
+      <div className="fixed top-4 md:top-5 right-5 md:right-8 lg:right-10 z-50 flex items-center gap-2.5 md:gap-3.5">
+        
+        {/* Tombol Fitur Informasi Diklat PT Semen Tonasa */}
+        <button 
+          onClick={() => setShowInfoModal(true)}
+          className="bg-gradient-to-r from-amber-500/20 to-red-600/30 hover:from-amber-500/40 hover:to-red-600/50 text-amber-300 hover:text-white border border-amber-400/40 hover:border-amber-300 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[11px] md:text-xs font-extrabold backdrop-blur-md transition-all shadow-lg flex items-center gap-1.5 cursor-pointer group"
+          title="Buka Informasi Diklat PT Semen Tonasa"
+        >
+          <span className="text-sm md:text-base group-hover:rotate-12 transition-transform">🏛️</span>
+          <span className="hidden sm:inline tracking-wide">Info Diklat</span>
+        </button>
+
+        {/* Simbol User / Profil Admin */}
         <a 
           href="/admin" 
-          className="bg-slate-900/75 hover:bg-indigo-600/80 text-slate-200 hover:text-white border border-white/25 hover:border-white/50 p-2 md:p-2.5 rounded-full backdrop-blur-md transition-all shadow-lg flex items-center justify-center group"
+          className="bg-slate-900/80 hover:bg-indigo-600/85 text-slate-200 hover:text-white border border-white/25 hover:border-white/50 p-2 md:p-2.5 rounded-full backdrop-blur-md transition-all shadow-lg flex items-center justify-center group"
           title="Buka Halaman Admin"
         >
-          {/* Simbol Pengguna / Profil Admin */}
           <svg className="w-5 h-5 md:w-6 md:h-6 text-slate-200 group-hover:text-white group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
           </svg>
         </a>
-        <img src="/logo-semen-tonasa.png" alt="Logo Semen Tonasa" className="h-9 md:h-11 w-9 md:w-11 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
+
+        {/* Logo PT Semen Tonasa - Diberi ukuran lebih besar dan tajam */}
+        <img 
+          src="/logo-semen-tonasa.png" 
+          alt="Logo PT Semen Tonasa" 
+          className="h-11 md:h-14 lg:h-16 w-11 md:w-14 lg:w-16 object-contain drop-shadow-[0_3px_10px_rgba(0,0,0,0.85)] hover:scale-105 transition-transform duration-300" 
+        />
       </div>
 
       {/* Soft overlay tipis tanpa warna biru agar foto HD gedung terlihat luas dan jelas */}
@@ -215,12 +238,12 @@ export default function TVDisplay() {
         
         {/* Header Layar */}
         <div className="shrink-0 text-center pt-3 lg:pt-4 pb-1 lg:pb-2">
-          <h1 className="text-xl md:text-2xl lg:text-2xl font-bold tracking-widest text-slate-300">AVAILABLE ROOMS</h1>
-          <h2 className="text-[9px] md:text-[10px] tracking-widest text-slate-400 mb-0.5 mt-1">CORPORATE LEARNING DEVELOPMENT</h2>
-          <div className="text-5xl md:text-6xl lg:text-6xl font-bold text-white tracking-wider mb-1 mt-2 drop-shadow-lg">
+          <h1 className="text-xl md:text-2xl lg:text-2xl font-bold tracking-widest text-slate-300 drop-shadow-md">AVAILABLE ROOMS</h1>
+          <h2 className="text-[9px] md:text-[10px] tracking-widest text-slate-400 mb-0.5 mt-1 font-semibold">CORPORATE LEARNING DEVELOPMENT • PT SEMEN TONASA</h2>
+          <div className="text-5xl md:text-6xl lg:text-6xl font-extrabold text-white tracking-wider mb-1 mt-2 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
             {format(time, 'HH:mm')}
           </div>
-          <div className="text-xs md:text-sm lg:text-sm text-slate-300 mt-1">
+          <div className="text-xs md:text-sm lg:text-sm text-slate-300 mt-1 font-medium drop-shadow">
             {format(time, 'EEEE, d MMMM yyyy', { locale: id })}
           </div>
         </div>
@@ -246,11 +269,252 @@ export default function TVDisplay() {
         {/* Footer Running Text */}
         <div className="shrink-0 w-full bg-[#0a1128]/95 border-t border-slate-700 py-2.5 lg:py-3 mt-2 lg:mt-0 flex items-center overflow-hidden">
           <div className="whitespace-nowrap animate-marquee text-[10px] md:text-xs lg:text-sm font-bold tracking-[0.3em] text-slate-300">
-            UNIT LEARNING & DEVELOPMENT • UNIT LEARNING & DEVELOPMENT •
+            UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • SIG CORPORATE UNIVERSITY •
           </div>
         </div>
 
       </div>
+
+      {/* MODAL INTERAKTIF: Informasi Diklat PT SEMEN TONASA */}
+      {showInfoModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 md:p-6 animate-fadeIn">
+          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            
+            {/* Header Modal */}
+            <div className="p-4 md:p-5 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900">
+              <div className="flex items-center gap-3">
+                <img src="/logo-sig-white.png" alt="SIG" className="h-8 md:h-10 w-auto" />
+                <div className="h-8 w-px bg-slate-700"></div>
+                <img src="/logo-semen-tonasa.png" alt="Semen Tonasa" className="h-9 md:h-11 w-9 md:w-11 object-contain" />
+                <div>
+                  <h2 className="text-base md:text-xl font-bold text-white tracking-wide">
+                    Pusat Pendidikan & Pelatihan (Diklat)
+                  </h2>
+                  <p className="text-xs text-amber-400 font-medium">Unit Learning & Development • PT Semen Tonasa</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowInfoModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-rose-600/80 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Navigasi Tab */}
+            <div className="flex border-b border-slate-800 bg-slate-950/60 px-4 pt-2 gap-2">
+              <button 
+                onClick={() => setActiveInfoTab('profil')}
+                className={`px-4 py-2 text-xs md:text-sm font-bold rounded-t-lg transition-all cursor-pointer ${
+                  activeInfoTab === 'profil' 
+                    ? 'bg-slate-900 text-blue-400 border-t-2 border-blue-500' 
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                🏛️ Profil & Visi L&D
+              </button>
+              <button 
+                onClick={() => setActiveInfoTab('ruangan')}
+                className={`px-4 py-2 text-xs md:text-sm font-bold rounded-t-lg transition-all cursor-pointer ${
+                  activeInfoTab === 'ruangan' 
+                    ? 'bg-slate-900 text-amber-400 border-t-2 border-amber-500' 
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                🏢 Fasilitas Ruangan
+              </button>
+              <button 
+                onClick={() => setActiveInfoTab('program')}
+                className={`px-4 py-2 text-xs md:text-sm font-bold rounded-t-lg transition-all cursor-pointer ${
+                  activeInfoTab === 'program' 
+                    ? 'bg-slate-900 text-emerald-400 border-t-2 border-emerald-500' 
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                🎯 Program & Sertifikasi
+              </button>
+            </div>
+
+            {/* Isi Konten Tab */}
+            <div className="p-4 md:p-6 overflow-y-auto flex-1 space-y-4 text-slate-300 text-xs md:text-sm leading-relaxed">
+              
+              {activeInfoTab === 'profil' && (
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-r from-blue-950/50 to-indigo-950/30 p-4 rounded-xl border border-blue-800/30">
+                    <h3 className="text-sm md:text-base font-bold text-white mb-1 flex items-center gap-2">
+                      <span>🌟</span>
+                      <span>Bagian dari SIG Corporate University</span>
+                    </h3>
+                    <p className="text-slate-300">
+                      Unit <strong>Learning & Development (L&D) PT Semen Tonasa</strong> terintegrasi dengan ekosistem <em>SIG Corporate University</em>, yang berperan strategis menjembatani kesenjangan kompetensi (*competency gap*) karyawan menuju standar industri semen berkelas dunia (*World-Class Cement Manufacturer*).
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
+                      <h4 className="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+                        <span>🎯</span> Visi Pembelajaran
+                      </h4>
+                      <p className="text-xs text-slate-300">
+                        Menjadi pusat keunggulan (*Center of Excellence*) pengembangan kapabilitas SDM yang adaptif, inovatif, berdaya saing global, serta berorientasi pada keberlanjutan (*Green Industry & Decarbonization*).
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
+                      <h4 className="font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
+                        <span>⚡</span> Nilai Utama
+                      </h4>
+                      <p className="text-xs text-slate-300">
+                        Menanamkan core values <strong>AKHLAK BUMN</strong> (Amanah, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif) pada setiap insan Semen Tonasa demi operational excellence.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-800/40 p-3.5 rounded-xl border border-slate-700/40 flex items-center gap-3">
+                    <span className="text-2xl">📍</span>
+                    <div>
+                      <p className="font-bold text-white text-xs md:text-sm">Lokasi Gedung Diklat PT Semen Tonasa</p>
+                      <p className="text-[11px] text-slate-400">Kompleks Pabrik PT Semen Tonasa, Biringere, Kec. Bungoro, Kab. Pangkajene & Kepulauan (Pangkep), Sulawesi Selatan.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeInfoTab === 'ruangan' && (
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-400">
+                    Gedung Diklat PT Semen Tonasa dilengkapi 5 sarana ruang pembelajaran berteknologi modern dengan pendingin udara, Smart TV interaktif, dan sound system profesional:
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {/* Education Room */}
+                    <div className="bg-slate-800/70 rounded-xl overflow-hidden border border-slate-700/60 flex flex-col">
+                      <img src="/room-education.jpg" alt="Education Room" className="h-28 w-full object-cover" />
+                      <div className="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                          <span className="text-[9px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded font-bold">Lantai 2</span>
+                          <h4 className="font-bold text-white text-sm mt-1">Education Room</h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">Kapasitas 50/60 orang. Aula utama untuk seminar akbar, pelatihan teori skala besar, dan pertemuan direksi.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Learning Room */}
+                    <div className="bg-slate-800/70 rounded-xl overflow-hidden border border-slate-700/60 flex flex-col">
+                      <img src="/room-learning.jpg" alt="Learning Room" className="h-28 w-full object-cover" />
+                      <div className="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                          <span className="text-[9px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-bold">Lantai 1</span>
+                          <h4 className="font-bold text-white text-sm mt-1">Learning Room</h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">Kapasitas 30/40 orang. Dilengkapi Smart TV interaktif untuk kelas teknis, sertifikasi, dan lokakarya operasional.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Knowledge Room */}
+                    <div className="bg-slate-800/70 rounded-xl overflow-hidden border border-slate-700/60 flex flex-col">
+                      <img src="/room-knowledge.jpg" alt="Knowledge Room" className="h-28 w-full object-cover" />
+                      <div className="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                          <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">Lantai 1</span>
+                          <h4 className="font-bold text-white text-sm mt-1">Knowledge Room</h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">Kapasitas 30/40 orang. Suasana modern berpanel kayu untuk sharing session ilmu dan transfer pengetahuan ahli.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Development Room */}
+                    <div className="bg-slate-800/70 rounded-xl overflow-hidden border border-slate-700/60 flex flex-col">
+                      <img src="/room-development.jpg" alt="Development Room" className="h-28 w-full object-cover" />
+                      <div className="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                          <span className="text-[9px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded font-bold">Lantai 1</span>
+                          <h4 className="font-bold text-white text-sm mt-1">Development Room</h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">Kapasitas 20/25 orang. Dinding hijau modern untuk pelatihan kepemimpinan intensif, FGD, dan problem solving.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Podcast Room */}
+                    <div className="bg-slate-800/70 rounded-xl overflow-hidden border border-slate-700/60 flex flex-col sm:col-span-2 lg:col-span-1">
+                      <img src="/room-podcast.jpg" alt="Podcast Room" className="h-28 w-full object-cover" />
+                      <div className="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                          <span className="text-[9px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded font-bold">Lantai 2</span>
+                          <h4 className="font-bold text-white text-sm mt-1">Podcast Room</h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">Kapasitas 6/10 orang. Studio rekaman profesional, mic condenser, acoustic treatment untuk konten edukasi digital.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeInfoTab === 'program' && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="p-1.5 rounded-lg bg-red-500/20 text-red-400 text-lg">🏭</span>
+                        <h4 className="font-bold text-white text-sm">Technical Cement Training</h4>
+                      </div>
+                      <p className="text-xs text-slate-300">
+                        Pelatihan keahlian teknis pemeliharaan mesin pabrik, operasi kiln, penggilingan semen (*finish mill*), kimia semen, efisiensi energi thermal, dan teknologi otomatisasi industri 4.0.
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 text-lg">🦺</span>
+                        <h4 className="font-bold text-white text-sm">Keselamatan & K3 (HSE)</h4>
+                      </div>
+                      <p className="text-xs text-slate-300">
+                        Pembinaan komprehensif Keselamatan dan Kesehatan Kerja, sertifikasi K3 umum, penanganan bahan B3, tanggap darurat, serta standar perlindungan lingkungan ISO 14001 dan ISO 45001.
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 text-lg">👑</span>
+                        <h4 className="font-bold text-white text-sm">Leadership & Assessment</h4>
+                      </div>
+                      <p className="text-xs text-slate-300">
+                        Pelatihan *Leadership Assessment & Evaluation*, pembentukan karakter manajerial, kepemimpinan transformasional, dan persiapan kader pimpinan di seluruh lini unit kerja.
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 text-lg">🎓</span>
+                        <h4 className="font-bold text-white text-sm">Kemitraan Akademik & Magang</h4>
+                      </div>
+                      <p className="text-xs text-slate-300">
+                        Kolaborasi riset industri dengan universitas terkemuka (Unhas dll), Program Magang Mahasiswa Bersertifikat (PMMB) BUMN, serta beasiswa vokasi bagi masyarakat sekitar.
+                      </p>
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+            </div>
+
+            {/* Footer Modal */}
+            <div className="p-3 md:p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+              <span className="text-[11px] text-slate-400">© PT Semen Tonasa • SIG Group • Papan Informasi Diklat Online</span>
+              <button 
+                onClick={() => setShowInfoModal(false)}
+                className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
+              >
+                Tutup
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
