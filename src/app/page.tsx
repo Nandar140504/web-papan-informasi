@@ -120,17 +120,17 @@ export default function TVDisplay() {
     return (
       <div 
         key={room.id} 
-        className={`w-full ${customClass} h-full border border-white/20 hover:border-amber-400/60 rounded-2xl p-2.5 lg:p-3 xl:p-4 shadow-xl relative flex flex-col justify-between overflow-hidden group backdrop-blur-md transition-all duration-300 min-h-[160px]`}
+        className={`w-full ${customClass} h-full border border-white/20 hover:border-amber-400/60 rounded-2xl p-2.5 lg:p-3 xl:p-4 shadow-xl relative flex flex-col justify-between overflow-hidden group transition-all duration-300 min-h-[160px]`}
       >
-        {/* Background Foto Ruangan jika tersedia */}
+        {/* Background Foto Ruangan Tajam & Jelas Tanpa Efek Buram */}
         {roomImage ? (
           <>
             <div 
-              className="absolute -inset-2 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105 filter blur-[2px] opacity-80 scale-105"
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105 opacity-90"
               style={{ backgroundImage: `url("${roomImage}")` }}
             />
-            {/* Gradien gelap agar teks selalu tajam terbaca */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/35 to-black/80 pointer-events-none" />
+            {/* Gradien lembut di atas & bawah agar teks tetap kontras tinggi tanpa mengaburkan foto */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70 pointer-events-none" />
           </>
         ) : (
           <div className="absolute inset-0 bg-[#0f172a]/90 pointer-events-none" />
@@ -210,8 +210,8 @@ export default function TVDisplay() {
         <div className="w-full lg:w-[32%] xl:w-[30%] shrink-0 h-auto lg:h-full relative flex flex-col justify-between p-4 md:p-5 lg:p-6 xl:p-7 border-b lg:border-b-0 lg:border-r border-white/15 overflow-hidden bg-cover bg-center"
              style={{ backgroundImage: 'url("/bg-building.png")' }}>
           
-          {/* Dark Glass Overlay agar foto gedung terlihat megah & teks kontras tinggi */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-slate-950/70 to-black/90 pointer-events-none"></div>
+          {/* Overlay jernih & transparan tanpa efek buram agar gedung diklat terlihat jelas dan tajam */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/65 pointer-events-none"></div>
 
           {/* Baris Atas Kiri: Menu Garis Tiga (☰), Logo SIG & Logo Semen Tonasa */}
           <div className="relative z-20 flex items-center justify-between w-full">
@@ -220,7 +220,7 @@ export default function TVDisplay() {
               <div className="relative">
                 <button 
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="bg-slate-900/85 hover:bg-slate-800 text-white p-2.5 rounded-xl border border-white/20 hover:border-amber-400/50 backdrop-blur-md shadow-2xl transition-all cursor-pointer flex items-center justify-center group hover:scale-105"
+                  className="bg-slate-900/90 hover:bg-slate-800 text-white p-2.5 rounded-xl border border-white/20 hover:border-amber-400/50 shadow-2xl transition-all cursor-pointer flex items-center justify-center group hover:scale-105"
                   title="Menu Navigasi"
                   aria-label="Menu Navigasi"
                 >
@@ -234,7 +234,7 @@ export default function TVDisplay() {
                 </button>
 
                 {menuOpen && (
-                  <div className="absolute top-full left-0 mt-2.5 w-60 bg-slate-900/95 border border-slate-700/90 rounded-2xl shadow-2xl p-2.5 backdrop-blur-xl z-50 flex flex-col gap-1.5 animate-fadeIn">
+                  <div className="absolute top-full left-0 mt-2.5 w-60 bg-slate-900/95 border border-slate-700/90 rounded-2xl shadow-2xl p-2.5 z-50 flex flex-col gap-1.5 animate-fadeIn">
                     <button 
                       onClick={() => {
                         setShowInfoModal(true);
@@ -281,7 +281,7 @@ export default function TVDisplay() {
 
           {/* Bagian Tengah Kiri: Identitas Diklat, Jam Besar & Tanggal */}
           <div className="relative z-10 flex flex-col items-center justify-center text-center my-auto py-5">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/80 border border-amber-400/30 backdrop-blur-md mb-2 shadow-lg">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/90 border border-amber-400/40 mb-2 shadow-lg">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-[10px] xl:text-xs font-bold text-amber-300 tracking-wider uppercase">
                 DIKLAT PT SEMEN TONASA
@@ -304,7 +304,7 @@ export default function TVDisplay() {
             </div>
 
             {/* Hari & Tanggal */}
-            <div className="inline-flex items-center gap-1.5 text-xs xl:text-sm text-slate-200 font-semibold bg-black/55 px-3.5 py-1 rounded-full border border-white/15 backdrop-blur-sm mt-2 shadow">
+            <div className="inline-flex items-center gap-1.5 text-xs xl:text-sm text-slate-200 font-semibold bg-black/65 px-3.5 py-1 rounded-full border border-white/20 mt-2 shadow">
               <span>📅</span>
               <span>{format(time, 'EEEE, d MMMM yyyy', { locale: id })}</span>
               <span className="text-amber-400 font-bold">•</span>
@@ -313,7 +313,7 @@ export default function TVDisplay() {
           </div>
 
           {/* Bagian Bawah Kiri: Live Ruangan & Info Diklat */}
-          <div className="relative z-10 w-full bg-slate-900/85 border border-slate-700/80 rounded-2xl p-3 md:p-3.5 backdrop-blur-md shadow-2xl flex flex-col gap-2.5">
+          <div className="relative z-10 w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3 md:p-3.5 shadow-2xl flex flex-col gap-2.5">
             <div className="flex items-center justify-between text-xs font-bold">
               <span className="text-slate-300 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
