@@ -87,6 +87,34 @@ export default function AdminPage() {
     }
   }
 
+  // Handle Kirim Ulang Notifikasi Email ke Gmail
+  const handleResendEmail = async () => {
+    if (!pendingVerification?.email) return
+    setAuthLoading(true)
+    setAuthError('')
+    setAuthSuccess('')
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'resend_verification',
+          email: pendingVerification.email
+        })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setAuthSuccess(`📨 ${data.message || 'Email konfirmasi telah dikirim ulang ke Gmail Anda!'}`)
+      } else {
+        setAuthError(data.error || 'Gagal mengirim ulang email.')
+      }
+    } catch (err: any) {
+      setAuthError('Gagal menghubungi server: ' + err.message)
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
   useEffect(() => {
     setNow(new Date())
 
@@ -435,46 +463,51 @@ export default function AdminPage() {
                 </button>
               </div>
 
-              {/* KOTAK NOTIFIKASI VERIFIKASI GMAIL (JIKA BARU DAFTAR ATAU BELUM AKTIF) */}
+              {/* KOTAK NOTIFIKASI VERIFIKASI GMAIL (WAJIB KONFIRMASI DARI GMAIL) */}
               {pendingVerification && (
-                <div className="mb-3 p-3 bg-gradient-to-br from-[#2f0408] to-black border-2 border-amber-500/80 rounded-2xl text-white shadow-xl animate-fadeIn space-y-2">
+                <div className="mb-3 p-3.5 bg-gradient-to-br from-[#2f0408] to-black border-2 border-amber-500/80 rounded-2xl text-white shadow-xl animate-fadeIn space-y-2.5">
                   <div className="flex items-start gap-2.5">
-                    <span className="text-xl shrink-0 mt-0.5">📬</span>
+                    <span className="text-2xl shrink-0 mt-0.5">📬</span>
                     <div className="flex-1 min-w-0">
                       <h4 className="text-xs sm:text-sm font-black text-amber-300 leading-tight">
                         Wajib Konfirmasi Email di Gmail
                       </h4>
-                      <p className="text-[11px] text-zinc-200 mt-0.5 leading-snug">
-                        Notifikasi verifikasi dikirim ke: <strong className="text-white underline">{pendingVerification.email}</strong>
+                      <p className="text-[11px] text-zinc-200 mt-1 leading-snug">
+                        Email verifikasi telah dikirimkan ke: <strong className="text-white underline">{pendingVerification.email}</strong>
                       </p>
                       <p className="text-[9.5px] text-rose-300 font-semibold mt-1 bg-red-950/80 p-1.5 rounded-lg border border-red-800/60 leading-tight">
-                        ⚠️ Demi keamanan, akun <u>TIDAK BISA LOGIN</u> sebelum Anda mengonfirmasi email di Gmail (meskipun kata sandi Anda benar).
+                        ⚠️ Demi keamanan, akun <u>TIDAK BISA LOGIN</u> sebelum Anda membuka Gmail dan mengklik tombol konfirmasi di dalam email (meskipun kata sandi Anda benar).
                       </p>
                     </div>
                   </div>
 
-                  {/* Tombol Aksi Buka Gmail & Tombol Aktivasi Langsung */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  {/* Tombol Aksi Buka Gmail & Kirim Ulang (Tanpa Tombol Aktivasi Pintas) */}
+                  <div className="flex flex-col sm:flex-row gap-2 pt-1">
                     <a
                       href="https://mail.google.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="py-1.5 px-3 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl shadow border border-red-400/40 text-center transition flex items-center justify-center gap-1.5"
+                      className="flex-1 py-2 px-3 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl shadow border border-red-400/40 text-center transition flex items-center justify-center gap-1.5"
                     >
                       <span>✉️</span>
-                      <span>Buka Gmail</span>
+                      <span>Buka Gmail Sekarang</span>
                     </a>
 
                     <button
                       type="button"
                       disabled={authLoading}
-                      onClick={() => handleVerifyEmail(pendingVerification.email, pendingVerification.token || '')}
-                      className="py-1.5 px-3 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow border border-emerald-400/40 text-center transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      onClick={handleResendEmail}
+                      className="py-2 px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white font-bold text-xs rounded-xl shadow border border-zinc-600/50 text-center transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      title="Kirim ulang email jika belum masuk"
                     >
-                      <span>✅</span>
-                      <span>{authLoading ? 'Mengonfirmasi...' : 'Aktivasi / Konfirmasi'}</span>
+                      <span>🔄</span>
+                      <span>{authLoading ? 'Mengirim...' : 'Kirim Ulang Email'}</span>
                     </button>
                   </div>
+
+                  <p className="text-[9px] text-zinc-400 text-center italic">
+                    Periksa kotak masuk (Inbox) atau folder Spam di akun Gmail Anda.
+                  </p>
                 </div>
               )}
 

@@ -44,17 +44,20 @@ function saveLocalData(data: any) {
 
 function getSupabaseClient() {
   let url = process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL;
-  let key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_KEY;
+  let key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_KEY;
 
-  // Deteksi jika user menyimpannya dengan format terbalik di Vercel
   for (const [envKey, envVal] of Object.entries(process.env)) {
     if (typeof envKey === 'string' && typeof envVal === 'string') {
-      if (envKey.startsWith('sb_publishable_') && envVal.startsWith('https://')) {
+      if (envKey.toUpperCase().includes('SERVICE_ROLE') && envVal.length > 20) {
+        key = envVal;
+        break;
+      }
+      if (envKey.startsWith('sb_publishable_') && envVal.startsWith('https://') && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
         key = envKey;
         url = envVal;
         break;
       }
-      if (envVal.startsWith('sb_publishable_') && envKey.startsWith('https://')) {
+      if (envVal.startsWith('sb_publishable_') && envKey.startsWith('https://') && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
         key = envVal;
         url = envKey;
         break;
@@ -63,7 +66,12 @@ function getSupabaseClient() {
   }
 
   try {
-    return createClient(url, key);
+    return createClient(url, key, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
   } catch {
     return null;
   }

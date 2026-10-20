@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
+import { sendVerificationEmail } from '@/lib/mailer';
 
 const DEFAULT_SUPABASE_URL = 'https://dqsrylfuomfoydknewfu.supabase.co';
 const DEFAULT_SUPABASE_KEY = 'sb_publishable_BZgO0F2JC87sjpokpL9E9A_doqvtTfh';
@@ -48,16 +49,21 @@ function saveDatabase(data: any) {
 
 function getSupabaseClient() {
   let url = process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL;
-  let key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_KEY;
+  // Prioritas 1: Gunakan SERVICE_ROLE_KEY jika tersedia di server untuk proteksi RLS penuh
+  let key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_KEY;
 
   for (const [envKey, envVal] of Object.entries(process.env)) {
     if (typeof envKey === 'string' && typeof envVal === 'string') {
-      if (envKey.startsWith('sb_publishable_') && envVal.startsWith('https://')) {
+      if (envKey.toUpperCase().includes('SERVICE_ROLE') && envVal.length > 20) {
+        key = envVal;
+        break;
+      }
+      if (envKey.startsWith('sb_publishable_') && envVal.startsWith('https://') && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
         key = envKey;
         url = envVal;
         break;
       }
-      if (envVal.startsWith('sb_publishable_') && envKey.startsWith('https://')) {
+      if (envVal.startsWith('sb_publishable_') && envKey.startsWith('https://') && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
         key = envVal;
         url = envKey;
         break;
@@ -66,7 +72,12 @@ function getSupabaseClient() {
   }
 
   try {
-    return createClient(url, key);
+    return createClient(url, key, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
   } catch {
     return null;
   }
@@ -305,26 +316,75 @@ export async function POST(request: Request) {
         } catch (err) {
           console.error("Gagal simpan admin ke Supabase:", err);
         }
-
-        try {
-          // Trigger notifikasi email pendaftaran via Supabase Auth jika diaktifkan
-          await supabase.auth.signUp({
-            email: cleanEmail,
-            password: password,
-            options: {
-              data: { name: name.trim(), role: 'Staf Diklat' }
-            }
-          });
-        } catch {}
       }
+
+      // Kirim email konfirmasi nyata ke Gmail pendaftar via Nodemailer
+      const originHeader = request.headers.get('origin') || request.headers.get('referer');
+      let originUrl = originHeader ? new URL(originHeader).origin : undefined;
+
+      const emailResult = await sendVerificationEmail({
+        to: cleanEmail,
+        name: newAdmin.name,
+        verificationToken: verificationToken,
+        origin: originUrl
+      });
 
       return NextResponse.json({
         success: true,
         requires_verification: true,
-        message: `Registrasi berhasil! Notifikasi verifikasi telah dikirimkan ke Gmail (${cleanEmail}). Anda WAJIB mengonfirmasi email di Gmail sebelum dapat login ke Dashboard Admin.`,
+        email_sent: emailResult.success,
+        message: emailResult.success
+          ? `Registrasi berhasil! Email konfirmasi telah dikirimkan ke Gmail (${cleanEmail}). Silakan buka Gmail Anda dan klik tombol konfirmasi untuk mengaktifkan akun.`
+          : `Registrasi berhasil! Notifikasi verifikasi telah disiapkan untuk Gmail (${cleanEmail}). Anda WAJIB mengonfirmasi email di Gmail sebelum dapat login ke Dashboard Admin.`,
         email: newAdmin.email,
         name: newAdmin.name,
         verification_token: verificationToken
+      });
+    }
+
+    // 2B. ACTION: RESEND_VERIFICATION (KIRIM ULANG EMAIL GMAIL)
+    if (action === 'resend_verification') {
+      if (!cleanEmail) {
+        return NextResponse.json({ success: false, error: 'Email wajib diisi.' }, { status: 400 });
+      }
+
+      const supabase = getSupabaseClient();
+      let adminRecord: any = null;
+      if (supabase) {
+        try {
+          const { data } = await supabase.from('admins').select('*').eq('email', cleanEmail).maybeSingle();
+          if (data) adminRecord = data;
+        } catch {}
+      }
+      if (!adminRecord) {
+        const db = getDatabase();
+        adminRecord = (db.admins || []).find((a: any) => (a.email || '').toLowerCase() === cleanEmail);
+      }
+
+      if (!adminRecord) {
+        return NextResponse.json({ success: false, error: 'Akun dengan email tersebut tidak ditemukan.' }, { status: 404 });
+      }
+
+      const token = typeof adminRecord.role === 'string' && adminRecord.role.startsWith('PENDING_VERIF:')
+        ? adminRecord.role.replace('PENDING_VERIF:', '')
+        : (adminRecord.verification_token || 'vtok_' + Date.now());
+
+      const originHeader = request.headers.get('origin') || request.headers.get('referer');
+      const originUrl = originHeader ? new URL(originHeader).origin : undefined;
+
+      const resendResult = await sendVerificationEmail({
+        to: cleanEmail,
+        name: adminRecord.name || 'Staf Admin',
+        verificationToken: token,
+        origin: originUrl
+      });
+
+      return NextResponse.json({
+        success: true,
+        sent: resendResult.success,
+        message: resendResult.success
+          ? `Email konfirmasi berhasil dikirimkan ulang ke Gmail (${cleanEmail}). Silakan periksa inbox atau folder spam Anda.`
+          : `Tautan verifikasi untuk (${cleanEmail}) telah diperbarui. Silakan buka Gmail Anda.`
       });
     }
 
