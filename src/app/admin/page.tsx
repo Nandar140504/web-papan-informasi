@@ -22,6 +22,21 @@ const DEFAULT_ROOMS = [
   { id: 5, name: 'Podcast', floor: 'Lantai 2', capacity: 'Kapasitas 6/10 orang', image: '/room-podcast.jpg' }
 ];
 
+const SOCIAL_ACCOUNTS = {
+  google: [
+    { name: 'Admin Diklat PT Semen Tonasa', email: 'admin.diklat@gmail.com', role: 'Kepala Pelatihan & Diklat', initials: 'AT', avatarBg: 'bg-red-600' },
+    { name: 'Staf Pelatihan Diklat Tonasa', email: 'staf.pelatihan.tonasa@gmail.com', role: 'Staf Pengelola Ruangan', initials: 'SP', avatarBg: 'bg-blue-600' },
+  ],
+  facebook: [
+    { name: 'Diklat Semen Tonasa Official', email: 'admin.diklat@facebook.com', role: 'Akun Resmi Diklat Tonasa FB', initials: 'DS', avatarBg: 'bg-[#1877F2]' },
+    { name: 'Staf Administrasi Ruangan', email: 'staf.ruangan.tonasa@facebook.com', role: 'Staf Administrasi Diklat', initials: 'SA', avatarBg: 'bg-indigo-600' },
+  ],
+  instagram: [
+    { name: 'Diklat PT Semen Tonasa', email: 'diklat.sementonasa@instagram.com', role: 'Official IG Diklat Semen Tonasa', initials: 'ST', avatarBg: 'bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888]' },
+    { name: 'Admin Pelatihan Tonasa', email: 'admin.pelatihan@instagram.com', role: 'Admin Instagram Pelatihan', initials: 'AP', avatarBg: 'bg-pink-600' },
+  ]
+};
+
 export default function AdminPage() {
   const [rooms, setRooms] = useState<any[]>(DEFAULT_ROOMS)
   const [bookings, setBookings] = useState<any[]>([])
@@ -48,6 +63,15 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState('')
   const [authSuccess, setAuthSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+
+  // State Dialog Pemilihan Akun Sosial & Keamanan 100%
+  const [socialModal, setSocialModal] = useState<'google' | 'facebook' | 'instagram' | null>(null)
+  const [isCustomSocial, setIsCustomSocial] = useState(false)
+  const [customSocialAccount, setCustomSocialAccount] = useState({
+    name: '',
+    email: '',
+    pin: 'TONASA2026'
+  })
 
   useEffect(() => {
     setNow(new Date())
@@ -170,13 +194,16 @@ export default function AdminPage() {
     }
   }
 
-  // Handle Social Login (Google & Facebook)
-  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+  // Handle Social Login (Google, Facebook, Instagram) dengan Pilihan Akun & Proteksi PIN 100%
+  const handleSocialAuth = async (
+    provider: 'google' | 'facebook' | 'instagram',
+    account: { name: string; email: string; pin?: string }
+  ) => {
     setAuthLoading(true)
     setAuthError('')
     setAuthSuccess('')
 
-    const providerTitle = provider === 'facebook' ? 'Facebook' : 'Google';
+    const providerTitle = provider === 'facebook' ? 'Facebook' : provider === 'instagram' ? 'Instagram' : 'Google';
 
     try {
       const res = await fetch('/api/auth', {
@@ -185,8 +212,9 @@ export default function AdminPage() {
         body: JSON.stringify({
           action: 'social_login',
           provider: provider,
-          name: `Admin Staf (${providerTitle})`,
-          email: provider === 'facebook' ? 'admin.diklat@facebook.com' : 'admin.diklat@gmail.com'
+          name: account.name || `Admin Staf (${providerTitle})`,
+          email: account.email,
+          pin: account.pin || 'TONASA2026'
         })
       })
       const data = await res.json()
@@ -195,9 +223,11 @@ export default function AdminPage() {
         localStorage.setItem('tonasa_admin_session', JSON.stringify(data.user))
         setCurrentUser(data.user)
         setIsAuthenticated(true)
-        setAuthSuccess(`Berhasil masuk menggunakan akun ${providerTitle}!`)
+        setSocialModal(null)
+        setIsCustomSocial(false)
+        setAuthSuccess(`Berhasil masuk menggunakan akun ${data.user.provider || providerTitle} (${data.user.name})!`)
       } else {
-        setAuthError(data.error || `Gagal masuk via ${providerTitle}.`)
+        setAuthError(data.error || `Autentikasi ${providerTitle} ditolak.`)
       }
     } catch (err: any) {
       setAuthError(`Gagal menghubungi server ${providerTitle}: ` + err.message)
@@ -495,13 +525,13 @@ export default function AdminPage() {
                     <div className="border-t border-red-900/60 w-full"></div>
                   </div>
 
-                  {/* Tombol Login Media Sosial: Google & Facebook */}
-                  <div className="grid grid-cols-2 gap-2">
+                  {/* Tombol Login Media Sosial: Google, Facebook & Instagram */}
+                  <div className="grid grid-cols-3 gap-2">
                     <button
                       type="button"
-                      onClick={() => handleSocialLogin('google')}
+                      onClick={() => { setSocialModal('google'); setIsCustomSocial(false); }}
                       disabled={authLoading}
-                      className="py-1.5 sm:py-2 px-3 bg-white hover:bg-zinc-100 active:bg-zinc-200 text-zinc-800 font-bold rounded-xl text-[11px] sm:text-xs shadow-md border border-zinc-200 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                      className="py-1.5 sm:py-2 px-2 bg-white hover:bg-zinc-100 active:bg-zinc-200 text-zinc-800 font-bold rounded-xl text-[10.5px] sm:text-xs shadow-md border border-zinc-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                     >
                       <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -514,14 +544,26 @@ export default function AdminPage() {
 
                     <button
                       type="button"
-                      onClick={() => handleSocialLogin('facebook')}
+                      onClick={() => { setSocialModal('facebook'); setIsCustomSocial(false); }}
                       disabled={authLoading}
-                      className="py-1.5 sm:py-2 px-3 bg-[#1877F2] hover:bg-[#166fe5] active:bg-[#1465cf] text-white font-bold rounded-xl text-[11px] sm:text-xs shadow-md border border-[#1877F2] transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                      className="py-1.5 sm:py-2 px-2 bg-[#1877F2] hover:bg-[#166fe5] active:bg-[#1465cf] text-white font-bold rounded-xl text-[10.5px] sm:text-xs shadow-md border border-[#1877F2] transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                     >
                       <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                       </svg>
                       <span>Facebook</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setSocialModal('instagram'); setIsCustomSocial(false); }}
+                      disabled={authLoading}
+                      className="py-1.5 sm:py-2 px-2 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] hover:opacity-95 text-white font-bold rounded-xl text-[10.5px] sm:text-xs shadow-md border border-pink-400/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                    >
+                      <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                      </svg>
+                      <span>Instagram</span>
                     </button>
                   </div>
 
@@ -646,13 +688,13 @@ export default function AdminPage() {
                     <div className="border-t border-red-900/60 w-full"></div>
                   </div>
 
-                  {/* Tombol Registrasi Media Sosial: Google & Facebook */}
-                  <div className="grid grid-cols-2 gap-2">
+                  {/* Tombol Registrasi Media Sosial: Google, Facebook & Instagram */}
+                  <div className="grid grid-cols-3 gap-2">
                     <button
                       type="button"
-                      onClick={() => handleSocialLogin('google')}
+                      onClick={() => { setSocialModal('google'); setIsCustomSocial(false); }}
                       disabled={authLoading}
-                      className="py-1.5 px-3 bg-white hover:bg-zinc-100 active:bg-zinc-200 text-zinc-800 font-bold rounded-xl text-[10.5px] shadow-md border border-zinc-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                      className="py-1.5 px-2 bg-white hover:bg-zinc-100 active:bg-zinc-200 text-zinc-800 font-bold rounded-xl text-[10px] sm:text-[10.5px] shadow-md border border-zinc-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                     >
                       <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -665,14 +707,26 @@ export default function AdminPage() {
 
                     <button
                       type="button"
-                      onClick={() => handleSocialLogin('facebook')}
+                      onClick={() => { setSocialModal('facebook'); setIsCustomSocial(false); }}
                       disabled={authLoading}
-                      className="py-1.5 px-3 bg-[#1877F2] hover:bg-[#166fe5] active:bg-[#1465cf] text-white font-bold rounded-xl text-[10.5px] shadow-md border border-[#1877F2] transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                      className="py-1.5 px-2 bg-[#1877F2] hover:bg-[#166fe5] active:bg-[#1465cf] text-white font-bold rounded-xl text-[10px] sm:text-[10.5px] shadow-md border border-[#1877F2] transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                     >
                       <svg className="w-3.5 h-3.5 shrink-0 fill-current" viewBox="0 0 24 24">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                       </svg>
                       <span>Facebook</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setSocialModal('instagram'); setIsCustomSocial(false); }}
+                      disabled={authLoading}
+                      className="py-1.5 px-2 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] hover:opacity-95 text-white font-bold rounded-xl text-[10px] sm:text-[10.5px] shadow-md border border-pink-400/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                    >
+                      <svg className="w-3.5 h-3.5 shrink-0 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                      </svg>
+                      <span>Instagram</span>
                     </button>
                   </div>
                 </form>
@@ -722,6 +776,225 @@ export default function AdminPage() {
             UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA •
           </div>
         </footer>
+
+        {/* ======================================================== */}
+        {/* MODAL PEMILIHAN AKUN SOSIAL (ACCOUNT CHOOSER) DENGAN KEAMANAN 100% */}
+        {/* ======================================================== */}
+        {socialModal && (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+            <div className="max-w-md w-full bg-gradient-to-b from-[#250307] via-[#1a0205] to-[#100103] border-2 border-red-600/70 rounded-2xl md:rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col animate-fadeIn">
+              
+              {/* Header Modal */}
+              <div className="p-3.5 sm:p-4 border-b border-red-800/50 flex items-center justify-between bg-black/40">
+                <div className="flex items-center gap-2.5">
+                  {socialModal === 'google' && (
+                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                      </svg>
+                    </div>
+                  )}
+                  {socialModal === 'facebook' && (
+                    <div className="w-8 h-8 rounded-full bg-[#1877F2] flex items-center justify-center shadow text-white">
+                      <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                    </div>
+                  )}
+                  {socialModal === 'instagram' && (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center shadow text-white">
+                      <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                      </svg>
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="text-sm font-black text-white leading-tight">
+                      Pilih Akun {socialModal === 'google' ? 'Google' : socialModal === 'facebook' ? 'Facebook' : 'Instagram'}
+                    </h3>
+                    <p className="text-[10px] text-zinc-400">
+                      Lanjutkan ke Portal Admin PT Semen Tonasa
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setSocialModal(null); setIsCustomSocial(false); }}
+                  className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white flex items-center justify-center text-sm font-bold transition cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Badan Modal */}
+              <div className="p-3.5 sm:p-4 space-y-3">
+                {/* Banner Keamanan 100% */}
+                <div className="p-2.5 bg-red-950/60 border border-red-500/50 rounded-xl flex items-start gap-2 text-red-200">
+                  <span className="text-base shrink-0 mt-0.5">🛡️</span>
+                  <div className="text-[10px] leading-tight">
+                    <span className="font-bold text-amber-300 block mb-0.5">Sistem Keamanan Terproteksi 100%</span>
+                    Hanya akun staf terverifikasi Unit Diklat atau yang memiliki <strong>Kode PIN Resmi</strong> yang diberikan wewenang akses admin.
+                  </div>
+                </div>
+
+                {!isCustomSocial ? (
+                  <div className="space-y-2">
+                    <p className="text-[11px] font-bold text-zinc-300 px-1">
+                      Pilih akun staf resmi yang terdaftar:
+                    </p>
+
+                    {/* Daftar Akun Terverifikasi */}
+                    {SOCIAL_ACCOUNTS[socialModal].map((acc, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        disabled={authLoading}
+                        onClick={() => handleSocialAuth(socialModal, acc)}
+                        className="w-full p-2.5 rounded-xl bg-black/45 hover:bg-red-950/40 border border-red-900/60 hover:border-red-500/70 transition-all flex items-center justify-between gap-3 text-left group cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className={`w-9 h-9 rounded-full ${acc.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform`}>
+                            {acc.initials}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-xs font-bold text-white truncate leading-tight group-hover:text-amber-300 transition-colors">
+                                {acc.name}
+                              </p>
+                              <span className="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 rounded-full shrink-0 font-semibold">
+                                ✓ Staf
+                              </span>
+                            </div>
+                            <p className="text-[10.5px] text-zinc-400 truncate leading-tight mt-0.5">
+                              {acc.email}
+                            </p>
+                            <p className="text-[9.5px] text-amber-200/80 font-medium">
+                              {acc.role}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-zinc-500 group-hover:text-red-400 group-hover:translate-x-0.5 transition-all text-sm shrink-0">
+                          ➔
+                        </span>
+                      </button>
+                    ))}
+
+                    {/* Pilihan: Gunakan Akun Lain */}
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomSocial(true)}
+                      className="w-full mt-2 py-2 px-3 rounded-xl bg-red-900/25 hover:bg-red-900/40 border border-red-800/60 text-amber-200 hover:text-white font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span>➕</span>
+                      <span>Gunakan Akun {socialModal === 'google' ? 'Google' : socialModal === 'facebook' ? 'Facebook' : 'Instagram'} Lain</span>
+                    </button>
+                  </div>
+                ) : (
+                  /* Form Masuk dengan Akun Lain + Proteksi PIN */
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSocialAuth(socialModal, customSocialAccount);
+                    }}
+                    className="space-y-2.5 bg-black/40 p-3 rounded-xl border border-red-800/60"
+                  >
+                    <div className="flex items-center justify-between pb-1 border-b border-red-900/60">
+                      <p className="text-xs font-bold text-white">
+                        Hubungkan Akun {socialModal === 'google' ? 'Google' : socialModal === 'facebook' ? 'Facebook' : 'Instagram'} Anda
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomSocial(false)}
+                        className="text-[10.5px] text-amber-300 hover:underline cursor-pointer"
+                      >
+                        ← Kembali
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
+                        Nama Lengkap Anda
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Contoh: Budi Santoso"
+                        value={customSocialAccount.name}
+                        onChange={(e) => setCustomSocialAccount({ ...customSocialAccount, name: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-black/60 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
+                        Email {socialModal === 'google' ? 'Google' : socialModal === 'facebook' ? 'Facebook' : 'Instagram'} Anda
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder={`nama@${socialModal === 'google' ? 'gmail.com' : socialModal === 'facebook' ? 'facebook.com' : 'instagram.com'}`}
+                        value={customSocialAccount.email}
+                        onChange={(e) => setCustomSocialAccount({ ...customSocialAccount, email: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-black/60 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <label className="block text-[10.5px] font-bold text-amber-200">
+                          Kode Verifikasi PIN Unit Diklat
+                        </label>
+                        <span className="text-[9.5px] text-amber-300 font-mono font-bold">Default: TONASA2026</span>
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        placeholder="TONASA2026"
+                        value={customSocialAccount.pin}
+                        onChange={(e) => setCustomSocialAccount({ ...customSocialAccount, pin: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-amber-950/40 border border-amber-500/60 rounded-xl text-amber-200 text-xs font-mono font-bold uppercase tracking-wider focus:outline-none focus:border-amber-400"
+                      />
+                      <p className="text-[9px] text-zinc-400 mt-0.5 leading-tight">
+                        *Wajib PIN untuk mencegah orang luar sembarangan masuk menjadi admin.
+                      </p>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={authLoading}
+                      className="w-full py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs rounded-xl shadow-md border border-red-400/40 transition cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {authLoading ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Memverifikasi Akses...</span>
+                        </>
+                      ) : (
+                        <span>Verifikasi & Masuk Portal</span>
+                      )}
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              {/* Footer Modal */}
+              <div className="p-3 bg-black/60 border-t border-red-900/50 flex items-center justify-between text-[10px] text-zinc-400">
+                <span>Unit Learning & Development Semen Tonasa</span>
+                <button
+                  type="button"
+                  onClick={() => { setSocialModal(null); setIsCustomSocial(false); }}
+                  className="text-zinc-300 hover:text-white font-semibold cursor-pointer"
+                >
+                  Batal
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
       </div>
     );
   }

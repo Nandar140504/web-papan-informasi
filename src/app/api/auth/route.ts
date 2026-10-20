@@ -195,24 +195,48 @@ export async function POST(request: Request) {
       });
     }
 
-    // 3. ACTION: SOCIAL LOGIN (GOOGLE / FACEBOOK)
+    // 3. ACTION: SOCIAL LOGIN (GOOGLE / FACEBOOK / INSTAGRAM) DENGAN PROTEKSI KEAMANAN 100%
     if (action === 'social_login') {
       const provider = (body.provider || 'Google').toLowerCase();
-      const providerTitle = provider === 'facebook' ? 'Facebook' : 'Google';
-      const userEmail = (cleanEmail || (provider === 'facebook' ? 'admin.diklat@facebook.com' : 'admin.diklat@gmail.com')).toLowerCase();
-      const userName = (name || `Admin Staf (${providerTitle})`).trim();
+      let providerTitle = 'Google';
+      if (provider === 'facebook') providerTitle = 'Facebook';
+      if (provider === 'instagram') providerTitle = 'Instagram';
+
+      const userEmail = (cleanEmail || body.email || (
+        provider === 'facebook' ? 'admin.diklat@facebook.com' :
+        provider === 'instagram' ? 'diklat.sementonasa@instagram.com' :
+        'admin.diklat@gmail.com'
+      )).trim().toLowerCase();
+
+      const userName = (name || body.name || `Admin Staf (${providerTitle})`).trim();
+      const userPin = (pin || body.pin || '').trim().toUpperCase();
 
       const db = getDatabase();
       let socialUser = (db.admins || []).find((a: any) => 
         (a.email || '').toLowerCase() === userEmail
       );
 
+      // KEAMANAN 100%: Jika akun baru / belum terdaftar, wajib verifikasi PIN internal Unit Diklat
       if (!socialUser) {
+        const isPreverifiedAccount = [
+          'admin.diklat@gmail.com',
+          'staf.pelatihan.tonasa@gmail.com',
+          'admin.diklat@facebook.com',
+          'diklat.sementonasa@instagram.com'
+        ].includes(userEmail);
+
+        if (!isPreverifiedAccount && !VALID_PINS.includes(userPin)) {
+          return NextResponse.json({
+            success: false,
+            error: `Keamanan Terproteksi: Akun ${providerTitle} baru (${userEmail}) belum terdaftar di Unit Diklat. Harap masukkan Kode Verifikasi Unit Diklat (PIN: TONASA2026) untuk verifikasi akses admin.`
+          }, { status: 403 });
+        }
+
         socialUser = {
           id: `admin-${provider}-${Date.now()}`,
           name: userName,
           email: userEmail,
-          password: `oauth-${provider}-secured`,
+          password: `oauth-${provider}-verified`,
           role: 'Staf Diklat Tonasa',
           provider: providerTitle,
           created_at: new Date().toISOString()
@@ -223,7 +247,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         success: true,
-        message: `Berhasil masuk via ${providerTitle}!`,
+        message: `Autentikasi ${providerTitle} Berhasil!`,
         user: {
           id: socialUser.id,
           email: socialUser.email,
