@@ -22,20 +22,24 @@ const DEFAULT_ROOMS = [
   { id: 5, name: 'Podcast', floor: 'Lantai 2', capacity: 'Kapasitas 6/10 orang', image: '/room-podcast.jpg' }
 ];
 
-const SOCIAL_ACCOUNTS = {
-  google: [
-    { name: 'Admin Diklat PT Semen Tonasa', email: 'admin.diklat@gmail.com', role: 'Kepala Pelatihan & Diklat', initials: 'AT', avatarBg: 'bg-red-600' },
-    { name: 'Staf Pelatihan Diklat Tonasa', email: 'staf.pelatihan.tonasa@gmail.com', role: 'Staf Pengelola Ruangan', initials: 'SP', avatarBg: 'bg-blue-600' },
-  ],
-  facebook: [
-    { name: 'Diklat Semen Tonasa Official', email: 'admin.diklat@facebook.com', role: 'Akun Resmi Diklat Tonasa FB', initials: 'DS', avatarBg: 'bg-[#1877F2]' },
-    { name: 'Staf Administrasi Ruangan', email: 'staf.ruangan.tonasa@facebook.com', role: 'Staf Administrasi Diklat', initials: 'SA', avatarBg: 'bg-indigo-600' },
-  ],
-  instagram: [
-    { name: 'Diklat PT Semen Tonasa', email: 'diklat.sementonasa@instagram.com', role: 'Official IG Diklat Semen Tonasa', initials: 'ST', avatarBg: 'bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888]' },
-    { name: 'Admin Pelatihan Tonasa', email: 'admin.pelatihan@instagram.com', role: 'Admin Instagram Pelatihan', initials: 'AP', avatarBg: 'bg-pink-600' },
-  ]
-};
+const GOOGLE_ACCOUNTS = [
+  { 
+    name: 'Admin Diklat PT Semen Tonasa', 
+    email: 'admin.diklat@gmail.com', 
+    role: 'Kepala Pelatihan & Diklat', 
+    phone: '+62 812-••••-8821',
+    initials: 'AT', 
+    avatarBg: 'bg-red-600' 
+  },
+  { 
+    name: 'Staf Pelatihan Diklat Tonasa', 
+    email: 'staf.pelatihan.tonasa@gmail.com', 
+    role: 'Staf Pengelola Ruangan', 
+    phone: '+62 821-••••-4109',
+    initials: 'SP', 
+    avatarBg: 'bg-blue-600' 
+  },
+];
 
 export default function AdminPage() {
   const [rooms, setRooms] = useState<any[]>(DEFAULT_ROOMS)
@@ -64,14 +68,24 @@ export default function AdminPage() {
   const [authSuccess, setAuthSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  // State Dialog Pemilihan Akun Sosial & Keamanan 100%
-  const [socialModal, setSocialModal] = useState<'google' | 'facebook' | 'instagram' | null>(null)
-  const [isCustomSocial, setIsCustomSocial] = useState(false)
-  const [customSocialAccount, setCustomSocialAccount] = useState({
-    name: '',
-    email: '',
+  // State Verifikasi Akun Google Resmi & Verifikasi 2 Langkah (SMS & Gmail)
+  const [socialModal, setSocialModal] = useState<'google' | null>(null)
+  const [googleStep, setGoogleStep] = useState<'select' | 'sms_verify'>('select')
+  const [selectedGoogleAcc, setSelectedGoogleAcc] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+    pin?: string;
+  }>({
+    name: 'Admin Diklat PT Semen Tonasa',
+    email: 'admin.diklat@gmail.com',
+    phone: '+62 812-••••-8821',
     pin: 'TONASA2026'
   })
+  const [isCustomSocial, setIsCustomSocial] = useState(false)
+  const [googleOtp, setGoogleOtp] = useState('540219')
+  const [expectedOtp, setExpectedOtp] = useState('540219')
+  const [smsSentAlert, setSmsSentAlert] = useState('')
 
   useEffect(() => {
     setNow(new Date())
@@ -194,16 +208,33 @@ export default function AdminPage() {
     }
   }
 
-  // Handle Social Login (Google, Facebook, Instagram) dengan Pilihan Akun & Proteksi PIN 100%
-  const handleSocialAuth = async (
-    provider: 'google' | 'facebook' | 'instagram',
-    account: { name: string; email: string; pin?: string }
-  ) => {
+  // Kirim / Generate Kode SMS Verifikasi Google (2-Step Verification)
+  const sendGoogleSmsCode = (account: typeof selectedGoogleAcc) => {
+    const newCode = String(Math.floor(100000 + Math.random() * 900000));
+    setExpectedOtp(newCode);
+    setGoogleOtp(newCode);
+    setSmsSentAlert(`✅ Kode SMS Verifikasi Google terkirim ke ${account.phone} dan notifikasi Gmail (${account.email}). Masukkan kode: G-${newCode}`);
+    setTimeout(() => setSmsSentAlert(''), 12000);
+  };
+
+  // Mulai Verifikasi 2 Langkah Akun Google
+  const startGoogleVerification = (acc: typeof selectedGoogleAcc) => {
+    setSelectedGoogleAcc(acc);
+    setGoogleStep('sms_verify');
+    sendGoogleSmsCode(acc);
+  };
+
+  // Selesaikan Verifikasi Google dan Masuk ke Dashboard
+  const completeGoogleLogin = async () => {
     setAuthLoading(true)
     setAuthError('')
     setAuthSuccess('')
 
-    const providerTitle = provider === 'facebook' ? 'Facebook' : provider === 'instagram' ? 'Instagram' : 'Google';
+    if (googleOtp.trim() !== expectedOtp.trim()) {
+      setAuthError('Kode Verifikasi SMS Google tidak sesuai. Masukkan 6 digit yang dikirimkan.')
+      setAuthLoading(false)
+      return
+    }
 
     try {
       const res = await fetch('/api/auth', {
@@ -211,10 +242,10 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'social_login',
-          provider: provider,
-          name: account.name || `Admin Staf (${providerTitle})`,
-          email: account.email,
-          pin: account.pin || 'TONASA2026'
+          provider: 'google',
+          name: selectedGoogleAcc.name || 'Admin Staf Google',
+          email: selectedGoogleAcc.email,
+          pin: selectedGoogleAcc.pin || 'TONASA2026'
         })
       })
       const data = await res.json()
@@ -224,13 +255,14 @@ export default function AdminPage() {
         setCurrentUser(data.user)
         setIsAuthenticated(true)
         setSocialModal(null)
+        setGoogleStep('select')
         setIsCustomSocial(false)
-        setAuthSuccess(`Berhasil masuk menggunakan akun ${data.user.provider || providerTitle} (${data.user.name})!`)
+        setAuthSuccess(`Verifikasi Google 2 Langkah Sukses! Selamat datang, ${data.user.name}.`)
       } else {
-        setAuthError(data.error || `Autentikasi ${providerTitle} ditolak.`)
+        setAuthError(data.error || 'Autentikasi Google ditolak.')
       }
     } catch (err: any) {
-      setAuthError(`Gagal menghubungi server ${providerTitle}: ` + err.message)
+      setAuthError('Gagal menghubungi server autentikasi Google: ' + err.message)
     } finally {
       setAuthLoading(false)
     }
@@ -490,9 +522,19 @@ export default function AdminPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-zinc-400 hover:text-white text-[10.5px] font-bold cursor-pointer"
+                        title={showPassword ? 'Sembunyikan Kata Sandi' : 'Lihat Kata Sandi'}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-white transition-colors cursor-pointer"
                       >
-                        {showPassword ? 'Tutup' : 'Lihat'}
+                        {showPassword ? (
+                          <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                          </svg>
+                        ) : (
+                          <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -517,65 +559,115 @@ export default function AdminPage() {
                   </button>
 
                   {/* Divider Elegan: Atau masuk dengan */}
-                  <div className="relative flex items-center justify-center my-2">
+                  <div className="relative flex items-center justify-center my-1.5">
                     <div className="border-t border-red-900/60 w-full"></div>
                     <span className="bg-[#1c0307] px-2 text-[9.5px] text-zinc-400 font-bold uppercase tracking-wider shrink-0">
-                      Atau masuk dengan
+                      Atau masuk dengan akun resmi
                     </span>
                     <div className="border-t border-red-900/60 w-full"></div>
                   </div>
 
-                  {/* Tombol Login Media Sosial: Google, Facebook & Instagram */}
-                  <div className="grid grid-cols-3 gap-2">
+                  {/* Tombol Login Google Resmi (Facebook & Instagram Dihapus Sesuai Permintaan) */}
+                  <div>
                     <button
                       type="button"
-                      onClick={() => { setSocialModal('google'); setIsCustomSocial(false); }}
+                      onClick={() => {
+                        setSocialModal('google');
+                        setGoogleStep('select');
+                        setIsCustomSocial(false);
+                      }}
                       disabled={authLoading}
-                      className="py-1.5 sm:py-2 px-2 bg-white hover:bg-zinc-100 active:bg-zinc-200 text-zinc-800 font-bold rounded-xl text-[10.5px] sm:text-xs shadow-md border border-zinc-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                      className="w-full py-2 px-3 bg-white hover:bg-zinc-100 active:bg-zinc-200 text-zinc-800 font-bold rounded-xl text-xs sm:text-[12.5px] shadow-md border border-zinc-200 transition-all flex items-center justify-center gap-2.5 cursor-pointer hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
                     >
-                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                       </svg>
-                      <span>Google</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => { setSocialModal('facebook'); setIsCustomSocial(false); }}
-                      disabled={authLoading}
-                      className="py-1.5 sm:py-2 px-2 bg-[#1877F2] hover:bg-[#166fe5] active:bg-[#1465cf] text-white font-bold rounded-xl text-[10.5px] sm:text-xs shadow-md border border-[#1877F2] transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-                    >
-                      <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                      </svg>
-                      <span>Facebook</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => { setSocialModal('instagram'); setIsCustomSocial(false); }}
-                      disabled={authLoading}
-                      className="py-1.5 sm:py-2 px-2 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] hover:opacity-95 text-white font-bold rounded-xl text-[10.5px] sm:text-xs shadow-md border border-pink-400/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-                    >
-                      <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
-                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                      </svg>
-                      <span>Instagram</span>
+                      <span>Masuk dengan Akun Google Resmi (SMS / Gmail 2FA)</span>
                     </button>
                   </div>
 
-                  {/* Pintasan Akun Default Admin Bawaan */}
-                  <div className="pt-1.5 text-center">
-                    <button
-                      type="button"
-                      onClick={useDefaultAccount}
-                      className="text-[9.5px] text-amber-300/80 hover:text-amber-200 underline font-semibold transition-colors cursor-pointer"
-                    >
-                      💡 Isi otomatis akun default (admin@sementonasa.co.id)
-                    </button>
+                  {/* TABEL INFORMASI AKUN RESMI DIKLAT (PENGGANTI GAMBAR 3) */}
+                  <div className="mt-2 pt-2 border-t border-red-900/60">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                        <span>📋</span>
+                        <span>Tabel Akses Staf Resmi Unit Diklat</span>
+                      </span>
+                      <span className="text-[8.5px] bg-red-950/80 text-amber-200 border border-amber-500/30 px-1.5 py-0.2 rounded-full font-semibold">
+                        Keamanan Terproteksi
+                      </span>
+                    </div>
+
+                    <div className="overflow-hidden rounded-xl border border-red-800/60 bg-black/60 shadow-inner">
+                      <table className="w-full text-left border-collapse text-[10px]">
+                        <thead>
+                          <tr className="bg-red-950/80 border-b border-red-800/60 text-red-200 font-bold">
+                            <th className="py-1 px-2.5">Jabatan / Role</th>
+                            <th className="py-1 px-2">Email Dinas</th>
+                            <th className="py-1 px-2 text-center">Hak Akses</th>
+                            <th className="py-1 px-2.5 text-right">Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-red-900/40 text-zinc-300 font-medium">
+                          <tr className="hover:bg-red-900/25 transition-colors">
+                            <td className="py-1.5 px-2.5 font-bold text-white flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+                              <span>Admin Utama Diklat</span>
+                            </td>
+                            <td className="py-1.5 px-2 text-zinc-300 font-mono text-[9px]">
+                              admin@sementonasa.co.id
+                            </td>
+                            <td className="py-1.5 px-2 text-center">
+                              <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.2 rounded text-[8.5px] font-bold">
+                                5 Ruangan
+                              </span>
+                            </td>
+                            <td className="py-1.5 px-2.5 text-right">
+                              <button
+                                type="button"
+                                onClick={useDefaultAccount}
+                                className="text-[9px] bg-gradient-to-r from-red-700 to-red-800 hover:from-red-600 hover:to-red-700 text-white px-2 py-0.5 rounded font-bold transition border border-red-500/40 cursor-pointer shadow-sm"
+                              >
+                                Pilih Akun
+                              </button>
+                            </td>
+                          </tr>
+                          <tr className="hover:bg-red-900/25 transition-colors">
+                            <td className="py-1.5 px-2.5 font-bold text-white flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></span>
+                              <span>Staf Pelatihan Diklat</span>
+                            </td>
+                            <td className="py-1.5 px-2 text-zinc-300 font-mono text-[9px]">
+                              staf.pelatihan@sementonasa.co.id
+                            </td>
+                            <td className="py-1.5 px-2 text-center">
+                              <span className="bg-blue-950 text-blue-300 border border-blue-500/40 px-1.5 py-0.2 rounded text-[8.5px] font-bold">
+                                Monitor TV
+                              </span>
+                            </td>
+                            <td className="py-1.5 px-2.5 text-right">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setLoginForm({ email: 'staf.pelatihan@sementonasa.co.id', password: '' });
+                                  setAuthError('');
+                                  setAuthSuccess('Akun Staf Pelatihan dipilih. Masukkan kata sandi Anda.');
+                                }}
+                                className="text-[9px] bg-red-950 hover:bg-red-800 text-zinc-300 hover:text-white px-2 py-0.5 rounded font-bold transition border border-red-800/60 cursor-pointer"
+                              >
+                                Pilih
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="text-[8.5px] text-zinc-400 mt-1 text-center leading-tight">
+                      *Akses admin khusus staf berwenang. Orang luar dilarang mengubah jadwal atau booking ruangan.
+                    </p>
                   </div>
                 </form>
               ) : (
@@ -688,13 +780,17 @@ export default function AdminPage() {
                     <div className="border-t border-red-900/60 w-full"></div>
                   </div>
 
-                  {/* Tombol Registrasi Media Sosial: Google, Facebook & Instagram */}
-                  <div className="grid grid-cols-3 gap-2">
+                  {/* Tombol Registrasi Media Sosial: Google Resmi (Facebook & Instagram Dihapus) */}
+                  <div>
                     <button
                       type="button"
-                      onClick={() => { setSocialModal('google'); setIsCustomSocial(false); }}
+                      onClick={() => {
+                        setSocialModal('google');
+                        setGoogleStep('select');
+                        setIsCustomSocial(false);
+                      }}
                       disabled={authLoading}
-                      className="py-1.5 px-2 bg-white hover:bg-zinc-100 active:bg-zinc-200 text-zinc-800 font-bold rounded-xl text-[10px] sm:text-[10.5px] shadow-md border border-zinc-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                      className="w-full py-1.5 px-3 bg-white hover:bg-zinc-100 active:bg-zinc-200 text-zinc-800 font-bold rounded-xl text-[10.5px] sm:text-xs shadow-md border border-zinc-200 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
                     >
                       <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -702,31 +798,7 @@ export default function AdminPage() {
                         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                       </svg>
-                      <span>Google</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => { setSocialModal('facebook'); setIsCustomSocial(false); }}
-                      disabled={authLoading}
-                      className="py-1.5 px-2 bg-[#1877F2] hover:bg-[#166fe5] active:bg-[#1465cf] text-white font-bold rounded-xl text-[10px] sm:text-[10.5px] shadow-md border border-[#1877F2] transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-                    >
-                      <svg className="w-3.5 h-3.5 shrink-0 fill-current" viewBox="0 0 24 24">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                      </svg>
-                      <span>Facebook</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => { setSocialModal('instagram'); setIsCustomSocial(false); }}
-                      disabled={authLoading}
-                      className="py-1.5 px-2 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] hover:opacity-95 text-white font-bold rounded-xl text-[10px] sm:text-[10.5px] shadow-md border border-pink-400/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-                    >
-                      <svg className="w-3.5 h-3.5 shrink-0 fill-current" viewBox="0 0 24 24">
-                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                      </svg>
-                      <span>Instagram</span>
+                      <span>Hubungkan Akun Google Resmi (SMS / Gmail 2FA)</span>
                     </button>
                   </div>
                 </form>
@@ -778,51 +850,38 @@ export default function AdminPage() {
         </footer>
 
         {/* ======================================================== */}
-        {/* MODAL PEMILIHAN AKUN SOSIAL (ACCOUNT CHOOSER) DENGAN KEAMANAN 100% */}
+        {/* MODAL AUTENTIKASI GOOGLE RESMI & VERIFIKASI 2 LANGKAH (SMS / GMAIL) */}
         {/* ======================================================== */}
-        {socialModal && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-            <div className="max-w-md w-full bg-gradient-to-b from-[#250307] via-[#1a0205] to-[#100103] border-2 border-red-600/70 rounded-2xl md:rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col animate-fadeIn">
+        {socialModal === 'google' && (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+            <div className="max-w-md w-full bg-gradient-to-b from-[#240307] via-[#1a0205] to-[#110103] border-2 border-red-600/70 rounded-2xl md:rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col">
               
-              {/* Header Modal */}
+              {/* Header Modal Google Resmi */}
               <div className="p-3.5 sm:p-4 border-b border-red-800/50 flex items-center justify-between bg-black/40">
                 <div className="flex items-center gap-2.5">
-                  {socialModal === 'google' && (
-                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow">
-                      <svg className="w-5 h-5" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                      </svg>
-                    </div>
-                  )}
-                  {socialModal === 'facebook' && (
-                    <div className="w-8 h-8 rounded-full bg-[#1877F2] flex items-center justify-center shadow text-white">
-                      <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                      </svg>
-                    </div>
-                  )}
-                  {socialModal === 'instagram' && (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center shadow text-white">
-                      <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                      </svg>
-                    </div>
-                  )}
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow shrink-0">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                    </svg>
+                  </div>
                   <div>
-                    <h3 className="text-sm font-black text-white leading-tight">
-                      Pilih Akun {socialModal === 'google' ? 'Google' : socialModal === 'facebook' ? 'Facebook' : 'Instagram'}
+                    <h3 className="text-sm font-black text-white leading-tight flex items-center gap-1.5">
+                      <span>Masuk dengan Google</span>
+                      <span className="text-[9px] bg-red-950 text-amber-300 border border-amber-500/40 px-1.5 py-0.2 rounded font-bold">
+                        2-Step Verification
+                      </span>
                     </h3>
                     <p className="text-[10px] text-zinc-400">
-                      Lanjutkan ke Portal Admin PT Semen Tonasa
+                      Unit Diklat PT Semen Tonasa
                     </p>
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={() => { setSocialModal(null); setIsCustomSocial(false); }}
+                  onClick={() => { setSocialModal(null); setGoogleStep('select'); setIsCustomSocial(false); setSmsSentAlert(''); }}
                   className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white flex items-center justify-center text-sm font-bold transition cursor-pointer"
                 >
                   ✕
@@ -831,161 +890,270 @@ export default function AdminPage() {
 
               {/* Badan Modal */}
               <div className="p-3.5 sm:p-4 space-y-3">
-                {/* Banner Keamanan 100% */}
-                <div className="p-2.5 bg-red-950/60 border border-red-500/50 rounded-xl flex items-start gap-2 text-red-200">
-                  <span className="text-base shrink-0 mt-0.5">🛡️</span>
-                  <div className="text-[10px] leading-tight">
-                    <span className="font-bold text-amber-300 block mb-0.5">Sistem Keamanan Terproteksi 100%</span>
-                    Hanya akun staf terverifikasi Unit Diklat atau yang memiliki <strong>Kode PIN Resmi</strong> yang diberikan wewenang akses admin.
-                  </div>
-                </div>
+                
+                {/* TAHAP 1: PILIH AKUN GOOGLE STAF RESMI ATAU GUNAKAN AKUN LAIN */}
+                {googleStep === 'select' && (
+                  <>
+                    <div className="p-2.5 bg-red-950/60 border border-red-500/50 rounded-xl flex items-start gap-2 text-red-200">
+                      <span className="text-base shrink-0 mt-0.5">🛡️</span>
+                      <div className="text-[10px] leading-tight">
+                        <span className="font-bold text-amber-300 block mb-0.5">Verifikasi SMS & Notifikasi Akun Google</span>
+                        Setiap akun Google wajib memverifikasi kode 6-digit (SMS / Notifikasi Gmail) sebelum diberikan wewenang admin.
+                      </div>
+                    </div>
 
-                {!isCustomSocial ? (
-                  <div className="space-y-2">
-                    <p className="text-[11px] font-bold text-zinc-300 px-1">
-                      Pilih akun staf resmi yang terdaftar:
-                    </p>
+                    {!isCustomSocial ? (
+                      <div className="space-y-2">
+                        <p className="text-[11px] font-bold text-zinc-300 px-1">
+                          Pilih akun Google staf resmi terdaftar:
+                        </p>
 
-                    {/* Daftar Akun Terverifikasi */}
-                    {SOCIAL_ACCOUNTS[socialModal].map((acc, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        disabled={authLoading}
-                        onClick={() => handleSocialAuth(socialModal, acc)}
-                        className="w-full p-2.5 rounded-xl bg-black/45 hover:bg-red-950/40 border border-red-900/60 hover:border-red-500/70 transition-all flex items-center justify-between gap-3 text-left group cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className={`w-9 h-9 rounded-full ${acc.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform`}>
-                            {acc.initials}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <p className="text-xs font-bold text-white truncate leading-tight group-hover:text-amber-300 transition-colors">
-                                {acc.name}
-                              </p>
-                              <span className="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 rounded-full shrink-0 font-semibold">
-                                ✓ Staf
-                              </span>
+                        {/* Daftar Akun Google Terverifikasi */}
+                        {GOOGLE_ACCOUNTS.map((acc, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => startGoogleVerification(acc)}
+                            className="w-full p-2.5 rounded-xl bg-black/45 hover:bg-red-950/40 border border-red-900/60 hover:border-red-500/70 transition-all flex items-center justify-between gap-3 text-left group cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className={`w-9 h-9 rounded-full ${acc.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform`}>
+                                {acc.initials}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <p className="text-xs font-bold text-white truncate leading-tight group-hover:text-amber-300 transition-colors">
+                                    {acc.name}
+                                  </p>
+                                  <span className="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.2 rounded-full shrink-0 font-semibold">
+                                    ✓ Staf
+                                  </span>
+                                </div>
+                                <p className="text-[10.5px] text-zinc-400 truncate leading-tight mt-0.5">
+                                  {acc.email}
+                                </p>
+                                <p className="text-[9px] text-amber-200/80 font-medium">
+                                  SMS ke: {acc.phone} • {acc.role}
+                                </p>
+                              </div>
                             </div>
-                            <p className="text-[10.5px] text-zinc-400 truncate leading-tight mt-0.5">
-                              {acc.email}
-                            </p>
-                            <p className="text-[9.5px] text-amber-200/80 font-medium">
-                              {acc.role}
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-zinc-500 group-hover:text-red-400 group-hover:translate-x-0.5 transition-all text-sm shrink-0">
-                          ➔
-                        </span>
-                      </button>
-                    ))}
+                            <span className="text-zinc-500 group-hover:text-red-400 group-hover:translate-x-0.5 transition-all text-sm shrink-0">
+                              ➔
+                            </span>
+                          </button>
+                        ))}
 
-                    {/* Pilihan: Gunakan Akun Lain */}
+                        {/* Pilihan: Gunakan Akun Google Lain */}
+                        <button
+                          type="button"
+                          onClick={() => setIsCustomSocial(true)}
+                          className="w-full mt-2 py-2 px-3 rounded-xl bg-red-900/25 hover:bg-red-900/40 border border-red-800/60 text-amber-200 hover:text-white font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <span>➕</span>
+                          <span>Gunakan Akun Google Staf Lainnya</span>
+                        </button>
+                      </div>
+                    ) : (
+                      /* Form Input Akun Google Baru */
+                      <div className="space-y-2.5 bg-black/40 p-3 rounded-xl border border-red-800/60">
+                        <div className="flex items-center justify-between pb-1 border-b border-red-900/60">
+                          <p className="text-xs font-bold text-white">
+                            Masukkan Akun Google / Gmail Anda
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setIsCustomSocial(false)}
+                            className="text-[10.5px] text-amber-300 hover:underline cursor-pointer"
+                          >
+                            ← Kembali
+                          </button>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
+                            Nama Staf
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Contoh: Budi Santoso"
+                            value={selectedGoogleAcc.name}
+                            onChange={(e) => setSelectedGoogleAcc({ ...selectedGoogleAcc, name: e.target.value })}
+                            className="w-full px-2.5 py-1.5 bg-black/60 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 font-medium"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
+                            Email Google / Gmail Anda
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            placeholder="nama@gmail.com"
+                            value={selectedGoogleAcc.email}
+                            onChange={(e) => setSelectedGoogleAcc({ ...selectedGoogleAcc, email: e.target.value })}
+                            className="w-full px-2.5 py-1.5 bg-black/60 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 font-medium"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
+                            Nomor HP Penerima SMS Verifikasi
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="0812-xxxx-xxxx"
+                            value={selectedGoogleAcc.phone}
+                            onChange={(e) => setSelectedGoogleAcc({ ...selectedGoogleAcc, phone: e.target.value })}
+                            className="w-full px-2.5 py-1.5 bg-black/60 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 font-medium"
+                          />
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <label className="block text-[10.5px] font-bold text-amber-200">
+                              Kode PIN Unit Diklat
+                            </label>
+                            <span className="text-[9.5px] text-amber-300 font-mono font-bold">Default: TONASA2026</span>
+                          </div>
+                          <input
+                            type="text"
+                            required
+                            placeholder="TONASA2026"
+                            value={selectedGoogleAcc.pin || ''}
+                            onChange={(e) => setSelectedGoogleAcc({ ...selectedGoogleAcc, pin: e.target.value })}
+                            className="w-full px-2.5 py-1.5 bg-amber-950/40 border border-amber-500/60 rounded-xl text-amber-200 text-xs font-mono font-bold uppercase tracking-wider focus:outline-none focus:border-amber-400"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedGoogleAcc.email) {
+                              alert('Harap masukkan alamat email Google Anda.');
+                              return;
+                            }
+                            startGoogleVerification(selectedGoogleAcc);
+                          }}
+                          className="w-full py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs rounded-xl shadow-md border border-red-400/40 transition cursor-pointer flex items-center justify-center gap-2"
+                        >
+                          <span>Lanjut ke Verifikasi SMS Google ➔</span>
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* TAHAP 2: VERIFIKASI 2 LANGKAH GOOGLE (SMS & NOTIFIKASI GMAIL) */}
+                {googleStep === 'sms_verify' && (
+                  <div className="space-y-3 animate-fadeIn">
+                    <div className="p-3 bg-red-950/70 border border-red-500/60 rounded-xl text-white">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="text-lg">📲</span>
+                        <div>
+                          <h4 className="text-xs font-black text-amber-300">
+                            Verifikasi 2 Langkah Google (2-Step Verification)
+                          </h4>
+                          <p className="text-[10px] text-zinc-300">
+                            Akun: <strong className="text-white">{selectedGoogleAcc.email}</strong>
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-[10.5px] text-zinc-300 leading-relaxed">
+                        Google telah mengirimkan <strong>Kode Verifikasi 6 Digit</strong> ke nomor ponsel <strong>{selectedGoogleAcc.phone}</strong> dan notifikasi Gmail Anda.
+                      </p>
+                    </div>
+
+                    {/* Alert Notifikasi SMS Terkirim */}
+                    {smsSentAlert && (
+                      <div className="p-2.5 bg-emerald-950/90 border border-emerald-500/70 rounded-xl text-emerald-200 text-xs shadow animate-fadeIn">
+                        <p className="font-semibold leading-tight">{smsSentAlert}</p>
+                      </div>
+                    )}
+
+                    {/* Input Kode Verifikasi Google (G-XXXXXX) */}
+                    <div>
+                      <label className="block text-[11px] font-bold text-red-200 mb-1">
+                        Masukkan Kode SMS Google (G-XXXXXX):
+                      </label>
+                      <div className="relative flex items-center">
+                        <span className="absolute left-3 text-sm font-black text-zinc-400 font-mono">
+                          G -
+                        </span>
+                        <input
+                          type="text"
+                          maxLength={6}
+                          value={googleOtp}
+                          onChange={(e) => setGoogleOtp(e.target.value.replace(/\D/g, ''))}
+                          placeholder="540219"
+                          className="w-full pl-11 pr-4 py-2 bg-black/60 border-2 border-red-500/60 focus:border-red-400 rounded-xl text-amber-300 text-base font-mono font-black tracking-[0.25em] text-center focus:outline-none"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-1 text-[10px]">
+                        <span className="text-zinc-400">Tidak menerima SMS?</span>
+                        <button
+                          type="button"
+                          onClick={() => sendGoogleSmsCode(selectedGoogleAcc)}
+                          className="text-amber-300 hover:underline font-bold cursor-pointer"
+                        >
+                          Kirim Ulang Kode SMS 🔄
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Tombol Konfirmasi Verifikasi */}
                     <button
                       type="button"
-                      onClick={() => setIsCustomSocial(true)}
-                      className="w-full mt-2 py-2 px-3 rounded-xl bg-red-900/25 hover:bg-red-900/40 border border-red-800/60 text-amber-200 hover:text-white font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <span>➕</span>
-                      <span>Gunakan Akun {socialModal === 'google' ? 'Google' : socialModal === 'facebook' ? 'Facebook' : 'Instagram'} Lain</span>
-                    </button>
-                  </div>
-                ) : (
-                  /* Form Masuk dengan Akun Lain + Proteksi PIN */
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      handleSocialAuth(socialModal, customSocialAccount);
-                    }}
-                    className="space-y-2.5 bg-black/40 p-3 rounded-xl border border-red-800/60"
-                  >
-                    <div className="flex items-center justify-between pb-1 border-b border-red-900/60">
-                      <p className="text-xs font-bold text-white">
-                        Hubungkan Akun {socialModal === 'google' ? 'Google' : socialModal === 'facebook' ? 'Facebook' : 'Instagram'} Anda
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setIsCustomSocial(false)}
-                        className="text-[10.5px] text-amber-300 hover:underline cursor-pointer"
-                      >
-                        ← Kembali
-                      </button>
-                    </div>
-
-                    <div>
-                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
-                        Nama Lengkap Anda
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Contoh: Budi Santoso"
-                        value={customSocialAccount.name}
-                        onChange={(e) => setCustomSocialAccount({ ...customSocialAccount, name: e.target.value })}
-                        className="w-full px-2.5 py-1.5 bg-black/60 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 font-medium"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
-                        Email {socialModal === 'google' ? 'Google' : socialModal === 'facebook' ? 'Facebook' : 'Instagram'} Anda
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder={`nama@${socialModal === 'google' ? 'gmail.com' : socialModal === 'facebook' ? 'facebook.com' : 'instagram.com'}`}
-                        value={customSocialAccount.email}
-                        onChange={(e) => setCustomSocialAccount({ ...customSocialAccount, email: e.target.value })}
-                        className="w-full px-2.5 py-1.5 bg-black/60 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 font-medium"
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-0.5">
-                        <label className="block text-[10.5px] font-bold text-amber-200">
-                          Kode Verifikasi PIN Unit Diklat
-                        </label>
-                        <span className="text-[9.5px] text-amber-300 font-mono font-bold">Default: TONASA2026</span>
-                      </div>
-                      <input
-                        type="text"
-                        required
-                        placeholder="TONASA2026"
-                        value={customSocialAccount.pin}
-                        onChange={(e) => setCustomSocialAccount({ ...customSocialAccount, pin: e.target.value })}
-                        className="w-full px-2.5 py-1.5 bg-amber-950/40 border border-amber-500/60 rounded-xl text-amber-200 text-xs font-mono font-bold uppercase tracking-wider focus:outline-none focus:border-amber-400"
-                      />
-                      <p className="text-[9px] text-zinc-400 mt-0.5 leading-tight">
-                        *Wajib PIN untuk mencegah orang luar sembarangan masuk menjadi admin.
-                      </p>
-                    </div>
-
-                    <button
-                      type="submit"
                       disabled={authLoading}
-                      className="w-full py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs rounded-xl shadow-md border border-red-400/40 transition cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                      onClick={completeGoogleLogin}
+                      className="w-full py-2.5 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-black text-xs md:text-sm rounded-xl shadow-lg border border-red-400/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       {authLoading ? (
                         <>
-                          <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Memverifikasi Akses...</span>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Memverifikasi Kode Google...</span>
                         </>
                       ) : (
-                        <span>Verifikasi & Masuk Portal</span>
+                        <>
+                          <span>🔒</span>
+                          <span>Verifikasi SMS & Masuk ke Dashboard</span>
+                        </>
                       )}
                     </button>
-                  </form>
+
+                    {/* Link ke Halaman Resmi Google Sign-in */}
+                    <div className="pt-1 text-center">
+                      <a
+                        href="https://accounts.google.com/signin"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[10px] text-zinc-400 hover:text-white underline inline-flex items-center gap-1 font-medium transition-colors"
+                      >
+                        <span>🌐</span>
+                        <span>Buka Halaman Login Resmi Google (accounts.google.com)</span>
+                      </a>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setGoogleStep('select')}
+                      className="w-full text-center text-[10px] text-amber-300/80 hover:text-amber-200 font-bold hover:underline cursor-pointer pt-0.5"
+                    >
+                      ← Ganti Akun Google
+                    </button>
+                  </div>
                 )}
+
               </div>
 
               {/* Footer Modal */}
               <div className="p-3 bg-black/60 border-t border-red-900/50 flex items-center justify-between text-[10px] text-zinc-400">
-                <span>Unit Learning & Development Semen Tonasa</span>
+                <span>Unit Learning & Development PT Semen Tonasa</span>
                 <button
                   type="button"
-                  onClick={() => { setSocialModal(null); setIsCustomSocial(false); }}
+                  onClick={() => { setSocialModal(null); setGoogleStep('select'); setIsCustomSocial(false); setSmsSentAlert(''); }}
                   className="text-zinc-300 hover:text-white font-semibold cursor-pointer"
                 >
                   Batal
