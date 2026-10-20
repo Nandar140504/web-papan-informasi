@@ -97,13 +97,21 @@ export async function POST(request: Request) {
 
           if (!supaErr && supaAdmin) {
             // KEAMANAN GMAIL: Wajib verifikasi konfirmasi Gmail sebelum bisa login!
-            if (supaAdmin.is_verified === false) {
+            const isUnverified = 
+              supaAdmin.is_verified === false || 
+              (typeof supaAdmin.role === 'string' && supaAdmin.role.startsWith('PENDING_VERIF:'));
+
+            if (isUnverified) {
+              const token = typeof supaAdmin.role === 'string' && supaAdmin.role.startsWith('PENDING_VERIF:')
+                ? supaAdmin.role.replace('PENDING_VERIF:', '')
+                : (supaAdmin.verification_token || '');
+
               return NextResponse.json({
                 success: false,
                 unverified: true,
                 email: supaAdmin.email,
                 name: supaAdmin.name,
-                verification_token: supaAdmin.verification_token,
+                verification_token: token,
                 error: `Akun Anda belum aktif! Anda belum mengonfirmasi email di Gmail (${supaAdmin.email}). Meskipun kata sandi benar, Anda wajib membuka Gmail dan klik konfirmasi terlebih dahulu untuk mengaktifkan akun.`
               }, { status: 403 });
             }
@@ -148,13 +156,21 @@ export async function POST(request: Request) {
 
       if (adminUser) {
         // KEAMANAN GMAIL: Wajib verifikasi konfirmasi Gmail sebelum bisa login!
-        if (adminUser.is_verified === false) {
+        const isUnverified = 
+          adminUser.is_verified === false || 
+          (typeof adminUser.role === 'string' && adminUser.role.startsWith('PENDING_VERIF:'));
+
+        if (isUnverified) {
+          const token = typeof adminUser.role === 'string' && adminUser.role.startsWith('PENDING_VERIF:')
+            ? adminUser.role.replace('PENDING_VERIF:', '')
+            : (adminUser.verification_token || '');
+
           return NextResponse.json({
             success: false,
             unverified: true,
             email: adminUser.email,
             name: adminUser.name,
-            verification_token: adminUser.verification_token,
+            verification_token: token,
             error: `Akun Anda belum aktif! Anda belum mengonfirmasi email di Gmail (${adminUser.email}). Meskipun kata sandi benar, Anda wajib membuka Gmail dan klik konfirmasi terlebih dahulu untuk mengaktifkan akun.`
           }, { status: 403 });
         }
@@ -195,16 +211,61 @@ export async function POST(request: Request) {
         }, { status: 403 });
       }
 
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        try {
+          const { data: existingSupa } = await supabase
+            .from('admins')
+            .select('*')
+            .eq('email', cleanEmail)
+            .maybeSingle();
+
+          if (existingSupa) {
+            const isUnverified = 
+              existingSupa.is_verified === false || 
+              (typeof existingSupa.role === 'string' && existingSupa.role.startsWith('PENDING_VERIF:'));
+
+            if (isUnverified) {
+              const token = typeof existingSupa.role === 'string' && existingSupa.role.startsWith('PENDING_VERIF:')
+                ? existingSupa.role.replace('PENDING_VERIF:', '')
+                : (existingSupa.verification_token || '');
+
+              return NextResponse.json({ 
+                success: false, 
+                unverified: true,
+                email: existingSupa.email,
+                name: existingSupa.name,
+                verification_token: token,
+                error: `Email ${cleanEmail} sudah terdaftar tapi belum dikonfirmasi di Gmail. Silakan konfirmasi email Anda terlebih dahulu.` 
+              }, { status: 400 });
+            }
+
+            return NextResponse.json({ 
+              success: false, 
+              error: 'Email tersebut sudah terdaftar sebagai admin. Silakan langsung masuk (Login).' 
+            }, { status: 400 });
+          }
+        } catch {}
+      }
+
       const db = getDatabase();
       const existing = (db.admins || []).find((a: any) => (a.email || '').toLowerCase() === cleanEmail);
       if (existing) {
-        if (existing.is_verified === false) {
+        const isUnverified = 
+          existing.is_verified === false || 
+          (typeof existing.role === 'string' && existing.role.startsWith('PENDING_VERIF:'));
+
+        if (isUnverified) {
+          const token = typeof existing.role === 'string' && existing.role.startsWith('PENDING_VERIF:')
+            ? existing.role.replace('PENDING_VERIF:', '')
+            : (existing.verification_token || '');
+
           return NextResponse.json({ 
             success: false, 
             unverified: true,
             email: existing.email,
             name: existing.name,
-            verification_token: existing.verification_token,
+            verification_token: token,
             error: `Email ${cleanEmail} sudah terdaftar tapi belum dikonfirmasi di Gmail. Silakan konfirmasi email Anda terlebih dahulu.` 
           }, { status: 400 });
         }
@@ -222,7 +283,7 @@ export async function POST(request: Request) {
         name: name.trim(),
         email: cleanEmail,
         password: password,
-        role: 'Staf Diklat Tonasa',
+        role: 'PENDING_VERIF:' + verificationToken,
         is_verified: false, // WAJIB FALSE: Tidak bisa login sebelum klik konfirmasi di Gmail!
         verification_token: verificationToken,
         created_at: new Date().toISOString()
@@ -231,12 +292,19 @@ export async function POST(request: Request) {
       db.admins = [...(db.admins || []), newAdmin];
       saveDatabase(db);
 
-      // Coba simpan ke tabel 'admins' di Supabase jika tabel tersedia
-      const supabase = getSupabaseClient();
+      // Simpan ke tabel 'admins' di Supabase dengan role yang memuat status verifikasi
       if (supabase) {
         try {
-          await supabase.from('admins').insert([newAdmin]);
-        } catch {}
+          await supabase.from('admins').insert([{
+            id: newAdmin.id,
+            name: newAdmin.name,
+            email: newAdmin.email,
+            password: newAdmin.password,
+            role: newAdmin.role
+          }]);
+        } catch (err) {
+          console.error("Gagal simpan admin ke Supabase:", err);
+        }
 
         try {
           // Trigger notifikasi email pendaftaran via Supabase Auth jika diaktifkan
@@ -269,36 +337,53 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: 'Email untuk verifikasi wajib disertakan.' }, { status: 400 });
       }
 
+      let verified = false;
+      let adminName = 'Staf Diklat';
+
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        try {
+          const { data: supaAdmin } = await supabase
+            .from('admins')
+            .select('*')
+            .eq('email', targetEmail)
+            .maybeSingle();
+
+          if (supaAdmin) {
+            adminName = supaAdmin.name || adminName;
+            await supabase
+              .from('admins')
+              .update({ role: 'Staf Diklat Tonasa' })
+              .eq('email', targetEmail);
+            verified = true;
+          }
+        } catch {}
+      }
+
       const db = getDatabase();
       const adminIndex = (db.admins || []).findIndex((a: any) => 
-        (a.email || '').toLowerCase() === targetEmail &&
-        (!token || a.verification_token === token || a.verification_token?.length > 0)
+        (a.email || '').toLowerCase() === targetEmail
       );
 
       if (adminIndex !== -1) {
+        adminName = db.admins[adminIndex].name || adminName;
         db.admins[adminIndex].is_verified = true;
+        db.admins[adminIndex].role = 'Staf Diklat Tonasa';
         db.admins[adminIndex].verified_at = new Date().toISOString();
         saveDatabase(db);
+        verified = true;
+      }
 
-        const supabase = getSupabaseClient();
-        if (supabase) {
-          try {
-            await supabase
-              .from('admins')
-              .update({ is_verified: true, verified_at: new Date().toISOString() })
-              .eq('email', targetEmail);
-          } catch {}
-        }
-
+      if (verified) {
         return NextResponse.json({
           success: true,
-          message: `Konfirmasi Berhasil! Akun "${db.admins[adminIndex].name}" (${targetEmail}) telah terverifikasi dan aktif 100%. Silakan masuk dengan kata sandi Anda.`
+          message: `Konfirmasi Berhasil! Akun "${adminName}" (${targetEmail}) telah terverifikasi dan aktif 100%. Silakan masuk dengan kata sandi Anda.`
         });
       }
 
       return NextResponse.json({ 
         success: false, 
-        error: 'Data verifikasi tidak ditemukan atau token tidak sesuai.' 
+        error: 'Data verifikasi tidak ditemukan atau akun belum terdaftar.' 
       }, { status: 404 });
     }
 
@@ -432,36 +517,53 @@ export async function GET(request: Request) {
 
     if (verifyEmail) {
       const cleanEmail = verifyEmail.trim().toLowerCase();
+      let verified = false;
+      let adminName = 'Staf Diklat';
+
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        try {
+          const { data: supaAdmin } = await supabase
+            .from('admins')
+            .select('*')
+            .eq('email', cleanEmail)
+            .maybeSingle();
+
+          if (supaAdmin) {
+            adminName = supaAdmin.name || adminName;
+            await supabase
+              .from('admins')
+              .update({ role: 'Staf Diklat Tonasa' })
+              .eq('email', cleanEmail);
+            verified = true;
+          }
+        } catch {}
+      }
+
       const db = getDatabase();
       const adminIndex = (db.admins || []).findIndex((a: any) => 
-        (a.email || '').toLowerCase() === cleanEmail &&
-        (!token || a.verification_token === token || a.verification_token?.length > 0)
+        (a.email || '').toLowerCase() === cleanEmail
       );
 
       if (adminIndex !== -1) {
+        adminName = db.admins[adminIndex].name || adminName;
         db.admins[adminIndex].is_verified = true;
+        db.admins[adminIndex].role = 'Staf Diklat Tonasa';
         db.admins[adminIndex].verified_at = new Date().toISOString();
         saveDatabase(db);
+        verified = true;
+      }
 
-        const supabase = getSupabaseClient();
-        if (supabase) {
-          try {
-            await supabase
-              .from('admins')
-              .update({ is_verified: true, verified_at: new Date().toISOString() })
-              .eq('email', cleanEmail);
-          } catch {}
-        }
-
+      if (verified) {
         return NextResponse.json({
           success: true,
-          message: `Konfirmasi Berhasil! Akun "${db.admins[adminIndex].name}" (${cleanEmail}) telah terverifikasi dan aktif 100%. Silakan masuk dengan kata sandi Anda.`
+          message: `Konfirmasi Berhasil! Akun "${adminName}" (${cleanEmail}) telah terverifikasi dan aktif 100%. Silakan masuk dengan kata sandi Anda.`
         });
       }
 
       return NextResponse.json({ 
         success: false, 
-        error: 'Data verifikasi tidak ditemukan atau token tidak sesuai.' 
+        error: 'Data verifikasi tidak ditemukan atau akun belum terdaftar.' 
       }, { status: 404 });
     }
 
