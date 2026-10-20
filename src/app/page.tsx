@@ -294,12 +294,22 @@ export default function TVDisplay() {
       </div>
 
       {/* 2. HERO BANNER: KURVA MERAH DI KIRI & FOTO GEDUNG DIKLAT PERSIS GAMBAR 2 */}
-      <div className="shrink-0 h-[36vh] xl:h-[38vh] w-full relative overflow-hidden bg-[#6e070e] border-b border-red-800/40">
+      <div className="shrink-0 h-[36vh] xl:h-[38vh] min-h-[240px] md:min-h-[260px] lg:min-h-[275px] w-full relative overflow-hidden bg-[#6e070e] border-b border-red-800/40">
         
-        {/* Foto Gedung Diklat Asli Tajam 100% Membentang Menyeluruh - Tanpa Batasan Kotak Kaku */}
+        {/* Foto Gedung Diklat Asli - Mobile (<md): 100% Sesuai Tampilan HP yang Sudah Bagus */}
         <div 
-          className="absolute inset-0 bg-cover bg-[68%_25%] md:bg-[72%_28%]"
+          className="md:hidden absolute inset-0 bg-cover bg-[68%_25%]"
           style={{ backgroundImage: 'url("/bg-building.png")' }}
+        />
+
+        {/* Foto Gedung Diklat Asli - Laptop & Desktop (>=md): Digeser ke Kanan & Terlihat Penuh 100% Tanpa Tertutup */}
+        <div 
+          className="hidden md:block absolute inset-0 left-[15%] lg:left-[20%] xl:left-[24%] bg-cover bg-[center_26%]"
+          style={{ 
+            backgroundImage: 'url("/bg-building.png")',
+            maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.85) 10%, black 22%, black 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.85) 10%, black 22%, black 100%)'
+          }}
         />
 
         {/* Gelombang Kurva Merah Dinamis (SVG Wave & Swoosh persis seperti Referensi Gambar 2) */}
@@ -331,24 +341,24 @@ export default function TVDisplay() {
             </linearGradient>
           </defs>
 
-          {/* Layer 1: Gelombang Pembaur Halus ke Pepohonan */}
-          <path d="M 0,0 L 700,0 C 600,110 500,230 360,360 L 0,360 Z" fill="url(#transRedWave)" />
+          {/* Layer 1: Gelombang Pembaur Halus ke Pepohonan (Desktop: tidak menutupi gedung diklat) */}
+          <path d="M 0,0 L 530,0 C 450,110 360,230 250,360 L 0,360 Z" fill="url(#transRedWave)" />
 
-          {/* Layer 2: Gelombang Merah Solid Melengkung Organik */}
-          <path d="M 0,0 L 590,0 C 500,110 410,230 260,360 L 0,360 Z" fill="url(#mainRedWave)" />
+          {/* Layer 2: Gelombang Merah Solid Melengkung Organik Melindungi Teks Informasi */}
+          <path d="M 0,0 L 460,0 C 380,110 290,230 180,360 L 0,360 Z" fill="url(#mainRedWave)" />
 
           {/* Layer 3: Garis Aksen Berkilau Sepanjang Kurva Gelombang */}
-          <path d="M 590,0 C 500,110 410,230 260,360" fill="none" stroke="url(#waveHighlight)" strokeWidth="3" />
+          <path d="M 460,0 C 380,110 290,230 180,360" fill="none" stroke="url(#waveHighlight)" strokeWidth="3" />
 
           {/* Layer 4: Aksen Melengkung Bawah Kanan (Bottom-Right Swoosh) persis Gambar 2 */}
-          <path d="M 1160,360 C 1260,295 1360,250 1440,210 L 1440,360 Z" fill="url(#mainRedWave)" />
-          <path d="M 1160,360 C 1260,295 1360,250 1440,210" fill="none" stroke="url(#waveHighlight)" strokeWidth="2.5" />
+          <path d="M 1260,360 C 1330,305 1390,260 1440,225 L 1440,360 Z" fill="url(#mainRedWave)" />
+          <path d="M 1260,360 C 1330,305 1390,260 1440,225" fill="none" stroke="url(#waveHighlight)" strokeWidth="2.5" />
         </svg>
 
         {/* Konten Hero Informasi Ruang dengan Garis Pembatas Putih Tipis persis Gambar 2 */}
-        <div className="relative z-10 h-full w-full max-w-[500px] flex flex-col justify-center px-6 md:px-10 lg:px-12 select-none">
+        <div className="relative z-10 h-full w-full max-w-[440px] lg:max-w-[480px] flex flex-col justify-center px-6 md:px-8 lg:px-10 select-none">
           <div>
-            <h1 className="text-2xl md:text-3xl lg:text-[34px] font-black text-white tracking-wide leading-tight drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">
+            <h1 className="text-2xl md:text-3xl lg:text-[32px] font-black text-white tracking-wide leading-tight drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">
               Informasi Ruang
             </h1>
             <h2 className="text-lg md:text-xl lg:text-[22px] font-bold text-amber-200 tracking-wider mt-0.5 drop-shadow-sm">
@@ -357,21 +367,20 @@ export default function TVDisplay() {
           </div>
 
           {/* Garis Horizontal Tipis persis seperti di Referensi Gambar 2 */}
-          <div className="w-full max-w-[340px] h-[1.5px] bg-white/40 my-2.5 rounded-full shadow-sm"></div>
+          <div className="w-full max-w-[320px] h-[1.5px] bg-white/40 my-2 rounded-full shadow-sm"></div>
 
           <p className="text-xs md:text-sm text-white/95 font-medium leading-relaxed max-w-sm drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
             Lihat ketersediaan dan informasi ruangan yang tersedia untuk kegiatan Anda.
           </p>
 
           {/* Live Status Pill */}
-          <div className="mt-3.5 inline-flex items-center gap-2 bg-black/45 border border-white/25 px-3.5 py-1 rounded-full self-start backdrop-blur-sm shadow-md">
+          <div className="mt-3 inline-flex items-center gap-2 bg-black/45 border border-white/25 px-3 py-1 rounded-full self-start backdrop-blur-sm shadow-md">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span className="text-[11px] font-bold text-emerald-300">
               {availableRoomsCount} dari 5 Ruangan Tersedia
             </span>
-            <span className="text-white/40">•</span>
-            <span className="text-[11px] text-amber-200 font-semibold">
-              Unit Learning & Development
+            <span className="text-[11px] font-medium text-amber-200/90 hidden sm:inline">
+              • Unit Learning & Development
             </span>
           </div>
         </div>
