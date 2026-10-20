@@ -83,9 +83,31 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: 'Email dan kata sandi wajib diisi.' }, { status: 400 });
       }
 
-      // Coba autentikasi via Supabase Auth jika ada
+      // Coba autentikasi via tabel 'admins' di Supabase
       const supabase = getSupabaseClient();
       if (supabase) {
+        try {
+          const { data: supaAdmin, error: supaErr } = await supabase
+            .from('admins')
+            .select('*')
+            .eq('email', cleanEmail)
+            .eq('password', password)
+            .maybeSingle();
+
+          if (!supaErr && supaAdmin) {
+            return NextResponse.json({
+              success: true,
+              user: {
+                id: supaAdmin.id,
+                email: supaAdmin.email,
+                name: supaAdmin.name || 'Admin Staf Diklat',
+                role: supaAdmin.role || 'Admin Diklat'
+              }
+            });
+          }
+        } catch {}
+
+        // Coba juga Supabase Auth jika ada
         try {
           const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
             email: cleanEmail,
@@ -169,9 +191,13 @@ export async function POST(request: Request) {
       db.admins = [...(db.admins || []), newAdmin];
       saveDatabase(db);
 
-      // Coba daftarkan juga ke Supabase Auth jika tersedia
+      // Coba simpan ke tabel 'admins' di Supabase jika tabel tersedia
       const supabase = getSupabaseClient();
       if (supabase) {
+        try {
+          await supabase.from('admins').insert([newAdmin]);
+        } catch {}
+
         try {
           await supabase.auth.signUp({
             email: cleanEmail,
@@ -260,6 +286,25 @@ export async function POST(request: Request) {
 
     // 4. ACTION: LIST_ADMINS
     if (action === 'list_admins') {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        try {
+          const { data: supaAdmins, error: supaErr } = await supabase.from('admins').select('*');
+          if (!supaErr && supaAdmins && supaAdmins.length > 0) {
+            return NextResponse.json({
+              success: true,
+              admins: supaAdmins.map((a: any) => ({
+                id: a.id,
+                name: a.name || 'Staf Admin',
+                email: a.email,
+                role: a.role || 'Staf Diklat',
+                created_at: a.created_at
+              }))
+            });
+          }
+        } catch {}
+      }
+
       const db = getDatabase();
       const list = (db.admins || []).map((a: any) => ({
         id: a.id,
@@ -278,6 +323,15 @@ export async function POST(request: Request) {
       if (targetEmail === 'admin@sementonasa.co.id' || adminId === 'admin-1') {
         return NextResponse.json({ success: false, error: 'Akun Admin Utama bawaan tidak dapat dihapus demi keamanan sistem.' }, { status: 400 });
       }
+
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        try {
+          if (adminId) await supabase.from('admins').delete().eq('id', adminId);
+          if (targetEmail) await supabase.from('admins').delete().eq('email', targetEmail);
+        } catch {}
+      }
+
       db.admins = (db.admins || []).filter((a: any) => a.id !== adminId && (a.email || '').toLowerCase() !== (targetEmail || '').toLowerCase());
       saveDatabase(db);
       return NextResponse.json({ success: true, message: 'Akun admin berhasil dihapus.' });
@@ -291,6 +345,25 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
+    const supabase = getSupabaseClient();
+    if (supabase) {
+      try {
+        const { data: supaAdmins, error: supaErr } = await supabase.from('admins').select('*');
+        if (!supaErr && supaAdmins && supaAdmins.length > 0) {
+          return NextResponse.json({
+            success: true,
+            admins: supaAdmins.map((a: any) => ({
+              id: a.id,
+              name: a.name || 'Staf Admin',
+              email: a.email,
+              role: a.role || 'Staf Diklat',
+              created_at: a.created_at
+            }))
+          });
+        }
+      } catch {}
+    }
+
     const db = getDatabase();
     const list = (db.admins || []).map((a: any) => ({
       id: a.id,
