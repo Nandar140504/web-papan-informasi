@@ -275,32 +275,44 @@ export default function AdminPage() {
         ></div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#1c0307]/95 via-[#120204]/95 to-[#0a0102]/98 fixed pointer-events-none"></div>
 
-        {/* 1. Header Portal Ringkas */}
-        <header className="relative z-10 shrink-0 w-full max-w-7xl mx-auto px-3 sm:px-4 py-2 flex items-center justify-between border-b border-red-800/40">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="bg-white/10 backdrop-blur-sm px-2 py-1 rounded-xl border border-white/20 flex items-center">
-              <img 
-                src="/logo-sig-white.png" 
-                alt="Logo SIG" 
-                className="h-6 sm:h-7 w-auto object-contain drop-shadow"
-              />
-            </div>
-            <div className="h-6 w-px bg-white/20"></div>
+        {/* 1. Header Portal: Logo SIG Besar di Kiri & Logo Semen Tonasa Besar di Kanan Atas */}
+        <header className="relative z-10 shrink-0 w-full max-w-7xl mx-auto px-3 sm:px-5 py-2.5 flex items-center justify-between border-b border-red-800/40">
+          
+          {/* SISI KIRI: LOGO SIG LEBIH BESAR + TEKS KORPORAT */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <img 
+              src="/logo-sig-white.png" 
+              alt="Logo SIG" 
+              className="h-9 sm:h-11 md:h-13 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+            />
+            <div className="h-8 md:h-10 w-px bg-white/20 hidden sm:block"></div>
             <div>
-              <p className="text-xs sm:text-sm font-black text-white tracking-wide">PT SEMEN TONASA</p>
-              <p className="text-[9.5px] sm:text-[10.5px] text-amber-300 font-semibold leading-tight">Unit Learning & Development</p>
+              <p className="text-xs sm:text-sm md:text-base font-black text-white tracking-wide leading-tight">
+                PT SEMEN TONASA
+              </p>
+              <p className="text-[9.5px] sm:text-[10.5px] text-amber-300 font-semibold leading-tight">
+                Unit Learning & Development
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* SISI KANAN ATAS: TOMBOL TV + LOGO SEMEN TONASA LEBIH BESAR TANPA BACKGROUND PUTIH */}
+          <div className="flex items-center gap-2.5 sm:gap-3.5">
             <a 
               href="/"
-              className="flex items-center gap-1.5 bg-red-950/80 hover:bg-red-800 border border-red-600/70 hover:border-amber-400 text-white text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-full transition-all shadow"
+              className="flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 border border-red-400/50 text-white text-[10.5px] sm:text-xs font-black px-3 py-1.5 rounded-full transition-all shadow-md hover:scale-105 shrink-0"
             >
               <span>📺</span>
               <span className="hidden sm:inline">Kembali ke</span>
               <span>Layar TV</span>
             </a>
+
+            {/* Logo PT Semen Tonasa Pindah ke Sebelah Kanan Atas & Lebih Besar Tanpa Background Putih */}
+            <img 
+              src="/logo-semen-tonasa.png" 
+              alt="Logo PT Semen Tonasa" 
+              className="h-10 sm:h-12 md:h-14 w-10 sm:w-12 md:w-14 object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)] hover:scale-105 transition-transform shrink-0"
+            />
           </div>
         </header>
 
@@ -313,28 +325,17 @@ export default function AdminPage() {
           <div className="w-full lg:w-[60%] flex flex-col justify-center min-h-0">
             <div className="bg-gradient-to-b from-[#2b0409]/95 via-[#1c0307]/95 to-[#120204]/98 border-2 border-red-700/60 rounded-2xl md:rounded-3xl shadow-[0_15px_35px_rgba(0,0,0,0.85)] p-3.5 sm:p-4 md:p-5 backdrop-blur-xl flex flex-col justify-center max-w-lg lg:max-w-none w-full mx-auto">
               
-              {/* Header Kartu dengan LOGO SEMEN TONASA BERLATAR BELAKANG PUTIH BERSIH */}
-              <div className="flex items-center gap-3 mb-2.5 pb-2.5 border-b border-red-800/50">
-                {/* KOTAK / TABEL LOGO WARNA PUTIH (Menggantikan kotak merah agar logo jelas 100%) */}
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white border-2 border-slate-200 shadow-md p-1.5 flex items-center justify-center shrink-0 hover:scale-105 transition-transform">
-                  <img 
-                    src="/logo-semen-tonasa.png" 
-                    alt="Logo PT Semen Tonasa" 
-                    className="w-full h-full object-contain drop-shadow-sm"
-                  />
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
-                      Sistem Informasi Ruangan
-                    </span>
-                  </div>
-                  <h2 className="text-sm sm:text-base md:text-lg font-black text-white tracking-wide leading-tight truncate">
+              {/* Header Kartu: Judul Portal (Logo Semen Tonasa Sudah Dipindahkan ke Kanan Atas Sesuai Permintaan) */}
+              <div className="flex items-center gap-2.5 mb-2.5 pb-2 border-b border-red-800/50">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></div>
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300 block leading-none">
+                    Sistem Informasi Ruangan
+                  </span>
+                  <h2 className="text-base sm:text-lg md:text-xl font-black text-white tracking-wide leading-tight mt-0.5">
                     Portal Admin Diklat Tonasa
                   </h2>
-                  <p className="text-[10px] sm:text-[11px] text-red-200/80 font-medium truncate">
+                  <p className="text-[10.5px] sm:text-[11px] text-red-200/80 font-medium">
                     {authTab === 'login' ? 'Masuk untuk mengelola jadwal peminjaman ruangan' : 'Daftarkan akun staf baru Unit Diklat'}
                   </p>
                 </div>
@@ -568,53 +569,33 @@ export default function AdminPage() {
           </div>
 
           {/* ======================================================== */}
-          {/* SISI KANAN (40%): FOTO BEGRAUND DIKLAT PROPORSIONAL & JELAS */}
+          {/* SISI KANAN (40%): FOTO BEGRAUND DIKLAT 100% TERLIHAT SEMUA & JELAS */}
           {/* ======================================================== */}
-          <div className="w-full lg:w-[40%] flex flex-col min-h-[200px] sm:min-h-[220px] lg:min-h-0 shrink-0 lg:shrink">
-            <div className="relative h-full min-h-[200px] sm:min-h-[220px] lg:min-h-full rounded-2xl md:rounded-3xl overflow-hidden border-2 border-red-700/60 shadow-2xl flex flex-col justify-between p-3.5 sm:p-4 bg-gradient-to-br from-[#3b050d] to-[#120204] group">
+          <div className="w-full lg:w-[40%] flex flex-col min-h-[240px] sm:min-h-[280px] lg:min-h-0 shrink-0 lg:shrink">
+            <div className="relative h-full min-h-[240px] sm:min-h-[280px] lg:min-h-full rounded-2xl md:rounded-3xl overflow-hidden border-2 border-red-700/60 shadow-2xl flex flex-col justify-between p-2 sm:p-2.5 bg-gradient-to-b from-[#240307] via-[#150204] to-[#0c0102]">
               
-              {/* Foto Gedung Diklat Asli Tajam */}
-              <div 
-                className="absolute inset-0 bg-cover bg-[position:65%_center] group-hover:scale-105 transition-transform duration-700"
-                style={{ backgroundImage: 'url("/bg-building.png")' }}
-              ></div>
-
-              {/* Lapisan Gradien Elegan agar teks dan detail foto seimbang */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#140204]/95 via-[#59060c]/30 to-black/35 pointer-events-none"></div>
-
-              {/* Tag Atas Foto */}
-              <div className="relative z-10 flex items-center justify-between">
-                <span className="bg-red-950/90 text-amber-300 border border-amber-400/50 text-[9.5px] sm:text-[10px] font-black px-2.5 py-1 rounded-full shadow flex items-center gap-1.5 backdrop-blur-md">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  GEDUNG DIKLAT RESMI
-                </span>
-
-                {/* Logo Semen Tonasa Kotak Putih di Pojok Kanan Atas Foto */}
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border-2 border-slate-200 shadow-md p-1 flex items-center justify-center">
-                  <img 
-                    src="/logo-semen-tonasa.png" 
-                    alt="Semen Tonasa" 
-                    className="w-full h-full object-contain"
-                  />
-                </div>
+              {/* Wadah Foto Gedung Diklat Asli - 100% Utuh Terlihat Semua dari Atap sampai Bawah (Tanpa Potongan & Tanpa Badge/Logo Penutup) */}
+              <div className="relative flex-1 w-full min-h-0 flex items-center justify-center overflow-hidden rounded-xl bg-black/60 border border-red-900/40 group">
+                <img 
+                  src="/bg-building.png" 
+                  alt="Gedung Diklat PT Semen Tonasa" 
+                  className="w-full h-full object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.85)] transition-transform duration-500 group-hover:scale-102"
+                />
               </div>
 
-              {/* Kartu Informasi di Bawah Foto */}
-              <div className="relative z-10 bg-black/80 backdrop-blur-md border border-red-500/40 rounded-2xl p-3 shadow-2xl">
-                <div className="flex items-center gap-1.5 text-amber-300 text-[10px] font-bold">
-                  <span>🏛️</span>
-                  <span>Pusat Pembelajaran & Pengembangan SDM</span>
+              {/* Keterangan Ringkas di Bagian Bawah (Berada di Bawah Foto, Tidak Menutupi Gedung) */}
+              <div className="mt-2 shrink-0 bg-black/75 backdrop-blur-md border border-red-500/35 rounded-xl py-1.5 px-3 flex items-center justify-between shadow-lg">
+                <div>
+                  <h3 className="text-xs sm:text-sm font-black text-white leading-tight">
+                    Gedung Diklat PT Semen Tonasa
+                  </h3>
+                  <p className="text-[9.5px] sm:text-[10px] text-amber-200/90 font-medium mt-0.5">
+                    Unit Learning & Development • Pangkep, Sulsel
+                  </p>
                 </div>
-                <h3 className="text-xs sm:text-sm font-black text-white leading-tight mt-0.5">
-                  Unit Learning & Development PT Semen Tonasa
-                </h3>
-                <p className="text-[10px] text-red-200/90 mt-1 leading-snug">
-                  Mendukung penyelenggaraan diklat berkualitas dengan fasilitas 5 ruangan modern dan representatif.
-                </p>
-                <div className="flex flex-wrap items-center gap-2 mt-2 pt-2 border-t border-white/10 text-[9px] text-amber-200 font-bold">
-                  <span className="bg-red-950/80 px-2 py-0.5 rounded-full border border-red-800/60">📍 Pangkep, Sulsel</span>
-                  <span className="bg-red-950/80 px-2 py-0.5 rounded-full border border-red-800/60">🏢 5 Ruangan Diklat</span>
-                </div>
+                <span className="text-[9px] font-bold bg-red-950/90 text-amber-300 border border-amber-400/40 px-2.5 py-0.5 rounded-full shrink-0 shadow">
+                  🏢 5 Ruangan
+                </span>
               </div>
 
             </div>
@@ -660,9 +641,9 @@ export default function AdminPage() {
               <img 
                 src="/logo-sig-white.png" 
                 alt="Logo SIG" 
-                className="h-7 md:h-9 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" 
+                className="h-8 md:h-11 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" 
               />
-              <div className="h-7 w-px bg-white/20 hidden sm:block"></div>
+              <div className="h-8 md:h-9 w-px bg-white/20 hidden sm:block"></div>
               <div>
                 <h1 className="text-sm md:text-lg font-black text-white tracking-wide leading-tight drop-shadow">
                   Admin Dashboard
@@ -671,14 +652,12 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* Logo Semen Tonasa di Mobile (HP Android) - Dalam Kotak Putih Bersih */}
-            <div className="h-8 w-8 rounded-xl bg-white border border-white/60 p-0.5 flex items-center justify-center shrink-0 md:hidden ml-auto shadow-sm">
-              <img 
-                src="/logo-semen-tonasa.png" 
-                alt="Logo PT Semen Tonasa" 
-                className="w-full h-full object-contain" 
-              />
-            </div>
+            {/* Logo Semen Tonasa di Mobile (HP Android) Tanpa Background Putih */}
+            <img 
+              src="/logo-semen-tonasa.png" 
+              alt="Logo PT Semen Tonasa" 
+              className="h-8 w-8 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] shrink-0 md:hidden ml-auto" 
+            />
           </div>
 
           {/* Tombol TV, Jam, Info Akun Admin, dan Logo Semen Tonasa (Desktop) */}
@@ -715,14 +694,12 @@ export default function AdminPage() {
               {now.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' })}
             </div>
 
-            {/* Logo PT Semen Tonasa di Desktop - Dalam Kotak Putih Bersih */}
-            <div className="hidden md:flex h-8 md:h-9 w-8 md:w-9 rounded-xl bg-white border border-white/60 p-0.5 items-center justify-center shrink-0 shadow-md ml-1.5 hover:scale-105 transition-transform">
-              <img 
-                src="/logo-semen-tonasa.png" 
-                alt="Logo PT Semen Tonasa" 
-                className="w-full h-full object-contain" 
-              />
-            </div>
+            {/* Logo PT Semen Tonasa di Desktop - Lebih Besar Tanpa Background Putih */}
+            <img 
+              src="/logo-semen-tonasa.png" 
+              alt="Logo PT Semen Tonasa" 
+              className="hidden md:block h-9 md:h-11 w-9 md:w-11 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] ml-1.5 shrink-0 hover:scale-105 transition-transform" 
+            />
           </div>
 
         </div>
