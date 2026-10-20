@@ -267,286 +267,362 @@ export default function AdminPage() {
   // TAMPILAN JIKA BELUM LOGIN (PORTAL MASUK & REGISTRASI ADMIN)
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen text-white relative font-sans flex flex-col justify-between bg-[#120204] overflow-x-hidden">
-        {/* Background Gedung dengan overlay */}
+      <div className="min-h-screen lg:h-screen lg:max-h-screen text-white relative font-sans flex flex-col justify-between bg-[#120204] overflow-y-auto lg:overflow-hidden">
+        {/* Background Gedung dengan overlay gelap halus */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 pointer-events-none fixed"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15 pointer-events-none fixed"
           style={{ backgroundImage: 'url("/bg-building.png")' }}
         ></div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#1c0307]/95 via-[#120204]/95 to-[#0a0102]/98 fixed pointer-events-none"></div>
 
-        {/* Header Portal Login */}
-        <header className="relative z-10 w-full max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <img 
-              src="/logo-sig-white.png" 
-              alt="Logo SIG" 
-              className="h-8 md:h-10 w-auto object-contain drop-shadow"
-            />
+        {/* 1. Header Portal Ringkas */}
+        <header className="relative z-10 shrink-0 w-full max-w-7xl mx-auto px-3 sm:px-4 py-2 flex items-center justify-between border-b border-red-800/40">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="bg-white/10 backdrop-blur-sm px-2 py-1 rounded-xl border border-white/20 flex items-center">
+              <img 
+                src="/logo-sig-white.png" 
+                alt="Logo SIG" 
+                className="h-6 sm:h-7 w-auto object-contain drop-shadow"
+              />
+            </div>
             <div className="h-6 w-px bg-white/20"></div>
             <div>
-              <p className="text-xs md:text-sm font-black text-white tracking-wide">PT SEMEN TONASA</p>
-              <p className="text-[10px] text-amber-300 font-semibold">Unit Diklat & Pengembangan</p>
+              <p className="text-xs sm:text-sm font-black text-white tracking-wide">PT SEMEN TONASA</p>
+              <p className="text-[9.5px] sm:text-[10.5px] text-amber-300 font-semibold leading-tight">Unit Learning & Development</p>
             </div>
           </div>
-          <a 
-            href="/"
-            className="flex items-center gap-1.5 bg-red-950/80 hover:bg-red-800 border border-red-700/60 hover:border-amber-400 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-all shadow"
-          >
-            <span>📺</span>
-            <span className="hidden sm:inline">Kembali ke</span>
-            <span>Layar TV</span>
-          </a>
+
+          <div className="flex items-center gap-2">
+            <a 
+              href="/"
+              className="flex items-center gap-1.5 bg-red-950/80 hover:bg-red-800 border border-red-600/70 hover:border-amber-400 text-white text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-full transition-all shadow"
+            >
+              <span>📺</span>
+              <span className="hidden sm:inline">Kembali ke</span>
+              <span>Layar TV</span>
+            </a>
+          </div>
         </header>
 
-        {/* Konten Utama: Card Form Login & Register */}
-        <main className="relative z-10 w-full max-w-md mx-auto px-4 py-4 my-auto">
-          <div className="bg-gradient-to-b from-[#2b0409] via-[#1c0307] to-[#120204] border-2 border-red-700/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-5 md:p-6 backdrop-blur-xl">
-            
-            {/* Logo Semen Tonasa & Judul */}
-            <div className="text-center mb-4">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 border-2 border-amber-400/50 shadow-lg mb-2.5">
-                <img 
-                  src="/logo-semen-tonasa.png" 
-                  alt="Semen Tonasa" 
-                  className="w-10 h-10 object-contain drop-shadow"
-                />
-              </div>
-              <h2 className="text-lg md:text-xl font-black text-white tracking-wide">
-                Portal Admin Diklat
-              </h2>
-              <p className="text-[11px] text-red-200/80 font-medium mt-0.5">
-                Khusus Staf Pengelola Peminjaman Ruangan Diklat
-              </p>
-            </div>
+        {/* 2. AREA UTAMA: DIBAGI 2 TAMPILAN (60% SEBELAH KIRI LOGIN/DAFTAR : 40% SEBELAH KANAN FOTO BEGRAUND DIKLAT) */}
+        <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto p-2 sm:p-3 md:p-4 flex flex-col lg:flex-row items-stretch gap-2.5 sm:gap-3.5 min-h-0">
+          
+          {/* ======================================================== */}
+          {/* SISI KIRI (60%): FORM LOGIN & DAFTAR (TIDAK ADA SCROLL) */}
+          {/* ======================================================== */}
+          <div className="w-full lg:w-[60%] flex flex-col justify-center min-h-0">
+            <div className="bg-gradient-to-b from-[#2b0409]/95 via-[#1c0307]/95 to-[#120204]/98 border-2 border-red-700/60 rounded-2xl md:rounded-3xl shadow-[0_15px_35px_rgba(0,0,0,0.85)] p-3.5 sm:p-4 md:p-5 backdrop-blur-xl flex flex-col justify-center max-w-lg lg:max-w-none w-full mx-auto">
+              
+              {/* Header Kartu dengan LOGO SEMEN TONASA BERLATAR BELAKANG PUTIH BERSIH */}
+              <div className="flex items-center gap-3 mb-2.5 pb-2.5 border-b border-red-800/50">
+                {/* KOTAK / TABEL LOGO WARNA PUTIH (Menggantikan kotak merah agar logo jelas 100%) */}
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white border-2 border-slate-200 shadow-md p-1.5 flex items-center justify-center shrink-0 hover:scale-105 transition-transform">
+                  <img 
+                    src="/logo-semen-tonasa.png" 
+                    alt="Logo PT Semen Tonasa" 
+                    className="w-full h-full object-contain drop-shadow-sm"
+                  />
+                </div>
 
-            {/* Tab Switcher: Masuk vs Daftar */}
-            <div className="grid grid-cols-2 p-1 bg-black/40 border border-red-900/60 rounded-xl mb-4 text-xs font-bold">
-              <button
-                type="button"
-                onClick={() => { setAuthTab('login'); setAuthError(''); setAuthSuccess(''); }}
-                className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  authTab === 'login' 
-                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md border border-red-400/40' 
-                    : 'text-red-300 hover:text-white'
-                }`}
-              >
-                <span>🔑</span>
-                <span>Masuk (Login)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => { setAuthTab('register'); setAuthError(''); setAuthSuccess(''); }}
-                className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  authTab === 'register' 
-                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md border border-red-400/40' 
-                    : 'text-red-300 hover:text-white'
-                }`}
-              >
-                <span>📝</span>
-                <span>Daftar Akun</span>
-              </button>
-            </div>
-
-            {/* Banner Pesan Error / Sukses */}
-            {authError && (
-              <div className="mb-3.5 p-2.5 bg-rose-950/80 border border-rose-500/70 rounded-xl text-rose-200 text-xs flex items-start gap-2 shadow animate-fadeIn">
-                <span className="text-sm shrink-0">⚠️</span>
-                <span className="font-medium leading-relaxed">{authError}</span>
-              </div>
-            )}
-            {authSuccess && (
-              <div className="mb-3.5 p-2.5 bg-emerald-950/80 border border-emerald-500/70 rounded-xl text-emerald-200 text-xs flex items-start gap-2 shadow animate-fadeIn">
-                <span className="text-sm shrink-0">✅</span>
-                <span className="font-medium leading-relaxed">{authSuccess}</span>
-              </div>
-            )}
-
-            {/* TAB 1: FORM LOGIN */}
-            {authTab === 'login' ? (
-              <form onSubmit={handleLogin} className="space-y-3.5">
-                <div>
-                  <label className="block text-[11px] font-bold text-red-200 mb-1">
-                    Email Staf Admin
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">
-                      ✉️
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
+                      Sistem Informasi Ruangan
                     </span>
-                    <input
-                      type="email"
-                      required
-                      placeholder="admin@sementonasa.co.id"
-                      value={loginForm.email}
-                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                      className="w-full pl-9 pr-3 py-2 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                    />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-red-200 mb-1">
-                    Kata Sandi
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">
-                      🔒
-                    </span>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      placeholder="••••••••"
-                      value={loginForm.password}
-                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                      className="w-full pl-9 pr-16 py-2 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-white text-[11px] font-bold cursor-pointer"
-                    >
-                      {showPassword ? 'Tutup' : 'Lihat'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Tombol Submit Login */}
-                <button
-                  type="submit"
-                  disabled={authLoading}
-                  className="w-full py-2.5 mt-2 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-extrabold rounded-xl text-xs md:text-sm tracking-wide shadow-lg border border-red-400/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {authLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Memverifikasi...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>🚀</span>
-                      <span>Masuk ke Dashboard Admin</span>
-                    </>
-                  )}
-                </button>
-
-                {/* Tombol Akun Bawaan / Cepat */}
-                <div className="pt-2 border-t border-red-900/50">
-                  <button
-                    type="button"
-                    onClick={useDefaultAccount}
-                    className="w-full py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/30 rounded-xl text-[10.5px] font-bold text-amber-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <span>💡</span>
-                    <span>Isi Otomatis Akun Default (admin@sementonasa.co.id)</span>
-                  </button>
-                </div>
-              </form>
-            ) : (
-              /* TAB 2: FORM REGISTRASI ADMIN */
-              <form onSubmit={handleRegister} className="space-y-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-red-200 mb-0.5">
-                    Nama Lengkap Staf
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Contoh: Ahmad Yani - Staf Diklat"
-                    value={registerForm.name}
-                    onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-red-200 mb-0.5">
-                    Email Dinas / Kerja
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="nama@sementonasa.co.id"
-                    value={registerForm.email}
-                    onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[11px] font-bold text-red-200 mb-0.5">
-                      Kata Sandi
-                    </label>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      placeholder="Min. 6 digit"
-                      value={registerForm.password}
-                      onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-red-200 mb-0.5">
-                      Ulangi Sandi
-                    </label>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      placeholder="Ketik ulang"
-                      value={registerForm.confirmPassword}
-                      onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                    />
-                  </div>
-                </div>
-
-                {/* Kode PIN Verifikasi Unit Diklat */}
-                <div>
-                  <div className="flex items-center justify-between mb-0.5">
-                    <label className="block text-[11px] font-bold text-amber-200">
-                      Kode Verifikasi Unit Diklat (PIN)
-                    </label>
-                    <span className="text-[9.5px] text-amber-300 font-mono font-bold">Default: TONASA2026</span>
-                  </div>
-                  <input
-                    type="text"
-                    required
-                    placeholder="TONASA2026"
-                    value={registerForm.pin}
-                    onChange={(e) => setRegisterForm({ ...registerForm, pin: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-amber-950/30 border border-amber-500/50 rounded-xl text-amber-200 text-xs uppercase font-mono font-bold tracking-wider focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
-                  />
-                  <p className="text-[9.5px] text-zinc-400 mt-1 leading-snug">
-                    *PIN ini memastikan hanya staf berwenang yang dapat membuat akun admin.
+                  <h2 className="text-sm sm:text-base md:text-lg font-black text-white tracking-wide leading-tight truncate">
+                    Portal Admin Diklat Tonasa
+                  </h2>
+                  <p className="text-[10px] sm:text-[11px] text-red-200/80 font-medium truncate">
+                    {authTab === 'login' ? 'Masuk untuk mengelola jadwal peminjaman ruangan' : 'Daftarkan akun staf baru Unit Diklat'}
                   </p>
                 </div>
+              </div>
 
-                {/* Tombol Submit Registrasi */}
+              {/* Tab Switcher: Masuk vs Daftar */}
+              <div className="grid grid-cols-2 p-1 bg-black/45 border border-red-900/60 rounded-xl mb-2.5 text-xs font-bold">
                 <button
-                  type="submit"
-                  disabled={authLoading}
-                  className="w-full py-2.5 mt-2 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-extrabold rounded-xl text-xs md:text-sm tracking-wide shadow-lg border border-red-400/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  type="button"
+                  onClick={() => { setAuthTab('login'); setAuthError(''); setAuthSuccess(''); }}
+                  className={`py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    authTab === 'login' 
+                      ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md border border-red-400/40' 
+                      : 'text-red-300 hover:text-white'
+                  }`}
                 >
-                  {authLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Mendaftarkan Akun...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>📝</span>
-                      <span>Daftarkan Akun Staf Admin</span>
-                    </>
-                  )}
+                  <span>🔑</span>
+                  <span>Masuk (Login)</span>
                 </button>
-              </form>
-            )}
+                <button
+                  type="button"
+                  onClick={() => { setAuthTab('register'); setAuthError(''); setAuthSuccess(''); }}
+                  className={`py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    authTab === 'register' 
+                      ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md border border-red-400/40' 
+                      : 'text-red-300 hover:text-white'
+                  }`}
+                >
+                  <span>📝</span>
+                  <span>Daftar Akun</span>
+                </button>
+              </div>
 
+              {/* Banner Pesan Error / Sukses */}
+              {authError && (
+                <div className="mb-2 p-2 bg-rose-950/90 border border-rose-500/70 rounded-xl text-rose-200 text-[11px] flex items-center gap-2 shadow animate-fadeIn">
+                  <span className="text-sm shrink-0">⚠️</span>
+                  <span className="font-semibold leading-tight">{authError}</span>
+                </div>
+              )}
+              {authSuccess && (
+                <div className="mb-2 p-2 bg-emerald-950/90 border border-emerald-500/70 rounded-xl text-emerald-200 text-[11px] flex items-center gap-2 shadow animate-fadeIn">
+                  <span className="text-sm shrink-0">✅</span>
+                  <span className="font-semibold leading-tight">{authSuccess}</span>
+                </div>
+              )}
+
+              {/* TAB 1: FORM LOGIN */}
+              {authTab === 'login' ? (
+                <form onSubmit={handleLogin} className="space-y-2.5">
+                  <div>
+                    <label className="block text-[11px] font-bold text-red-200 mb-1">
+                      Email Staf Admin
+                    </label>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                        ✉️
+                      </span>
+                      <input
+                        type="email"
+                        required
+                        placeholder="admin@sementonasa.co.id"
+                        value={loginForm.email}
+                        onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                        className="w-full pl-8 pr-3 py-1.5 sm:py-2 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-red-200 mb-1">
+                      Kata Sandi
+                    </label>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                        🔒
+                      </span>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        placeholder="••••••••"
+                        value={loginForm.password}
+                        onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                        className="w-full pl-8 pr-14 py-1.5 sm:py-2 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-zinc-400 hover:text-white text-[10.5px] font-bold cursor-pointer"
+                      >
+                        {showPassword ? 'Tutup' : 'Lihat'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tombol Submit Login */}
+                  <button
+                    type="submit"
+                    disabled={authLoading}
+                    className="w-full py-2 sm:py-2.5 mt-1 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-black rounded-xl text-xs md:text-sm tracking-wide shadow-lg border border-red-400/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {authLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Memverifikasi Sesi...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>🚀</span>
+                        <span>Masuk ke Dashboard Admin</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Tombol Akun Bawaan / Cepat */}
+                  <div className="pt-2 border-t border-red-900/50">
+                    <button
+                      type="button"
+                      onClick={useDefaultAccount}
+                      className="w-full py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/30 rounded-xl text-[10px] sm:text-[10.5px] font-bold text-amber-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <span>💡</span>
+                      <span>Isi Otomatis Akun Default (admin@sementonasa.co.id)</span>
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                /* TAB 2: FORM REGISTRASI ADMIN (1 TAMPILAN UTUH TANPA SCROLL) */
+                <form onSubmit={handleRegister} className="space-y-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
+                        Nama Lengkap Staf
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ahmad Yani - Staf Diklat"
+                        value={registerForm.name}
+                        onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
+                        Email Dinas / Kerja
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="nama@sementonasa.co.id"
+                        value={registerForm.email}
+                        onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
+                        Kata Sandi
+                      </label>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        placeholder="Min. 6 digit"
+                        value={registerForm.password}
+                        onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
+                        Ulangi Sandi
+                      </label>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        placeholder="Ketik ulang"
+                        value={registerForm.confirmPassword}
+                        onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Kode PIN Verifikasi Unit Diklat */}
+                  <div>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <label className="block text-[10.5px] font-bold text-amber-200">
+                        Kode Verifikasi Unit Diklat (PIN)
+                      </label>
+                      <span className="text-[9.5px] text-amber-300 font-mono font-bold">Default: TONASA2026</span>
+                    </div>
+                    <input
+                      type="text"
+                      required
+                      placeholder="TONASA2026"
+                      value={registerForm.pin}
+                      onChange={(e) => setRegisterForm({ ...registerForm, pin: e.target.value })}
+                      className="w-full px-2.5 py-1.5 bg-amber-950/30 border border-amber-500/50 rounded-xl text-amber-200 text-xs uppercase font-mono font-bold tracking-wider focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                    />
+                    <p className="text-[9px] text-zinc-400 mt-0.5 leading-tight">
+                      *Mencegah orang luar mendaftar. Pendaftaran khusus staf berwenang Semen Tonasa.
+                    </p>
+                  </div>
+
+                  {/* Tombol Submit Registrasi */}
+                  <button
+                    type="submit"
+                    disabled={authLoading}
+                    className="w-full py-2 sm:py-2.5 mt-1 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-black rounded-xl text-xs md:text-sm tracking-wide shadow-lg border border-red-400/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {authLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Mendaftarkan Akun...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>📝</span>
+                        <span>Daftarkan Akun Staf Admin</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+
+            </div>
           </div>
+
+          {/* ======================================================== */}
+          {/* SISI KANAN (40%): FOTO BEGRAUND DIKLAT PROPORSIONAL & JELAS */}
+          {/* ======================================================== */}
+          <div className="w-full lg:w-[40%] flex flex-col min-h-[200px] sm:min-h-[220px] lg:min-h-0 shrink-0 lg:shrink">
+            <div className="relative h-full min-h-[200px] sm:min-h-[220px] lg:min-h-full rounded-2xl md:rounded-3xl overflow-hidden border-2 border-red-700/60 shadow-2xl flex flex-col justify-between p-3.5 sm:p-4 bg-gradient-to-br from-[#3b050d] to-[#120204] group">
+              
+              {/* Foto Gedung Diklat Asli Tajam */}
+              <div 
+                className="absolute inset-0 bg-cover bg-[position:65%_center] group-hover:scale-105 transition-transform duration-700"
+                style={{ backgroundImage: 'url("/bg-building.png")' }}
+              ></div>
+
+              {/* Lapisan Gradien Elegan agar teks dan detail foto seimbang */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#140204]/95 via-[#59060c]/30 to-black/35 pointer-events-none"></div>
+
+              {/* Tag Atas Foto */}
+              <div className="relative z-10 flex items-center justify-between">
+                <span className="bg-red-950/90 text-amber-300 border border-amber-400/50 text-[9.5px] sm:text-[10px] font-black px-2.5 py-1 rounded-full shadow flex items-center gap-1.5 backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  GEDUNG DIKLAT RESMI
+                </span>
+
+                {/* Logo Semen Tonasa Kotak Putih di Pojok Kanan Atas Foto */}
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border-2 border-slate-200 shadow-md p-1 flex items-center justify-center">
+                  <img 
+                    src="/logo-semen-tonasa.png" 
+                    alt="Semen Tonasa" 
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </div>
+
+              {/* Kartu Informasi di Bawah Foto */}
+              <div className="relative z-10 bg-black/80 backdrop-blur-md border border-red-500/40 rounded-2xl p-3 shadow-2xl">
+                <div className="flex items-center gap-1.5 text-amber-300 text-[10px] font-bold">
+                  <span>🏛️</span>
+                  <span>Pusat Pembelajaran & Pengembangan SDM</span>
+                </div>
+                <h3 className="text-xs sm:text-sm font-black text-white leading-tight mt-0.5">
+                  Unit Learning & Development PT Semen Tonasa
+                </h3>
+                <p className="text-[10px] text-red-200/90 mt-1 leading-snug">
+                  Mendukung penyelenggaraan diklat berkualitas dengan fasilitas 5 ruangan modern dan representatif.
+                </p>
+                <div className="flex flex-wrap items-center gap-2 mt-2 pt-2 border-t border-white/10 text-[9px] text-amber-200 font-bold">
+                  <span className="bg-red-950/80 px-2 py-0.5 rounded-full border border-red-800/60">📍 Pangkep, Sulsel</span>
+                  <span className="bg-red-950/80 px-2 py-0.5 rounded-full border border-red-800/60">🏢 5 Ruangan Diklat</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
         </main>
 
-        {/* Running Text Footer Portal */}
+        {/* 3. Footer Running Text Portal */}
         <footer className="relative z-10 shrink-0 w-full bg-[#8a0b12] border-t-2 border-red-400/40 py-1.5 flex items-center overflow-hidden">
           <div className="whitespace-nowrap animate-marquee text-[10px] xl:text-[11px] font-extrabold tracking-[0.25em] text-white">
             UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA •
@@ -595,12 +671,14 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* Logo Semen Tonasa di Mobile (HP Android) */}
-            <img 
-              src="/logo-semen-tonasa.png" 
-              alt="Logo PT Semen Tonasa" 
-              className="h-8 w-8 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] shrink-0 md:hidden ml-auto" 
-            />
+            {/* Logo Semen Tonasa di Mobile (HP Android) - Dalam Kotak Putih Bersih */}
+            <div className="h-8 w-8 rounded-xl bg-white border border-white/60 p-0.5 flex items-center justify-center shrink-0 md:hidden ml-auto shadow-sm">
+              <img 
+                src="/logo-semen-tonasa.png" 
+                alt="Logo PT Semen Tonasa" 
+                className="w-full h-full object-contain" 
+              />
+            </div>
           </div>
 
           {/* Tombol TV, Jam, Info Akun Admin, dan Logo Semen Tonasa (Desktop) */}
@@ -637,12 +715,14 @@ export default function AdminPage() {
               {now.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' })}
             </div>
 
-            {/* Logo PT Semen Tonasa di Desktop - Ukuran Lebih Besar */}
-            <img 
-              src="/logo-semen-tonasa.png" 
-              alt="Logo PT Semen Tonasa" 
-              className="hidden md:block h-8 md:h-9 w-8 md:w-9 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] ml-1.5 shrink-0 hover:scale-105 transition-transform" 
-            />
+            {/* Logo PT Semen Tonasa di Desktop - Dalam Kotak Putih Bersih */}
+            <div className="hidden md:flex h-8 md:h-9 w-8 md:w-9 rounded-xl bg-white border border-white/60 p-0.5 items-center justify-center shrink-0 shadow-md ml-1.5 hover:scale-105 transition-transform">
+              <img 
+                src="/logo-semen-tonasa.png" 
+                alt="Logo PT Semen Tonasa" 
+                className="w-full h-full object-contain" 
+              />
+            </div>
           </div>
 
         </div>
