@@ -195,6 +195,45 @@ export async function POST(request: Request) {
       });
     }
 
+    // 3. ACTION: SOCIAL LOGIN (GOOGLE / FACEBOOK)
+    if (action === 'social_login') {
+      const provider = (body.provider || 'Google').toLowerCase();
+      const providerTitle = provider === 'facebook' ? 'Facebook' : 'Google';
+      const userEmail = (cleanEmail || (provider === 'facebook' ? 'admin.diklat@facebook.com' : 'admin.diklat@gmail.com')).toLowerCase();
+      const userName = (name || `Admin Staf (${providerTitle})`).trim();
+
+      const db = getDatabase();
+      let socialUser = (db.admins || []).find((a: any) => 
+        (a.email || '').toLowerCase() === userEmail
+      );
+
+      if (!socialUser) {
+        socialUser = {
+          id: `admin-${provider}-${Date.now()}`,
+          name: userName,
+          email: userEmail,
+          password: `oauth-${provider}-secured`,
+          role: 'Staf Diklat Tonasa',
+          provider: providerTitle,
+          created_at: new Date().toISOString()
+        };
+        db.admins = [...(db.admins || []), socialUser];
+        saveDatabase(db);
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: `Berhasil masuk via ${providerTitle}!`,
+        user: {
+          id: socialUser.id,
+          email: socialUser.email,
+          name: socialUser.name,
+          role: socialUser.role || 'Staf Diklat Tonasa',
+          provider: providerTitle
+        }
+      });
+    }
+
     return NextResponse.json({ success: false, error: 'Aksi tidak dikenali.' }, { status: 400 });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: 'Terjadi kesalahan sistem: ' + err.message }, { status: 500 });
