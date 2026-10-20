@@ -82,5 +82,15 @@
       "end_time": "2026-10-11T21:31",
       "created_at": "2026-10-11T11:31:15.065Z"
     }
+  ],
+  "admins": [
+    {
+      "id": "admin-1",
+      "name": "Admin Diklat Tonasa",
+      "email": "admin@sementonasa.co.id",
+      "password": "tonasa123",
+      "role": "Admin Utama",
+      "created_at": "2026-10-20T14:40:00.000Z"
+    }
   ]
 }

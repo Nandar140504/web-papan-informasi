@@ -32,8 +32,44 @@ export default function AdminPage() {
   })
   const [loading, setLoading] = useState(false)
 
+  // State Autentikasi Admin & Sesi Staf
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' })
+  const [registerForm, setRegisterForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    pin: 'TONASA2026'
+  })
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authError, setAuthError] = useState('')
+  const [authSuccess, setAuthSuccess] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
   useEffect(() => {
     setNow(new Date())
+
+    // Periksa sesi tersimpan di localStorage
+    try {
+      const savedSession = localStorage.getItem('tonasa_admin_session')
+      if (savedSession) {
+        const userObj = JSON.parse(savedSession)
+        if (userObj && (userObj.email || userObj.name)) {
+          setCurrentUser(userObj)
+          setIsAuthenticated(true)
+        } else {
+          setIsAuthenticated(false)
+        }
+      } else {
+        setIsAuthenticated(false)
+      }
+    } catch {
+      setIsAuthenticated(false)
+    }
+
     fetchData()
     const timer = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(timer)
@@ -50,6 +86,110 @@ export default function AdminPage() {
       console.error("Gagal menarik data admin:", err)
       setRooms(DEFAULT_ROOMS)
     }
+  }
+
+  // Handle Login Admin
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAuthLoading(true)
+    setAuthError('')
+    setAuthSuccess('')
+
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'login',
+          email: loginForm.email,
+          password: loginForm.password
+        })
+      })
+      const data = await res.json()
+
+      if (data.success && data.user) {
+        localStorage.setItem('tonasa_admin_session', JSON.stringify(data.user))
+        setCurrentUser(data.user)
+        setIsAuthenticated(true)
+        setAuthSuccess('Berhasil masuk! Membuka Dashboard Admin...')
+      } else {
+        setAuthError(data.error || 'Email atau kata sandi tidak sesuai. Periksa kembali.')
+      }
+    } catch (err: any) {
+      setAuthError('Gagal menghubungi server login: ' + err.message)
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  // Handle Registrasi Akun Admin Baru
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAuthLoading(true)
+    setAuthError('')
+    setAuthSuccess('')
+
+    if (registerForm.password !== registerForm.confirmPassword) {
+      setAuthError('Konfirmasi kata sandi tidak cocok. Harap periksa kembali.')
+      setAuthLoading(false)
+      return
+    }
+
+    if (registerForm.password.length < 6) {
+      setAuthError('Kata sandi minimal 6 karakter demi keamanan.')
+      setAuthLoading(false)
+      return
+    }
+
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'register',
+          name: registerForm.name,
+          email: registerForm.email,
+          password: registerForm.password,
+          pin: registerForm.pin
+        })
+      })
+      const data = await res.json()
+
+      if (data.success && data.user) {
+        localStorage.setItem('tonasa_admin_session', JSON.stringify(data.user))
+        setCurrentUser(data.user)
+        setIsAuthenticated(true)
+        alert('🎉 Registrasi Akun Admin Berhasil!\nSelamat datang di Dashboard Admin PT Semen Tonasa.')
+      } else {
+        setAuthError(data.error || 'Pendaftaran admin gagal. Harap periksa data kembali.')
+      }
+    } catch (err: any) {
+      setAuthError('Gagal menghubungi server pendaftaran: ' + err.message)
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  // Handle Logout Admin
+  const handleLogout = () => {
+    if (confirm('Apakah Anda yakin ingin keluar dari Admin Dashboard?')) {
+      try {
+        localStorage.removeItem('tonasa_admin_session')
+      } catch {}
+      setCurrentUser(null)
+      setIsAuthenticated(false)
+      setAuthSuccess('Anda telah keluar dari sesi admin.')
+      setAuthError('')
+    }
+  }
+
+  // Tombol Cepat Isi Akun Bawaan
+  const useDefaultAccount = () => {
+    setLoginForm({
+      email: 'admin@sementonasa.co.id',
+      password: 'tonasa123'
+    })
+    setAuthError('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -113,7 +253,308 @@ export default function AdminPage() {
     if (roomId) setSelectedPreviewRoom(roomId)
   }
 
-  if (!now) return <div className="h-screen bg-slate-950"></div>;
+  if (isAuthenticated === null || !now) {
+    return (
+      <div className="min-h-screen bg-[#120204] flex items-center justify-center text-white font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-bold text-red-200 tracking-wider">Memeriksa Keamanan Sesi Admin...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // TAMPILAN JIKA BELUM LOGIN (PORTAL MASUK & REGISTRASI ADMIN)
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen text-white relative font-sans flex flex-col justify-between bg-[#120204] overflow-x-hidden">
+        {/* Background Gedung dengan overlay */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 pointer-events-none fixed"
+          style={{ backgroundImage: 'url("/bg-building.png")' }}
+        ></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1c0307]/95 via-[#120204]/95 to-[#0a0102]/98 fixed pointer-events-none"></div>
+
+        {/* Header Portal Login */}
+        <header className="relative z-10 w-full max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <img 
+              src="/logo-sig-white.png" 
+              alt="Logo SIG" 
+              className="h-8 md:h-10 w-auto object-contain drop-shadow"
+            />
+            <div className="h-6 w-px bg-white/20"></div>
+            <div>
+              <p className="text-xs md:text-sm font-black text-white tracking-wide">PT SEMEN TONASA</p>
+              <p className="text-[10px] text-amber-300 font-semibold">Unit Diklat & Pengembangan</p>
+            </div>
+          </div>
+          <a 
+            href="/"
+            className="flex items-center gap-1.5 bg-red-950/80 hover:bg-red-800 border border-red-700/60 hover:border-amber-400 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-all shadow"
+          >
+            <span>📺</span>
+            <span className="hidden sm:inline">Kembali ke</span>
+            <span>Layar TV</span>
+          </a>
+        </header>
+
+        {/* Konten Utama: Card Form Login & Register */}
+        <main className="relative z-10 w-full max-w-md mx-auto px-4 py-4 my-auto">
+          <div className="bg-gradient-to-b from-[#2b0409] via-[#1c0307] to-[#120204] border-2 border-red-700/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-5 md:p-6 backdrop-blur-xl">
+            
+            {/* Logo Semen Tonasa & Judul */}
+            <div className="text-center mb-4">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 border-2 border-amber-400/50 shadow-lg mb-2.5">
+                <img 
+                  src="/logo-semen-tonasa.png" 
+                  alt="Semen Tonasa" 
+                  className="w-10 h-10 object-contain drop-shadow"
+                />
+              </div>
+              <h2 className="text-lg md:text-xl font-black text-white tracking-wide">
+                Portal Admin Diklat
+              </h2>
+              <p className="text-[11px] text-red-200/80 font-medium mt-0.5">
+                Khusus Staf Pengelola Peminjaman Ruangan Diklat
+              </p>
+            </div>
+
+            {/* Tab Switcher: Masuk vs Daftar */}
+            <div className="grid grid-cols-2 p-1 bg-black/40 border border-red-900/60 rounded-xl mb-4 text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => { setAuthTab('login'); setAuthError(''); setAuthSuccess(''); }}
+                className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  authTab === 'login' 
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md border border-red-400/40' 
+                    : 'text-red-300 hover:text-white'
+                }`}
+              >
+                <span>🔑</span>
+                <span>Masuk (Login)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setAuthTab('register'); setAuthError(''); setAuthSuccess(''); }}
+                className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  authTab === 'register' 
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md border border-red-400/40' 
+                    : 'text-red-300 hover:text-white'
+                }`}
+              >
+                <span>📝</span>
+                <span>Daftar Akun</span>
+              </button>
+            </div>
+
+            {/* Banner Pesan Error / Sukses */}
+            {authError && (
+              <div className="mb-3.5 p-2.5 bg-rose-950/80 border border-rose-500/70 rounded-xl text-rose-200 text-xs flex items-start gap-2 shadow animate-fadeIn">
+                <span className="text-sm shrink-0">⚠️</span>
+                <span className="font-medium leading-relaxed">{authError}</span>
+              </div>
+            )}
+            {authSuccess && (
+              <div className="mb-3.5 p-2.5 bg-emerald-950/80 border border-emerald-500/70 rounded-xl text-emerald-200 text-xs flex items-start gap-2 shadow animate-fadeIn">
+                <span className="text-sm shrink-0">✅</span>
+                <span className="font-medium leading-relaxed">{authSuccess}</span>
+              </div>
+            )}
+
+            {/* TAB 1: FORM LOGIN */}
+            {authTab === 'login' ? (
+              <form onSubmit={handleLogin} className="space-y-3.5">
+                <div>
+                  <label className="block text-[11px] font-bold text-red-200 mb-1">
+                    Email Staf Admin
+                  </label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">
+                      ✉️
+                    </span>
+                    <input
+                      type="email"
+                      required
+                      placeholder="admin@sementonasa.co.id"
+                      value={loginForm.email}
+                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                      className="w-full pl-9 pr-3 py-2 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-red-200 mb-1">
+                    Kata Sandi
+                  </label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">
+                      🔒
+                    </span>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder="••••••••"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                      className="w-full pl-9 pr-16 py-2 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-white text-[11px] font-bold cursor-pointer"
+                    >
+                      {showPassword ? 'Tutup' : 'Lihat'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tombol Submit Login */}
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full py-2.5 mt-2 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-extrabold rounded-xl text-xs md:text-sm tracking-wide shadow-lg border border-red-400/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {authLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Memverifikasi...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>🚀</span>
+                      <span>Masuk ke Dashboard Admin</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Tombol Akun Bawaan / Cepat */}
+                <div className="pt-2 border-t border-red-900/50">
+                  <button
+                    type="button"
+                    onClick={useDefaultAccount}
+                    className="w-full py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/30 rounded-xl text-[10.5px] font-bold text-amber-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>💡</span>
+                    <span>Isi Otomatis Akun Default (admin@sementonasa.co.id)</span>
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* TAB 2: FORM REGISTRASI ADMIN */
+              <form onSubmit={handleRegister} className="space-y-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-red-200 mb-0.5">
+                    Nama Lengkap Staf
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Contoh: Ahmad Yani - Staf Diklat"
+                    value={registerForm.name}
+                    onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-red-200 mb-0.5">
+                    Email Dinas / Kerja
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="nama@sementonasa.co.id"
+                    value={registerForm.email}
+                    onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-red-200 mb-0.5">
+                      Kata Sandi
+                    </label>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Min. 6 digit"
+                      value={registerForm.password}
+                      onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                      className="w-full px-3 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-red-200 mb-0.5">
+                      Ulangi Sandi
+                    </label>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Ketik ulang"
+                      value={registerForm.confirmPassword}
+                      onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
+                      className="w-full px-3 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                    />
+                  </div>
+                </div>
+
+                {/* Kode PIN Verifikasi Unit Diklat */}
+                <div>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <label className="block text-[11px] font-bold text-amber-200">
+                      Kode Verifikasi Unit Diklat (PIN)
+                    </label>
+                    <span className="text-[9.5px] text-amber-300 font-mono font-bold">Default: TONASA2026</span>
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    placeholder="TONASA2026"
+                    value={registerForm.pin}
+                    onChange={(e) => setRegisterForm({ ...registerForm, pin: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-amber-950/30 border border-amber-500/50 rounded-xl text-amber-200 text-xs uppercase font-mono font-bold tracking-wider focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                  />
+                  <p className="text-[9.5px] text-zinc-400 mt-1 leading-snug">
+                    *PIN ini memastikan hanya staf berwenang yang dapat membuat akun admin.
+                  </p>
+                </div>
+
+                {/* Tombol Submit Registrasi */}
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full py-2.5 mt-2 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-extrabold rounded-xl text-xs md:text-sm tracking-wide shadow-lg border border-red-400/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {authLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Mendaftarkan Akun...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>📝</span>
+                      <span>Daftarkan Akun Staf Admin</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+
+          </div>
+        </main>
+
+        {/* Running Text Footer Portal */}
+        <footer className="relative z-10 shrink-0 w-full bg-[#8a0b12] border-t-2 border-red-400/40 py-1.5 flex items-center overflow-hidden">
+          <div className="whitespace-nowrap animate-marquee text-[10px] xl:text-[11px] font-extrabold tracking-[0.25em] text-white">
+            UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA •
+          </div>
+        </footer>
+      </div>
+    );
+  }
 
   const currentPreviewRoom = rooms.find(r => String(r.id) === String(selectedPreviewRoom)) || rooms[0]
   const previewImage = currentPreviewRoom?.image || ROOM_IMAGES[String(currentPreviewRoom?.id)] || '/room-education.jpg'
@@ -162,17 +603,37 @@ export default function AdminPage() {
             />
           </div>
 
-          {/* Tombol TV, Jam, dan Logo Semen Tonasa (Desktop) */}
-          <div className="flex items-center justify-between md:justify-end gap-2 w-full md:w-auto">
+          {/* Tombol TV, Jam, Info Akun Admin, dan Logo Semen Tonasa (Desktop) */}
+          <div className="flex items-center justify-between md:justify-end gap-1.5 md:gap-2 w-full md:w-auto">
+            {/* Info Badge Staf Admin yang Sedang Aktif */}
+            <div className="flex items-center gap-1.5 bg-black/40 border border-white/20 px-2 py-0.5 md:py-1 rounded-full text-[8.5px] md:text-[10px] text-amber-200">
+              <span className="text-amber-300">👤</span>
+              <span className="font-bold max-w-[85px] md:max-w-[130px] truncate text-white">
+                {currentUser?.name || 'Staf Admin'}
+              </span>
+            </div>
+
+            {/* Tombol Keluar (Logout) */}
+            <button
+              onClick={handleLogout}
+              type="button"
+              className="bg-red-950/80 hover:bg-red-600 text-red-200 hover:text-white px-2 py-0.5 md:py-1 rounded-full text-[8.5px] md:text-[10px] font-bold border border-red-500/40 hover:border-red-400 transition-all flex items-center gap-1 cursor-pointer shrink-0 shadow-sm"
+              title="Keluar dari Akun Admin"
+            >
+              <span>🚪</span>
+              <span>Keluar</span>
+            </button>
+
+            {/* Tombol Layar TV */}
             <a 
               href="/" 
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-3 py-1 rounded-full text-[9px] md:text-[11px] font-black transition-all shadow-md flex items-center gap-1.5 shrink-0 hover:scale-105 border border-red-400/40"
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-2.5 md:px-3 py-0.5 md:py-1 rounded-full text-[8.5px] md:text-[10px] font-black transition-all shadow-md flex items-center gap-1 shrink-0 hover:scale-105 border border-red-400/40"
             >
               <span>📺</span>
-              <span>Lihat Layar TV</span>
+              <span className="hidden sm:inline">Layar TV</span>
             </a>
             
-            <div className="bg-black/40 text-amber-300 px-2.5 py-1 rounded-full text-[8.5px] md:text-[9.5px] font-bold border border-white/20 text-center truncate shadow-inner">
+            <div className="hidden lg:block bg-black/40 text-amber-300 px-2.5 py-1 rounded-full text-[8.5px] md:text-[9.5px] font-bold border border-white/20 text-center truncate shadow-inner">
               {now.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' })}
             </div>
 
