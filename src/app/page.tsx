@@ -113,7 +113,7 @@ export default function TVDisplay() {
         className="bg-white rounded-2xl shadow-md hover:shadow-xl border border-slate-200 overflow-hidden flex flex-col justify-between transition-all duration-300 group hover:-translate-y-1 h-full min-h-0 cursor-pointer"
       >
         {/* Foto Ruangan Asli Tajam 100% Tanpa Efek Buram */}
-        <div className="relative h-[48%] min-h-[125px] w-full overflow-hidden bg-slate-100 shrink-0">
+        <div className="relative h-[42%] min-h-[85px] md:min-h-[95px] lg:min-h-[105px] w-full overflow-hidden bg-slate-100 shrink-0">
           <img 
             src={roomImage} 
             alt={room.name} 
@@ -121,8 +121,8 @@ export default function TVDisplay() {
           />
           
           {/* Badge Status di Pojok Kanan Atas Foto persis seperti Mockup */}
-          <div className="absolute top-2.5 right-2.5">
-            <span className={`${badgeBg} text-white text-[10px] xl:text-[11px] font-extrabold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 uppercase tracking-wider`}>
+          <div className="absolute top-2 right-2">
+            <span className={`${badgeBg} text-white text-[9px] sm:text-[10px] xl:text-[11px] font-extrabold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-md flex items-center gap-1.5 uppercase tracking-wider`}>
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
               {badgeText}
             </span>
@@ -130,29 +130,29 @@ export default function TVDisplay() {
         </div>
 
         {/* Detail Ruangan di Bagian Bawah Persis Mockup */}
-        <div className="p-3 xl:p-3.5 flex-1 flex flex-col justify-between bg-white text-slate-800 min-h-0">
+        <div className="p-2 sm:p-2.5 xl:p-3 flex-1 flex flex-col justify-between bg-white text-slate-800 min-h-0">
           <div>
             {/* Nama Ruangan Asli */}
-            <h3 className="font-extrabold text-sm xl:text-base text-slate-900 group-hover:text-red-700 transition-colors leading-snug truncate">
+            <h3 className="font-extrabold text-xs sm:text-sm xl:text-base text-slate-900 group-hover:text-red-700 transition-colors leading-snug truncate">
               {room.name}
             </h3>
 
             {/* Lantai & Kapasitas dengan Icon Merah */}
-            <div className="space-y-1 mt-1.5">
-              <div className="flex items-center gap-2 text-xs xl:text-sm text-slate-600 font-semibold">
-                <span className="text-red-600 font-bold text-sm">📍</span>
-                <span>{room.floor}</span>
+            <div className="space-y-0.5 mt-1">
+              <div className="flex items-center gap-1.5 text-[11px] sm:text-xs xl:text-sm text-slate-600 font-semibold">
+                <span className="text-red-600 font-bold text-xs sm:text-sm">📍</span>
+                <span className="truncate">{room.floor}</span>
               </div>
-              <div className="flex items-center gap-2 text-xs xl:text-sm text-slate-600 font-semibold">
-                <span className="text-red-600 font-bold text-sm">👥</span>
-                <span>{room.capacity}</span>
+              <div className="flex items-center gap-1.5 text-[11px] sm:text-xs xl:text-sm text-slate-600 font-semibold">
+                <span className="text-red-600 font-bold text-xs sm:text-sm">👥</span>
+                <span className="truncate">{room.capacity}</span>
               </div>
             </div>
           </div>
 
-          {/* Tombol Chevron Lingkaran Merah di Pojok Kanan Bawah persis Mockup */}
-          <div className="flex items-center justify-between pt-1.5 border-t border-slate-100 mt-1 shrink-0">
-            <span className={`text-[10px] xl:text-[11px] font-bold ${activeBooking ? 'text-rose-600' : 'text-slate-400'}`}>
+          {/* Tombol Chevron Lingkaran Merah di Pojok Kanan Bawah persis Mockup (Tampil 100% di Setiap Ruangan) */}
+          <div className="flex items-center justify-between pt-1 border-t border-slate-100 mt-1 shrink-0">
+            <span className={`text-[9.5px] sm:text-[10px] xl:text-[11px] font-bold ${activeBooking ? 'text-rose-600' : 'text-slate-500'}`}>
               {activeBooking ? '● Sedang Digunakan' : '● Ruangan Bebas'}
             </span>
             <button
@@ -160,7 +160,7 @@ export default function TVDisplay() {
                 e.stopPropagation();
                 setSelectedRoom(room);
               }}
-              className="w-7 h-7 xl:w-8 xl:h-8 rounded-full border border-red-500 text-red-600 flex items-center justify-center text-xs font-bold group-hover:bg-red-600 group-hover:text-white transition-all shadow-sm hover:scale-110 cursor-pointer"
+              className="w-7 h-7 sm:w-7 sm:h-7 xl:w-8 xl:h-8 rounded-full border-2 border-red-500 text-red-600 flex items-center justify-center text-xs font-black bg-white group-hover:bg-red-600 group-hover:text-white transition-all shadow-md hover:scale-115 cursor-pointer shrink-0"
               title="Lihat Detail Peminjaman Ruangan"
             >
               ➔
@@ -294,7 +294,7 @@ export default function TVDisplay() {
       </div>
 
       {/* 2. HERO BANNER: KURVA MERAH DI KIRI & FOTO GEDUNG DIKLAT PERSIS GAMBAR 2 */}
-      <div className="shrink-0 h-[36vh] xl:h-[38vh] min-h-[240px] md:min-h-[260px] lg:min-h-[275px] w-full relative overflow-hidden bg-[#6e070e] border-b border-red-800/40">
+      <div className="shrink-0 h-[26vh] md:h-[28vh] xl:h-[30vh] min-h-[185px] md:min-h-[200px] lg:min-h-[215px] xl:min-h-[230px] w-full relative overflow-hidden bg-[#6e070e] border-b border-red-800/40">
         
         {/* Foto Gedung Diklat Asli - Mobile (<md): 100% Sesuai Tampilan HP yang Sudah Bagus */}
         <div 
@@ -302,9 +302,9 @@ export default function TVDisplay() {
           style={{ backgroundImage: 'url("/bg-building.png")' }}
         />
 
-        {/* Foto Gedung Diklat Asli - Laptop & Desktop (>=md): Digeser ke Kanan & Terlihat Penuh 100% Tanpa Tertutup */}
+        {/* Foto Gedung Diklat Asli - Laptop & Desktop (>=md): Digeser ke Kanan & Atap Terlihat Penuh dari Atas */}
         <div 
-          className="hidden md:block absolute inset-0 left-[15%] lg:left-[20%] xl:left-[24%] bg-cover bg-[center_26%]"
+          className="hidden md:block absolute inset-0 left-[10%] lg:left-[16%] xl:left-[20%] bg-cover bg-[position:60%_top] lg:bg-[position:64%_top]"
           style={{ 
             backgroundImage: 'url("/bg-building.png")',
             maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.85) 10%, black 22%, black 100%)',
@@ -342,13 +342,13 @@ export default function TVDisplay() {
           </defs>
 
           {/* Layer 1: Gelombang Pembaur Halus ke Pepohonan (Desktop: tidak menutupi gedung diklat) */}
-          <path d="M 0,0 L 530,0 C 450,110 360,230 250,360 L 0,360 Z" fill="url(#transRedWave)" />
+          <path d="M 0,0 L 510,0 C 430,110 350,230 240,360 L 0,360 Z" fill="url(#transRedWave)" />
 
           {/* Layer 2: Gelombang Merah Solid Melengkung Organik Melindungi Teks Informasi */}
-          <path d="M 0,0 L 460,0 C 380,110 290,230 180,360 L 0,360 Z" fill="url(#mainRedWave)" />
+          <path d="M 0,0 L 440,0 C 360,110 270,230 170,360 L 0,360 Z" fill="url(#mainRedWave)" />
 
           {/* Layer 3: Garis Aksen Berkilau Sepanjang Kurva Gelombang */}
-          <path d="M 460,0 C 380,110 290,230 180,360" fill="none" stroke="url(#waveHighlight)" strokeWidth="3" />
+          <path d="M 440,0 C 360,110 270,230 170,360" fill="none" stroke="url(#waveHighlight)" strokeWidth="3" />
 
           {/* Layer 4: Aksen Melengkung Bawah Kanan (Bottom-Right Swoosh) persis Gambar 2 */}
           <path d="M 1260,360 C 1330,305 1390,260 1440,225 L 1440,360 Z" fill="url(#mainRedWave)" />
@@ -388,20 +388,20 @@ export default function TVDisplay() {
       </div>
 
       {/* 3. PAPAN 5 KARTU RUANGAN PUTIH SEJAJAR PERSIS SEPERTI MOCKUP */}
-      <div className="flex-1 flex flex-col justify-between p-3 lg:p-4 min-h-0 bg-gradient-to-b from-[#f8fafc] via-[#f1f5f9] to-[#ffffff] relative">
+      <div className="flex-1 flex flex-col justify-between p-2 sm:p-2.5 lg:p-3 min-h-0 bg-gradient-to-b from-[#f8fafc] via-[#f1f5f9] to-[#ffffff] relative">
         
         {/* Hiasan Gelombang Merah di Bawah */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-red-600/10 to-transparent pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-red-600/10 to-transparent pointer-events-none"></div>
 
         {/* 5 Kartu Ruangan Berjejer Horizontal 1 Baris */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-3.5 xl:gap-4 h-full min-h-0 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3 lg:gap-3.5 xl:gap-4 h-full min-h-0 relative z-10">
           {orderedRooms.map(room => renderMockupCard(room))}
         </div>
 
       </div>
 
       {/* 4. FOOTER RUNNING TEXT MERAH KORPORAT */}
-      <div className="shrink-0 h-[34px] xl:h-[38px] w-full bg-[#8a0b12] text-white flex items-center overflow-hidden z-20 border-t-2 border-red-400/40">
+      <div className="shrink-0 h-[32px] xl:h-[36px] w-full bg-[#8a0b12] text-white flex items-center overflow-hidden z-20 border-t-2 border-red-400/40">
         <div className="whitespace-nowrap animate-marquee text-[11px] xl:text-xs font-extrabold tracking-[0.25em] text-white">
           UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA •
         </div>
