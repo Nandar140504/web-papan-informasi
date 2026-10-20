@@ -139,8 +139,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: 'Kata sandi minimal 6 karakter demi keamanan.' }, { status: 400 });
       }
 
-      // Validasi PIN verifikasi admin khusus Unit Diklat
-      const cleanPin = (pin || '').trim().toUpperCase();
+      // Validasi PIN verifikasi admin khusus Unit Diklat (default: TONASA2026)
+      const cleanPin = (pin || 'TONASA2026').trim().toUpperCase();
       if (!VALID_PINS.includes(cleanPin)) {
         return NextResponse.json({ 
           success: false, 

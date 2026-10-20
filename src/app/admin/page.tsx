@@ -403,47 +403,42 @@ export default function AdminPage() {
           <div className="w-full lg:w-[60%] flex flex-col justify-center min-h-0">
             <div className="bg-gradient-to-b from-[#2b0409]/95 via-[#1c0307]/95 to-[#120204]/98 border-2 border-red-700/60 rounded-2xl md:rounded-3xl shadow-[0_15px_35px_rgba(0,0,0,0.85)] p-3.5 sm:p-4 md:p-5 backdrop-blur-xl flex flex-col justify-center max-w-lg lg:max-w-none w-full mx-auto">
               
-              {/* Header Kartu: Judul Portal (Logo Semen Tonasa Sudah Dipindahkan ke Kanan Atas Sesuai Permintaan) */}
-              <div className="flex items-center gap-2.5 mb-2.5 pb-2 border-b border-red-800/50">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></div>
-                <div>
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300 block leading-none">
-                    Sistem Informasi Ruangan
-                  </span>
-                  <h2 className="text-base sm:text-lg md:text-xl font-black text-white tracking-wide leading-tight mt-0.5">
-                    Portal Admin Diklat Tonasa
-                  </h2>
-                  <p className="text-[10.5px] sm:text-[11px] text-red-200/80 font-medium">
-                    {authTab === 'login' ? 'Masuk untuk mengelola jadwal peminjaman ruangan' : 'Daftarkan akun staf baru Unit Diklat'}
-                  </p>
-                </div>
+              {/* Header Kartu: Bersih Sesuai Gambar 1 & Warna Gambar 2 (Bulat Hijau Dihapus) */}
+              <div className="mb-3 pb-2.5 border-b border-red-800/50">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300 block leading-none">
+                  Sistem Informasi Ruangan
+                </span>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-wide leading-tight mt-1">
+                  {authTab === 'login' ? 'Form Login' : 'Form Registrasi'}
+                </h2>
+                <p className="text-[11px] text-red-200/80 font-medium mt-0.5">
+                  Portal Admin Diklat PT Semen Tonasa
+                </p>
               </div>
 
-              {/* Tab Switcher: Masuk vs Daftar */}
-              <div className="grid grid-cols-2 p-1 bg-black/45 border border-red-900/60 rounded-xl mb-2.5 text-xs font-bold">
+              {/* Tab Switcher: Sederhana Seperti Gambar 1 dengan Warna Tema Gambar 2 (Tanpa Simbol) */}
+              <div className="flex bg-black/55 p-1 rounded-xl border border-red-900/80 mb-3.5 text-xs sm:text-sm font-bold shadow-inner">
                 <button
                   type="button"
                   onClick={() => { setAuthTab('login'); setAuthError(''); setAuthSuccess(''); }}
-                  className={`py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  className={`flex-1 py-2 rounded-lg transition-all text-center cursor-pointer font-bold ${
                     authTab === 'login' 
-                      ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md border border-red-400/40' 
-                      : 'text-red-300 hover:text-white'
+                      ? 'bg-gradient-to-r from-red-600 via-red-700 to-red-800 text-white shadow-md border border-red-400/50' 
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  <span>🔑</span>
-                  <span>Masuk (Login)</span>
+                  Login
                 </button>
                 <button
                   type="button"
                   onClick={() => { setAuthTab('register'); setAuthError(''); setAuthSuccess(''); }}
-                  className={`py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  className={`flex-1 py-2 rounded-lg transition-all text-center cursor-pointer font-bold ${
                     authTab === 'register' 
-                      ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md border border-red-400/40' 
-                      : 'text-red-300 hover:text-white'
+                      ? 'bg-gradient-to-r from-red-600 via-red-700 to-red-800 text-white shadow-md border border-red-400/50' 
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  <span>📝</span>
-                  <span>Daftar Akun</span>
+                  Daftar
                 </button>
               </div>
 
@@ -461,222 +456,184 @@ export default function AdminPage() {
                 </div>
               )}
 
-              {/* TAB 1: FORM LOGIN */}
+              {/* TAB 1: FORM LOGIN (SESUAI GAMBAR 1 DENGAN WARNA GAMBAR 2) */}
               {authTab === 'login' ? (
-                <form onSubmit={handleLogin} className="space-y-2.5">
+                <form onSubmit={handleLogin} className="space-y-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-red-200 mb-1">
-                      Email Staf Admin
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400 text-xs">
-                        ✉️
-                      </span>
-                      <input
-                        type="email"
-                        required
-                        placeholder="admin@sementonasa.co.id"
-                        value={loginForm.email}
-                        onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                        className="w-full pl-8 pr-3 py-1.5 sm:py-2 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                      />
-                    </div>
+                    <input
+                      type="email"
+                      required
+                      placeholder="Masukan Email"
+                      value={loginForm.email}
+                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs sm:text-sm placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                    />
                   </div>
 
-                  <div>
-                    <label className="block text-[11px] font-bold text-red-200 mb-1">
-                      Kata Sandi
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400 text-xs">
-                        🔒
-                      </span>
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        required
-                        placeholder="••••••••"
-                        value={loginForm.password}
-                        onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                        className="w-full pl-8 pr-14 py-1.5 sm:py-2 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        title={showPassword ? 'Sembunyikan Kata Sandi' : 'Lihat Kata Sandi'}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-white transition-colors cursor-pointer"
-                      >
-                        {showPassword ? (
-                          <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
-                          </svg>
-                        ) : (
-                          <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        )}
-                      </button>
-                    </div>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Masukan Password"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                      className="w-full pl-3.5 pr-12 py-2.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs sm:text-sm placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      title={showPassword ? 'Sembunyikan Kata Sandi' : 'Lihat Kata Sandi'}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                    >
+                      {showPassword ? (
+                        <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
                   </div>
 
-                  {/* Tombol Submit Login */}
+                  <div className="flex justify-start">
+                    <button
+                      type="button"
+                      onClick={() => alert('Untuk mereset kata sandi akun admin, silakan hubungi Administrator Utama Unit Diklat PT Semen Tonasa.')}
+                      className="text-xs text-red-300 hover:text-amber-300 transition-colors cursor-pointer font-medium"
+                    >
+                      Lupa password?
+                    </button>
+                  </div>
+
+                  {/* Tombol Submit Login (Tanpa Simbol Pesawat/Roket) */}
                   <button
                     type="submit"
                     disabled={authLoading}
-                    className="w-full py-2 sm:py-2.5 mt-1 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-black rounded-xl text-xs md:text-sm tracking-wide shadow-lg border border-red-400/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full py-2.5 sm:py-3 mt-1 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-bold rounded-xl text-xs sm:text-sm tracking-wide shadow-lg border border-red-400/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {authLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Memverifikasi Sesi...</span>
+                        <span>Memproses...</span>
                       </>
                     ) : (
-                      <>
-                        <span>🚀</span>
-                        <span>Masuk ke Dashboard Admin</span>
-                      </>
+                      <span>Login</span>
                     )}
                   </button>
 
-                  {/* Tautan Ramah ke Tab Pendaftaran */}
-                  <div className="pt-3 text-center border-t border-red-900/60 mt-2 space-y-1.5">
-                    <p className="text-[11px] text-zinc-300">
-                      Belum memiliki akun admin?{' '}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAuthTab('register');
-                          setAuthError('');
-                          setAuthSuccess('');
-                        }}
-                        className="text-amber-300 hover:text-amber-200 font-bold underline cursor-pointer"
-                      >
-                        Daftar Akun Baru
-                      </button>
-                    </p>
-                    <div className="flex items-center justify-center gap-1.5 text-[9.5px] text-zinc-400 bg-black/40 py-1 px-2.5 rounded-lg border border-red-900/40">
-                      <span>🔒</span>
-                      <span>Akses Resmi: Hanya untuk staf berwenang Unit Diklat PT Semen Tonasa</span>
-                    </div>
+                  {/* Footer Teks Sederhana Sesuai Gambar 1 (Tanpa Simbol Gembok) */}
+                  <div className="pt-2 text-center text-xs text-zinc-300">
+                    Belum punya akun?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthTab('register');
+                        setAuthError('');
+                        setAuthSuccess('');
+                      }}
+                      className="text-amber-300 hover:text-amber-200 font-bold underline cursor-pointer"
+                    >
+                      Daftar sekarang
+                    </button>
                   </div>
                 </form>
               ) : (
-                /* TAB 2: FORM REGISTRASI ADMIN (1 TAMPILAN UTUH TANPA SCROLL) */
-                <form onSubmit={handleRegister} className="space-y-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
-                        Nama Lengkap Staf
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Ahmad Yani - Staf Diklat"
-                        value={registerForm.name}
-                        onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
-                        className="w-full px-2.5 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
-                        Email Dinas / Kerja
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="nama@sementonasa.co.id"
-                        value={registerForm.email}
-                        onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
-                        className="w-full px-2.5 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
-                        Kata Sandi
-                      </label>
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        required
-                        placeholder="Min. 6 digit"
-                        value={registerForm.password}
-                        onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
-                        className="w-full px-2.5 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10.5px] font-bold text-red-200 mb-0.5">
-                        Ulangi Sandi
-                      </label>
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        required
-                        placeholder="Ketik ulang"
-                        value={registerForm.confirmPassword}
-                        onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
-                        className="w-full px-2.5 py-1.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Kode PIN Verifikasi Unit Diklat */}
+                /* TAB 2: FORM REGISTRASI (SESUAI GAMBAR 1 DENGAN WARNA GAMBAR 2) */
+                <form onSubmit={handleRegister} className="space-y-2.5">
                   <div>
-                    <div className="flex items-center justify-between mb-0.5">
-                      <label className="block text-[10.5px] font-bold text-amber-200">
-                        Kode Verifikasi Unit Diklat (PIN)
-                      </label>
-                      <span className="text-[9.5px] text-amber-300 font-mono font-bold">Default: TONASA2026</span>
-                    </div>
                     <input
                       type="text"
                       required
-                      placeholder="TONASA2026"
-                      value={registerForm.pin}
-                      onChange={(e) => setRegisterForm({ ...registerForm, pin: e.target.value })}
-                      className="w-full px-2.5 py-1.5 bg-amber-950/30 border border-amber-500/50 rounded-xl text-amber-200 text-xs uppercase font-mono font-bold tracking-wider focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                      placeholder="Nama lengkap"
+                      value={registerForm.name}
+                      onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs sm:text-sm placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
                     />
-                    <p className="text-[9px] text-zinc-400 mt-0.5 leading-tight">
-                      *Mencegah orang luar mendaftar. Pendaftaran khusus staf berwenang Semen Tonasa.
-                    </p>
                   </div>
 
-                  {/* Tombol Submit Registrasi */}
+                  <div>
+                    <input
+                      type="email"
+                      required
+                      placeholder="Masukan Email"
+                      value={registerForm.email}
+                      onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs sm:text-sm placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Masukan Password"
+                      value={registerForm.password}
+                      onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                      className="w-full pl-3.5 pr-12 py-2.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs sm:text-sm placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      title={showPassword ? 'Sembunyikan Kata Sandi' : 'Lihat Kata Sandi'}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                    >
+                      {showPassword ? (
+                        <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+
+                  <div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Ulangi password"
+                      value={registerForm.confirmPassword}
+                      onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs sm:text-sm placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+                    />
+                  </div>
+
+                  {/* Tombol Submit Registrasi (Tanpa Simbol Buku) */}
                   <button
                     type="submit"
                     disabled={authLoading}
-                    className="w-full py-2 sm:py-2.5 mt-1 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-black rounded-xl text-xs md:text-sm tracking-wide shadow-lg border border-red-400/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full py-2.5 sm:py-3 mt-1 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-bold rounded-xl text-xs sm:text-sm tracking-wide shadow-lg border border-red-400/40 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {authLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Mendaftarkan Akun...</span>
+                        <span>Mendaftarkan...</span>
                       </>
                     ) : (
-                      <>
-                        <span>📝</span>
-                        <span>Daftarkan Akun Staf Admin</span>
-                      </>
+                      <span>Daftar</span>
                     )}
                   </button>
 
-                  {/* Tautan Kembali ke Tab Masuk */}
-                  <div className="pt-2 text-center border-t border-red-900/60 mt-2">
-                    <p className="text-[11px] text-zinc-300">
-                      Sudah memiliki akun admin?{' '}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAuthTab('login');
-                          setAuthError('');
-                          setAuthSuccess('');
-                        }}
-                        className="text-amber-300 hover:text-amber-200 font-bold underline cursor-pointer"
-                      >
-                        Masuk di sini
-                      </button>
-                    </p>
+                  {/* Tautan Kembali ke Tab Masuk Sesuai Gambar 1 */}
+                  <div className="pt-2 text-center text-xs text-zinc-300">
+                    Sudah punya akun?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthTab('login');
+                        setAuthError('');
+                        setAuthSuccess('');
+                      }}
+                      className="text-amber-300 hover:text-amber-200 font-bold underline cursor-pointer"
+                    >
+                      Login sekarang
+                    </button>
                   </div>
                 </form>
               )}
