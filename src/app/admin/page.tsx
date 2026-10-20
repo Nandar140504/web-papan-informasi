@@ -49,6 +49,17 @@ export default function AdminPage() {
   const [authSuccess, setAuthSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
+  // State Manajemen & Pembuatan Akun Admin di Dashboard
+  const [showAdminModal, setShowAdminModal] = useState(false)
+  const [adminList, setAdminList] = useState<any[]>([])
+  const [newAdminForm, setNewAdminForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'Staf Diklat'
+  })
+  const [newAdminLoading, setNewAdminLoading] = useState(false)
+
   useEffect(() => {
     setNow(new Date())
 
@@ -156,10 +167,20 @@ export default function AdminPage() {
       const data = await res.json()
 
       if (data.success && data.user) {
-        localStorage.setItem('tonasa_admin_session', JSON.stringify(data.user))
-        setCurrentUser(data.user)
-        setIsAuthenticated(true)
-        alert('🎉 Registrasi Akun Admin Berhasil!\nSelamat datang di Dashboard Admin PT Semen Tonasa.')
+        // Alur pembuatan akun yang jelas dan aman:
+        // Set email yang baru dibuat ke form login, alihkan ke tab Masuk, dan tampilkan pesan sukses
+        const registeredEmail = registerForm.email
+        const registeredName = registerForm.name
+        setLoginForm({ email: registeredEmail, password: '' })
+        setRegisterForm({
+          name: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          pin: 'TONASA2026'
+        })
+        setAuthTab('login')
+        setAuthSuccess(`🎉 Pendaftaran Berhasil! Akun staf "${registeredName}" (${registeredEmail}) telah dibuat. Silakan masukkan kata sandi Anda untuk masuk ke Dashboard.`)
       } else {
         setAuthError(data.error || 'Pendaftaran admin gagal. Harap periksa data kembali.')
       }
@@ -170,7 +191,70 @@ export default function AdminPage() {
     }
   }
 
+  // Ambil daftar akun admin terdaftar (khusus admin terautentikasi)
+  const fetchAdminList = async () => {
+    try {
+      const res = await fetch('/api/auth')
+      const data = await res.json()
+      if (data.success && data.admins) {
+        setAdminList(data.admins)
+      }
+    } catch (err) {
+      console.error('Gagal mengambil daftar admin:', err)
+    }
+  }
 
+  // Handle pembuatan akun admin baru langsung dari dalam dashboard
+  const handleCreateAdminBySuperAdmin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setNewAdminLoading(true)
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'register',
+          name: newAdminForm.name,
+          email: newAdminForm.email,
+          password: newAdminForm.password,
+          pin: 'TONASA2026'
+        })
+      })
+      const data = await res.json()
+      if (data.success) {
+        alert(`✅ Akun Admin Berhasil Dibuat!\n\nNama: ${newAdminForm.name}\nEmail: ${newAdminForm.email}\nKata sandi telah diset. Staf ini sekarang dapat login ke Dashboard.`)
+        setNewAdminForm({ name: '', email: '', password: '', role: 'Staf Diklat' })
+        fetchAdminList()
+      } else {
+        alert('❌ Gagal membuat akun: ' + (data.error || 'Terjadi kesalahan sistem.'))
+      }
+    } catch (err: any) {
+      alert('Gagal membuat akun: ' + err.message)
+    } finally {
+      setNewAdminLoading(false)
+    }
+  }
+
+  // Handle hapus akun staf admin oleh admin utama
+  const handleDeleteAdmin = async (id: string, email: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus akun staf "${email}"? Akun ini tidak akan dapat login lagi.`)) return
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_admin', adminId: id, targetEmail: email })
+      })
+      const data = await res.json()
+      if (data.success) {
+        alert('Akun admin berhasil dihapus.')
+        fetchAdminList()
+      } else {
+        alert('❌ Gagal: ' + (data.error || 'Terjadi kesalahan.'))
+      }
+    } catch (err: any) {
+      alert('Error: ' + err.message)
+    }
+  }
 
   // Handle Logout Admin
   const handleLogout = () => {
@@ -185,14 +269,6 @@ export default function AdminPage() {
     }
   }
 
-  // Tombol Cepat Isi Akun Bawaan
-  const useDefaultAccount = () => {
-    setLoginForm({
-      email: 'admin@sementonasa.co.id',
-      password: 'tonasa123'
-    })
-    setAuthError('')
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -462,85 +538,26 @@ export default function AdminPage() {
                     )}
                   </button>
 
-                  {/* TABEL INFORMASI AKUN RESMI DIKLAT (PENGGANTI GAMBAR 3) */}
-                  <div className="mt-2 pt-2 border-t border-red-900/60">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
-                        <span>📋</span>
-                        <span>Tabel Akses Staf Resmi Unit Diklat</span>
-                      </span>
-                      <span className="text-[8.5px] bg-red-950/80 text-amber-200 border border-amber-500/30 px-1.5 py-0.2 rounded-full font-semibold">
-                        Keamanan Terproteksi
-                      </span>
-                    </div>
-
-                    <div className="overflow-hidden rounded-xl border border-red-800/60 bg-black/60 shadow-inner">
-                      <table className="w-full text-left border-collapse text-[10px]">
-                        <thead>
-                          <tr className="bg-red-950/80 border-b border-red-800/60 text-red-200 font-bold">
-                            <th className="py-1 px-2.5">Jabatan / Role</th>
-                            <th className="py-1 px-2">Email Dinas</th>
-                            <th className="py-1 px-2 text-center">Hak Akses</th>
-                            <th className="py-1 px-2.5 text-right">Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-red-900/40 text-zinc-300 font-medium">
-                          <tr className="hover:bg-red-900/25 transition-colors">
-                            <td className="py-1.5 px-2.5 font-bold text-white flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
-                              <span>Admin Utama Diklat</span>
-                            </td>
-                            <td className="py-1.5 px-2 text-zinc-300 font-mono text-[9px]">
-                              admin@sementonasa.co.id
-                            </td>
-                            <td className="py-1.5 px-2 text-center">
-                              <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.2 rounded text-[8.5px] font-bold">
-                                5 Ruangan
-                              </span>
-                            </td>
-                            <td className="py-1.5 px-2.5 text-right">
-                              <button
-                                type="button"
-                                onClick={useDefaultAccount}
-                                className="text-[9px] bg-gradient-to-r from-red-700 to-red-800 hover:from-red-600 hover:to-red-700 text-white px-2 py-0.5 rounded font-bold transition border border-red-500/40 cursor-pointer shadow-sm"
-                              >
-                                Pilih Akun
-                              </button>
-                            </td>
-                          </tr>
-                          <tr className="hover:bg-red-900/25 transition-colors">
-                            <td className="py-1.5 px-2.5 font-bold text-white flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></span>
-                              <span>Staf Pelatihan Diklat</span>
-                            </td>
-                            <td className="py-1.5 px-2 text-zinc-300 font-mono text-[9px]">
-                              staf.pelatihan@sementonasa.co.id
-                            </td>
-                            <td className="py-1.5 px-2 text-center">
-                              <span className="bg-blue-950 text-blue-300 border border-blue-500/40 px-1.5 py-0.2 rounded text-[8.5px] font-bold">
-                                Monitor TV
-                              </span>
-                            </td>
-                            <td className="py-1.5 px-2.5 text-right">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setLoginForm({ email: 'staf.pelatihan@sementonasa.co.id', password: '' });
-                                  setAuthError('');
-                                  setAuthSuccess('Akun Staf Pelatihan dipilih. Masukkan kata sandi Anda.');
-                                }}
-                                className="text-[9px] bg-red-950 hover:bg-red-800 text-zinc-300 hover:text-white px-2 py-0.5 rounded font-bold transition border border-red-800/60 cursor-pointer"
-                              >
-                                Pilih
-                              </button>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                    <p className="text-[8.5px] text-zinc-400 mt-1 text-center leading-tight">
-                      *Akses admin khusus staf berwenang. Orang luar dilarang mengubah jadwal atau booking ruangan.
+                  {/* Tautan Ramah ke Tab Pendaftaran */}
+                  <div className="pt-3 text-center border-t border-red-900/60 mt-2 space-y-1.5">
+                    <p className="text-[11px] text-zinc-300">
+                      Belum memiliki akun admin?{' '}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAuthTab('register');
+                          setAuthError('');
+                          setAuthSuccess('');
+                        }}
+                        className="text-amber-300 hover:text-amber-200 font-bold underline cursor-pointer"
+                      >
+                        Daftar Akun Baru
+                      </button>
                     </p>
+                    <div className="flex items-center justify-center gap-1.5 text-[9.5px] text-zinc-400 bg-black/40 py-1 px-2.5 rounded-lg border border-red-900/40">
+                      <span>🔒</span>
+                      <span>Akses Resmi: Hanya untuk staf berwenang Unit Diklat PT Semen Tonasa</span>
+                    </div>
                   </div>
                 </form>
               ) : (
@@ -643,6 +660,24 @@ export default function AdminPage() {
                       </>
                     )}
                   </button>
+
+                  {/* Tautan Kembali ke Tab Masuk */}
+                  <div className="pt-2 text-center border-t border-red-900/60 mt-2">
+                    <p className="text-[11px] text-zinc-300">
+                      Sudah memiliki akun admin?{' '}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAuthTab('login');
+                          setAuthError('');
+                          setAuthSuccess('');
+                        }}
+                        className="text-amber-300 hover:text-amber-200 font-bold underline cursor-pointer"
+                      >
+                        Masuk di sini
+                      </button>
+                    </p>
+                  </div>
                 </form>
               )}
 
@@ -750,6 +785,20 @@ export default function AdminPage() {
                 {currentUser?.name || 'Staf Admin'}
               </span>
             </div>
+
+            {/* Tombol Kelola & Buatkan Akun Admin Staf */}
+            <button
+              onClick={() => {
+                setShowAdminModal(true)
+                fetchAdminList()
+              }}
+              type="button"
+              className="bg-red-950/80 hover:bg-red-800 text-amber-300 hover:text-white px-2 py-0.5 md:py-1 rounded-full text-[8.5px] md:text-[10px] font-bold border border-amber-500/40 hover:border-amber-400 transition-all flex items-center gap-1 cursor-pointer shrink-0 shadow-sm"
+              title="Kelola & Buatkan Akun Admin untuk Staf"
+            >
+              <span>👥</span>
+              <span className="hidden sm:inline">Buat Akun Staf</span>
+            </button>
 
             {/* Tombol Keluar (Logout) */}
             <button
@@ -1236,6 +1285,200 @@ export default function AdminPage() {
           UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA • UNIT LEARNING & DEVELOPMENT • PT SEMEN TONASA • KOKOH KUAT TERPERCAYA •
         </div>
       </div>
+
+      {/* ======================================================== */}
+      {/* MODAL KELOLA & BUATKAN AKUN ADMIN OLEH SUPER ADMIN */}
+      {/* ======================================================== */}
+      {showAdminModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+          <div className="max-w-xl w-full bg-gradient-to-b from-[#240307] via-[#1a0205] to-[#110103] border-2 border-red-600/70 rounded-2xl md:rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col max-h-[90vh]">
+            
+            {/* Header Modal */}
+            <div className="p-3.5 sm:p-4 border-b border-red-800/50 flex items-center justify-between bg-black/40">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-red-900/60 border border-red-500/40 flex items-center justify-center text-base">
+                  👥
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-white leading-tight">
+                    Kelola & Buatkan Akun Admin Staf
+                  </h3>
+                  <p className="text-[10px] text-zinc-400">
+                    Unit Learning & Development • PT Semen Tonasa
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAdminModal(false)}
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white flex items-center justify-center text-sm font-bold transition cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Badan Modal */}
+            <div className="p-3.5 sm:p-4 space-y-3.5 overflow-y-auto">
+              {/* Form Buatkan Akun Admin Baru */}
+              <div className="p-3 bg-black/45 border border-red-800/60 rounded-xl space-y-2.5">
+                <div className="flex items-center gap-1.5 pb-1 border-b border-red-900/60">
+                  <span className="text-xs">➕</span>
+                  <h4 className="text-xs font-bold text-amber-300">
+                    Form Buatkan Akun Admin Baru untuk Staf
+                  </h4>
+                </div>
+
+                <form onSubmit={handleCreateAdminBySuperAdmin} className="space-y-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] font-bold text-red-200 mb-0.5">
+                        Nama Lengkap Staf
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Contoh: Budi Santoso"
+                        value={newAdminForm.name}
+                        onChange={(e) => setNewAdminForm({ ...newAdminForm, name: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-black/60 border border-red-900/80 rounded-lg text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-red-200 mb-0.5">
+                        Email Dinas Staf
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="nama@sementonasa.co.id"
+                        value={newAdminForm.email}
+                        onChange={(e) => setNewAdminForm({ ...newAdminForm, email: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-black/60 border border-red-900/80 rounded-lg text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] font-bold text-red-200 mb-0.5">
+                        Kata Sandi Awal
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Min. 6 karakter"
+                        value={newAdminForm.password}
+                        onChange={(e) => setNewAdminForm({ ...newAdminForm, password: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-black/60 border border-red-900/80 rounded-lg text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-red-500 font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-red-200 mb-0.5">
+                        Jabatan / Role
+                      </label>
+                      <select
+                        value={newAdminForm.role}
+                        onChange={(e) => setNewAdminForm({ ...newAdminForm, role: e.target.value })}
+                        className="w-full px-2 py-1.5 bg-black/60 border border-red-900/80 rounded-lg text-white text-xs focus:outline-none focus:border-red-500 font-medium cursor-pointer"
+                      >
+                        <option value="Staf Diklat">Staf Diklat Tonasa</option>
+                        <option value="Admin Utama">Admin Utama Diklat</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={newAdminLoading}
+                    className="w-full py-2 mt-1 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-bold text-xs rounded-xl shadow-md border border-red-400/40 transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    {newAdminLoading ? (
+                      <span>Menyimpan Akun...</span>
+                    ) : (
+                      <>
+                        <span>✨</span>
+                        <span>Simpan & Buatkan Akun Staf Ini</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+
+              {/* Daftar Akun Admin yang Terdaftar */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between px-1">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>📋</span>
+                    <span>Daftar Akun Admin Terdaftar</span>
+                  </h4>
+                  <span className="text-[9px] bg-red-950 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                    {adminList.length} Akun Aktif
+                  </span>
+                </div>
+
+                <div className="overflow-hidden rounded-xl border border-red-800/60 bg-black/50 shadow-inner">
+                  {adminList.length === 0 ? (
+                    <div className="p-3 text-center text-xs text-zinc-400">
+                      Memuat daftar admin...
+                    </div>
+                  ) : (
+                    <table className="w-full text-left border-collapse text-[10.5px]">
+                      <thead>
+                        <tr className="bg-red-950/80 border-b border-red-800/60 text-red-200 font-bold">
+                          <th className="py-1 px-2.5">Nama & Jabatan</th>
+                          <th className="py-1 px-2">Email Dinas</th>
+                          <th className="py-1 px-2.5 text-right">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-red-900/40 text-zinc-300 font-medium">
+                        {adminList.map((adm, idx) => (
+                          <tr key={adm.id || idx} className="hover:bg-red-900/20 transition-colors">
+                            <td className="py-1.5 px-2.5">
+                              <p className="font-bold text-white leading-tight">{adm.name}</p>
+                              <span className="text-[9px] text-amber-300/90">{adm.role || 'Staf Diklat'}</span>
+                            </td>
+                            <td className="py-1.5 px-2 font-mono text-[9.5px] text-zinc-300">
+                              {adm.email}
+                            </td>
+                            <td className="py-1.5 px-2.5 text-right">
+                              {adm.email === 'admin@sementonasa.co.id' ? (
+                                <span className="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-bold">
+                                  Akun Utama
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteAdmin(adm.id, adm.email)}
+                                  className="text-[9px] bg-rose-950 hover:bg-rose-700 text-rose-300 hover:text-white px-2 py-0.5 rounded font-bold border border-rose-800/60 transition cursor-pointer"
+                                >
+                                  Hapus
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Modal */}
+            <div className="p-3 bg-black/60 border-t border-red-900/50 flex items-center justify-between text-[10px] text-zinc-400">
+              <span>Data akun admin tersimpan otomatis di database sistem</span>
+              <button
+                type="button"
+                onClick={() => setShowAdminModal(false)}
+                className="text-zinc-300 hover:text-white font-semibold cursor-pointer px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg transition"
+              >
+                Tutup
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -258,8 +258,50 @@ export async function POST(request: Request) {
       });
     }
 
+    // 4. ACTION: LIST_ADMINS
+    if (action === 'list_admins') {
+      const db = getDatabase();
+      const list = (db.admins || []).map((a: any) => ({
+        id: a.id,
+        name: a.name || 'Staf Admin',
+        email: a.email,
+        role: a.role || 'Staf Diklat',
+        created_at: a.created_at
+      }));
+      return NextResponse.json({ success: true, admins: list });
+    }
+
+    // 5. ACTION: DELETE_ADMIN
+    if (action === 'delete_admin') {
+      const { adminId, targetEmail } = body;
+      const db = getDatabase();
+      if (targetEmail === 'admin@sementonasa.co.id' || adminId === 'admin-1') {
+        return NextResponse.json({ success: false, error: 'Akun Admin Utama bawaan tidak dapat dihapus demi keamanan sistem.' }, { status: 400 });
+      }
+      db.admins = (db.admins || []).filter((a: any) => a.id !== adminId && (a.email || '').toLowerCase() !== (targetEmail || '').toLowerCase());
+      saveDatabase(db);
+      return NextResponse.json({ success: true, message: 'Akun admin berhasil dihapus.' });
+    }
+
     return NextResponse.json({ success: false, error: 'Aksi tidak dikenali.' }, { status: 400 });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: 'Terjadi kesalahan sistem: ' + err.message }, { status: 500 });
   }
 }
+
+export async function GET() {
+  try {
+    const db = getDatabase();
+    const list = (db.admins || []).map((a: any) => ({
+      id: a.id,
+      name: a.name || 'Staf Admin',
+      email: a.email,
+      role: a.role || 'Staf Diklat',
+      created_at: a.created_at
+    }));
+    return NextResponse.json({ success: true, admins: list });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
+}
+
