@@ -76,6 +76,11 @@ function getSupabaseClient() {
       auth: {
         autoRefreshToken: false,
         persistSession: false
+      },
+      global: {
+        headers: {
+          'x-diklat-auth': process.env.INTERNAL_API_SECRET || 'tonasa_internal_diklat_secret_2026'
+        }
       }
     });
   } catch {
