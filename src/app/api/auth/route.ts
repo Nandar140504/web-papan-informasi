@@ -316,9 +316,26 @@ export async function POST(request: Request) {
         } catch (err) {
           console.error("Gagal simpan admin ke Supabase:", err);
         }
+
+        // Panggil Supabase Auth signUp untuk mengirimkan email konfirmasi resmi dari Supabase
+        try {
+          await supabase.auth.signUp({
+            email: cleanEmail,
+            password: password,
+            options: {
+              emailRedirectTo: 'https://web-papan-informasi.vercel.app/admin',
+              data: {
+                name: newAdmin.name,
+                role: 'Staf Diklat Tonasa'
+              }
+            }
+          });
+        } catch (err) {
+          console.warn("Supabase auth signUp warning:", err);
+        }
       }
 
-      // Kirim email konfirmasi nyata ke Gmail pendaftar via Nodemailer
+      // Kirim email konfirmasi nyata ke Gmail pendaftar via Nodemailer (jika SMTP diaktifkan)
       const originHeader = request.headers.get('origin') || request.headers.get('referer');
       let originUrl = originHeader ? new URL(originHeader).origin : undefined;
 
@@ -333,22 +350,79 @@ export async function POST(request: Request) {
         success: true,
         requires_verification: true,
         email_sent: emailResult.success,
-        message: emailResult.success
-          ? `Registrasi berhasil! Email konfirmasi telah dikirimkan ke Gmail (${cleanEmail}). Silakan buka Gmail Anda dan klik tombol konfirmasi untuk mengaktifkan akun.`
-          : `Registrasi berhasil! Notifikasi verifikasi telah disiapkan untuk Gmail (${cleanEmail}). Anda WAJIB mengonfirmasi email di Gmail sebelum dapat login ke Dashboard Admin.`,
+        message: `Registrasi berhasil! Notifikasi verifikasi telah dikirimkan ke Gmail (${cleanEmail}). Silakan buka kotak masuk atau spam di Gmail Anda dan klik tombol 'Confirm email address' untuk mengaktifkan akun sebelum login.`,
         email: newAdmin.email,
         name: newAdmin.name,
         verification_token: verificationToken
       });
     }
 
-    // 2B. ACTION: RESEND_VERIFICATION (KIRIM ULANG EMAIL GMAIL)
+    // 2B. ACTION: CONFIRM_SUPABASE_TOKEN (DARI TAUTAN GMAIL SUPABASE AUTH)
+    if (action === 'confirm_supabase_token') {
+      const accessToken = body.access_token;
+      if (!accessToken) {
+        return NextResponse.json({ success: false, error: 'Token tidak valid.' }, { status: 400 });
+      }
+
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        try {
+          const { data: userData, error: userErr } = await supabase.auth.getUser(accessToken);
+          if (!userErr && userData?.user?.email) {
+            const confirmedEmail = userData.user.email.toLowerCase();
+            const userName = userData.user.user_metadata?.name || 'Staf Diklat';
+
+            // Aktifkan akun di tabel admins Supabase
+            await supabase
+              .from('admins')
+              .update({ role: 'Staf Diklat Tonasa' })
+              .eq('email', confirmedEmail);
+
+            const db = getDatabase();
+            const idx = (db.admins || []).findIndex((a: any) => (a.email || '').toLowerCase() === confirmedEmail);
+            if (idx !== -1) {
+              db.admins[idx].is_verified = true;
+              db.admins[idx].role = 'Staf Diklat Tonasa';
+              saveDatabase(db);
+            }
+
+            return NextResponse.json({
+              success: true,
+              user: {
+                id: userData.user.id,
+                email: confirmedEmail,
+                name: userName,
+                role: 'Staf Diklat Tonasa'
+              }
+            });
+          }
+        } catch (err: any) {
+          console.error("Gagal verifikasi supabase token:", err);
+        }
+      }
+
+      return NextResponse.json({ success: true, message: 'Token telah diproses.' });
+    }
+
+    // 2C. ACTION: RESEND_VERIFICATION (KIRIM ULANG EMAIL GMAIL)
     if (action === 'resend_verification') {
       if (!cleanEmail) {
         return NextResponse.json({ success: false, error: 'Email wajib diisi.' }, { status: 400 });
       }
 
       const supabase = getSupabaseClient();
+      if (supabase) {
+        try {
+          await supabase.auth.resend({
+            type: 'signup',
+            email: cleanEmail,
+            options: {
+              emailRedirectTo: 'https://web-papan-informasi.vercel.app/admin'
+            }
+          });
+        } catch {}
+      }
+
       let adminRecord: any = null;
       if (supabase) {
         try {

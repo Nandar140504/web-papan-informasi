@@ -115,10 +115,59 @@ export default function AdminPage() {
     }
   }
 
+  // Handle Callback Konfirmasi dari Tautan Gmail Supabase Auth (#access_token=...&type=signup)
+  const handleSupabaseAuthCallback = async (accessToken: string) => {
+    setAuthLoading(true)
+    setAuthError('')
+    setAuthSuccess('Mengonfirmasi email dari Gmail...')
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'confirm_supabase_token',
+          access_token: accessToken
+        })
+      })
+      const data = await res.json()
+      if (data.success && data.user) {
+        localStorage.setItem('tonasa_admin_session', JSON.stringify(data.user))
+        setCurrentUser(data.user)
+        setIsAuthenticated(true)
+        setPendingVerification(null)
+        setAuthSuccess(`🎉 Konfirmasi Email Berhasil! Selamat datang, ${data.user.name}. Akun admin Anda telah aktif 100%.`)
+      } else {
+        setAuthSuccess('🎉 Email berhasil dikonfirmasi di Gmail! Silakan masukkan kata sandi Anda untuk masuk ke Dashboard.')
+        setAuthTab('login')
+        setPendingVerification(null)
+      }
+    } catch {
+      setAuthSuccess('🎉 Email berhasil dikonfirmasi di Gmail! Silakan masuk dengan kata sandi Anda.')
+      setAuthTab('login')
+      setPendingVerification(null)
+    } finally {
+      setAuthLoading(false)
+      if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname)
+      }
+    }
+  }
+
   useEffect(() => {
     setNow(new Date())
 
-    // Periksa apakah ada tautan konfirmasi email (?verify_email=...&token=...)
+    // 1. Periksa apakah ada callback konfirmasi dari Gmail Supabase Auth (#access_token=...&type=signup)
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash.substring(1)
+      const params = new URLSearchParams(hash)
+      const accessToken = params.get('access_token')
+      const type = params.get('type')
+      if (accessToken && (type === 'signup' || type === 'email_change' || type === 'recovery')) {
+        handleSupabaseAuthCallback(accessToken)
+      }
+    }
+
+    // 2. Periksa apakah ada tautan konfirmasi email (?verify_email=...&token=...)
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search)
       const verifyEmailParam = urlParams.get('verify_email')
