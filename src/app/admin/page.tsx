@@ -530,27 +530,39 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  {/* Tombol Aksi Buka Gmail & Kirim Ulang (Tanpa Tombol Aktivasi Pintas) */}
-                  <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                  {/* Tombol Aksi Sesuai Gambar 1: Buka Gmail & Tombol Aktivasi / Konfirmasi Langsung */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                     <a
                       href="https://mail.google.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 py-2 px-3 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl shadow border border-red-400/40 text-center transition flex items-center justify-center gap-1.5"
+                      className="py-2 px-3 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl shadow border border-red-400/40 text-center transition flex items-center justify-center gap-1.5"
                     >
                       <span>✉️</span>
-                      <span>Buka Gmail Sekarang</span>
+                      <span>Buka Gmail</span>
                     </a>
 
                     <button
                       type="button"
                       disabled={authLoading}
+                      onClick={() => handleVerifyEmail(pendingVerification.email, pendingVerification.token || '')}
+                      className="py-2 px-3 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow border border-emerald-400/40 text-center transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <span>✅</span>
+                      <span>{authLoading ? 'Mengonfirmasi...' : 'Aktivasi / Konfirmasi'}</span>
+                    </button>
+                  </div>
+
+                  {/* Opsi Kirim Ulang Notifikasi */}
+                  <div className="flex justify-center pt-0.5">
+                    <button
+                      type="button"
+                      disabled={authLoading}
                       onClick={handleResendEmail}
-                      className="py-2 px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white font-bold text-xs rounded-xl shadow border border-zinc-600/50 text-center transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                      title="Kirim ulang email jika belum masuk"
+                      className="text-[10.5px] text-zinc-300 hover:text-amber-300 underline transition flex items-center gap-1 cursor-pointer disabled:opacity-50"
                     >
                       <span>🔄</span>
-                      <span>{authLoading ? 'Mengirim...' : 'Kirim Ulang Email'}</span>
+                      <span>{authLoading ? 'Mengirim...' : 'Belum terima email? Kirim Ulang Notifikasi'}</span>
                     </button>
                   </div>
 
