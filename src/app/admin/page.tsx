@@ -241,12 +241,8 @@ export default function AdminPage() {
       } else {
         // Blokir jika belum dikonfirmasi di Gmail meskipun password benar!
         if (data.unverified) {
-          setPendingVerification({
-            email: data.email || loginForm.email,
-            name: data.name || 'Staf Diklat',
-            token: data.verification_token
-          })
-          setAuthError(`⚠️ Akun belum aktif! Anda belum mengonfirmasi email di Gmail (${data.email || loginForm.email}). Meskipun kata sandi Anda benar, Anda wajib membuka Gmail dan klik konfirmasi terlebih dahulu untuk mengaktifkan akun sebelum dapat login.`)
+          setPendingVerification(null)
+          setAuthError(`⚠️ Akun belum aktif! Anda belum mengonfirmasi email di Gmail (${data.email || loginForm.email}). Meskipun kata sandi Anda benar, Anda wajib membuka Gmail dan mengklik tautan konfirmasi di dalam email terlebih dahulu sebelum dapat masuk ke Dashboard Admin.`)
         } else {
           setAuthError(data.error || 'Email atau kata sandi tidak sesuai. Periksa kembali.')
         }
@@ -293,13 +289,8 @@ export default function AdminPage() {
 
       if (data.success) {
         const registeredEmail = registerForm.email
-        const registeredName = registerForm.name
         setLoginForm({ email: registeredEmail, password: '' })
-        setPendingVerification({
-          email: registeredEmail,
-          name: registeredName,
-          token: data.verification_token
-        })
+        setPendingVerification(null)
         setRegisterForm({
           name: '',
           email: '',
@@ -308,15 +299,9 @@ export default function AdminPage() {
           pin: 'TONASA2026'
         })
         setAuthTab('login')
-        setAuthSuccess(`📬 Notifikasi verifikasi telah dikirimkan ke Gmail (${registeredEmail})! Anda wajib mengonfirmasi email di Gmail terlebih dahulu sebelum dapat masuk ke Dashboard Admin.`)
+        setAuthSuccess(`📬 Pendaftaran berhasil! Notifikasi verifikasi telah dikirimkan ke Gmail (${registeredEmail}). Silakan buka kotak masuk atau folder spam di akun Gmail Anda dan klik tombol 'Confirm email address' untuk mengaktifkan akun sebelum login.`)
       } else {
-        if (data.unverified) {
-          setPendingVerification({
-            email: data.email || registerForm.email,
-            name: data.name || registerForm.name,
-            token: data.verification_token
-          })
-        }
+        setPendingVerification(null)
         setAuthError(data.error || 'Pendaftaran admin gagal. Harap periksa data kembali.')
       }
     } catch (err: any) {
@@ -512,65 +497,7 @@ export default function AdminPage() {
                 </button>
               </div>
 
-              {/* KOTAK NOTIFIKASI VERIFIKASI GMAIL (WAJIB KONFIRMASI DARI GMAIL) */}
-              {pendingVerification && (
-                <div className="mb-3 p-3.5 bg-gradient-to-br from-[#2f0408] to-black border-2 border-amber-500/80 rounded-2xl text-white shadow-xl animate-fadeIn space-y-2.5">
-                  <div className="flex items-start gap-2.5">
-                    <span className="text-2xl shrink-0 mt-0.5">📬</span>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-xs sm:text-sm font-black text-amber-300 leading-tight">
-                        Wajib Konfirmasi Email di Gmail
-                      </h4>
-                      <p className="text-[11px] text-zinc-200 mt-1 leading-snug">
-                        Email verifikasi telah dikirimkan ke: <strong className="text-white underline">{pendingVerification.email}</strong>
-                      </p>
-                      <p className="text-[9.5px] text-rose-300 font-semibold mt-1 bg-red-950/80 p-1.5 rounded-lg border border-red-800/60 leading-tight">
-                        ⚠️ Demi keamanan, akun <u>TIDAK BISA LOGIN</u> sebelum Anda membuka Gmail dan mengklik tombol konfirmasi di dalam email (meskipun kata sandi Anda benar).
-                      </p>
-                    </div>
-                  </div>
 
-                  {/* Tombol Aksi Sesuai Gambar 1: Buka Gmail & Tombol Aktivasi / Konfirmasi Langsung */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                    <a
-                      href="https://mail.google.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="py-2 px-3 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl shadow border border-red-400/40 text-center transition flex items-center justify-center gap-1.5"
-                    >
-                      <span>✉️</span>
-                      <span>Buka Gmail</span>
-                    </a>
-
-                    <button
-                      type="button"
-                      disabled={authLoading}
-                      onClick={() => handleVerifyEmail(pendingVerification.email, pendingVerification.token || '')}
-                      className="py-2 px-3 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow border border-emerald-400/40 text-center transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                    >
-                      <span>✅</span>
-                      <span>{authLoading ? 'Mengonfirmasi...' : 'Aktivasi / Konfirmasi'}</span>
-                    </button>
-                  </div>
-
-                  {/* Opsi Kirim Ulang Notifikasi */}
-                  <div className="flex justify-center pt-0.5">
-                    <button
-                      type="button"
-                      disabled={authLoading}
-                      onClick={handleResendEmail}
-                      className="text-[10.5px] text-zinc-300 hover:text-amber-300 underline transition flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                    >
-                      <span>🔄</span>
-                      <span>{authLoading ? 'Mengirim...' : 'Belum terima email? Kirim Ulang Notifikasi'}</span>
-                    </button>
-                  </div>
-
-                  <p className="text-[9px] text-zinc-400 text-center italic">
-                    Periksa kotak masuk (Inbox) atau folder Spam di akun Gmail Anda.
-                  </p>
-                </div>
-              )}
 
               {/* Banner Pesan Error / Sukses */}
               {authError && (

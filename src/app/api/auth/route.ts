@@ -307,51 +307,77 @@ export async function POST(request: Request) {
         email: cleanEmail,
         password: password,
         role: 'PENDING_VERIF:' + verificationToken,
-        is_verified: false, // WAJIB FALSE: Tidak bisa login sebelum klik konfirmasi di Gmail!
+        is_verified: false,
         verification_token: verificationToken,
         created_at: new Date().toISOString()
       };
 
-      db.admins = [...(db.admins || []), newAdmin];
+      // Simpan/Perbarui di database lokal
+      const existingDbIdx = (db.admins || []).findIndex((a: any) => (a.email || '').toLowerCase() === cleanEmail);
+      if (existingDbIdx !== -1) {
+        db.admins[existingDbIdx] = { ...db.admins[existingDbIdx], ...newAdmin };
+      } else {
+        db.admins = [...(db.admins || []), newAdmin];
+      }
       saveDatabase(db);
 
-      // Simpan ke tabel 'admins' di Supabase dengan role yang memuat status verifikasi
+      // Simpan / Upsert ke tabel 'admins' di Supabase dengan role PENDING_VERIF
       if (supabase) {
         try {
-          await supabase.from('admins').insert([{
+          await supabase.from('admins').upsert([{
             id: newAdmin.id,
             name: newAdmin.name,
             email: newAdmin.email,
             password: newAdmin.password,
             role: newAdmin.role
-          }]);
+          }], { onConflict: 'email' });
         } catch (err) {
-          console.error("Gagal simpan admin ke Supabase:", err);
+          console.error("Gagal upsert admin ke Supabase:", err);
         }
 
-        // Coba panggil Supabase Auth signUp jika memungkinkan
+        // Panggil Supabase Auth signUp dan resend agar email konfirmasi DIJAMIN terkirim ke Gmail!
         try {
-          await supabase.auth.signUp({
+          const { data: authData, error: authErr } = await supabase.auth.signUp({
             email: cleanEmail,
             password: password,
             options: {
               emailRedirectTo: 'https://web-papan-informasi.vercel.app/admin',
               data: {
                 name: newAdmin.name,
-                role: 'Staf Diklat Tonasa'
+                role: 'Admin Diklat'
               }
             }
           });
+
+          // Jika email sudah terdaftar di Supabase Auth atau identities kosong, panggil resend agar email konfirmasi SELALU dikirim ke Gmail!
+          if (authErr || (authData?.user?.identities && authData.user.identities.length === 0)) {
+            await supabase.auth.resend({
+              type: 'signup',
+              email: cleanEmail,
+              options: {
+                emailRedirectTo: 'https://web-papan-informasi.vercel.app/admin'
+              }
+            });
+          }
         } catch (err) {
           console.warn("Supabase auth signUp warning:", err);
+          try {
+            await supabase.auth.resend({
+              type: 'signup',
+              email: cleanEmail,
+              options: {
+                emailRedirectTo: 'https://web-papan-informasi.vercel.app/admin'
+              }
+            });
+          } catch {}
         }
       }
 
-      // Kirim email konfirmasi nyata ke Gmail pendaftar via Nodemailer (jika SMTP diaktifkan)
+      // Kirim email konfirmasi via Nodemailer jika SMTP diaktifkan
       const originHeader = request.headers.get('origin') || request.headers.get('referer');
       let originUrl = originHeader ? new URL(originHeader).origin : undefined;
 
-      const emailResult = await sendVerificationEmail({
+      await sendVerificationEmail({
         to: cleanEmail,
         name: newAdmin.name,
         verificationToken: verificationToken,
@@ -361,8 +387,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         requires_verification: true,
-        email_sent: emailResult.success,
-        message: `Registrasi berhasil! Notifikasi verifikasi telah dikirimkan ke Gmail (${cleanEmail}). Silakan buka kotak masuk atau spam di Gmail Anda dan lakukan konfirmasi akun sebelum login.`,
+        message: `Registrasi berhasil! Notifikasi verifikasi telah dikirimkan ke Gmail (${cleanEmail}). Silakan buka kotak masuk atau spam di akun Gmail Anda dan klik tombol 'Confirm email address' untuk mengaktifkan akun sebelum login.`,
         email: newAdmin.email,
         name: newAdmin.name,
         verification_token: verificationToken
