@@ -19,8 +19,8 @@ export async function sendVerificationEmail({
 
   const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
   const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
-  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER || '';
-  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || '';
+  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER || 'nandarbima.103@gmail.com';
+  const smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || 'krwzlqnedevzdohg').replace(/\s+/g, '');
   const smtpSecure = smtpPort === 465;
 
   // Jika kredensial SMTP belum disetel di environment variables
@@ -139,8 +139,8 @@ export async function sendLoginAlertEmail({
   const cleanEmail = to.trim().toLowerCase();
   const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
   const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
-  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER || '';
-  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || '';
+  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER || 'nandarbima.103@gmail.com';
+  const smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || 'krwzlqnedevzdohg').replace(/\s+/g, '');
   const smtpSecure = smtpPort === 465;
 
   if (!smtpUser || !smtpPass) {
