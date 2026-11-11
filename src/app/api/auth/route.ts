@@ -237,26 +237,22 @@ export async function POST(request: Request) {
         }, { status: 403 });
       }
 
-      const cleanName = name.trim().toLowerCase();
+      const cleanName = name.trim();
       const supabase = getSupabaseClient();
 
-      // ATURAN PENGGUNA:
-      // - Yang TIDAK BISA daftar & TIDAK TERIMA SMS/EMAIL: HANYA jika NAMA SAMA dan GMAIL SAMA.
-      // - Jika Gmail sama tapi NAMA BERBEDA (misal staf baru atau pendaftaran ulang staf berbeda):
-      //   WAJIB BISA DAFTAR dan TETAP BISA TERIMA EMAIL KONFIRMASI DI GMAIL!
-      let exactDuplicate: any = null;
+      // KETENTUAN 9: Pastikan setiap alamat email hanya dapat digunakan untuk satu akun
+      let existingAdmin: any = null;
 
       if (supabase) {
         try {
           const { data: supaAdminsWithEmail } = await supabase
             .from('admins')
             .select('*')
-            .eq('email', cleanEmail);
+            .eq('email', cleanEmail)
+            .maybeSingle();
 
-          if (supaAdminsWithEmail && supaAdminsWithEmail.length > 0) {
-            exactDuplicate = supaAdminsWithEmail.find((a: any) => 
-              (a.name || '').trim().toLowerCase() === cleanName
-            );
+          if (supaAdminsWithEmail) {
+            existingAdmin = supaAdminsWithEmail;
           }
         } catch (err) {
           console.warn("Cek duplikasi admin di Supabase warning:", err);
@@ -264,38 +260,24 @@ export async function POST(request: Request) {
       }
 
       const db = getDatabase();
-      if (!exactDuplicate) {
-        exactDuplicate = (db.admins || []).find((a: any) => 
-          (a.email || '').trim().toLowerCase() === cleanEmail &&
-          (a.name || '').trim().toLowerCase() === cleanName
+      if (!existingAdmin) {
+        existingAdmin = (db.admins || []).find((a: any) => 
+          (a.email || '').trim().toLowerCase() === cleanEmail
         );
       }
 
-      // JIKA NAMA SAMA DAN GMAIL SAMA: DITOLAK 100% DAN TIDAK ADA EMAIL DIKIRIM
-      if (exactDuplicate) {
-        const isUnverified = 
-          exactDuplicate.is_verified === false || 
-          (typeof exactDuplicate.role === 'string' && exactDuplicate.role.startsWith('PENDING_VERIF:'));
+      // JIKA EMAIL SUDAH TERDAFTAR DAN SUDAH TERVERIFIKASI: DITOLAK
+      if (existingAdmin) {
+        const isVerified = 
+          existingAdmin.is_verified === true || 
+          (typeof existingAdmin.role === 'string' && !existingAdmin.role.startsWith('PENDING_VERIF:'));
 
-        if (isUnverified) {
-          const token = typeof exactDuplicate.role === 'string' && exactDuplicate.role.startsWith('PENDING_VERIF:')
-            ? exactDuplicate.role.replace('PENDING_VERIF:', '')
-            : (exactDuplicate.verification_token || '');
-
+        if (isVerified) {
           return NextResponse.json({ 
             success: false, 
-            unverified: true,
-            email: exactDuplicate.email,
-            name: exactDuplicate.name,
-            verification_token: token,
-            error: `Pendaftaran ditolak: Akun dengan nama "${exactDuplicate.name}" dan email "${cleanEmail}" sudah terdaftar tapi belum dikonfirmasi di Gmail. Silakan konfirmasi email Anda terlebih dahulu.` 
+            error: `Pendaftaran ditolak: Alamat email "${cleanEmail}" sudah terdaftar dan aktif. Satu alamat email hanya dapat digunakan untuk satu akun. Silakan masuk (Login) dengan kata sandi Anda.` 
           }, { status: 400 });
         }
-
-        return NextResponse.json({ 
-          success: false, 
-          error: `Pendaftaran ditolak: Akun dengan nama "${exactDuplicate.name}" dan email "${cleanEmail}" sudah terdaftar. Silakan langsung masuk (Login).` 
-        }, { status: 400 });
       }
 
       // Generate verification token unik untuk konfirmasi email Gmail
@@ -508,47 +490,35 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: 'Email untuk verifikasi wajib disertakan.' }, { status: 400 });
       }
 
+      if (!token) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Tautan verifikasi tidak lengkap (token tidak ditemukan). Silakan buka tautan lengkap dari email Gmail Anda atau klik "Kirim Ulang Email Verifikasi".' 
+        }, { status: 400 });
+      }
+
       let verified = false;
-      let adminName = 'Staf Diklat';
+      let adminName = 'Admin Diklat';
 
       const supabase = getSupabaseClient();
       if (supabase) {
         try {
-          if (token) {
-            // Jika ada token spesifik, aktifkan akun yang cocok dengan token
-            const { data: supaAdmins } = await supabase
+          const { data: supaAdmins } = await supabase
+            .from('admins')
+            .select('*')
+            .eq('email', targetEmail);
+
+          const matchToken = (supaAdmins || []).find((a: any) => 
+            a.role === 'PENDING_VERIF:' + token || a.verification_token === token
+          );
+
+          if (matchToken) {
+            adminName = matchToken.name || adminName;
+            await supabase
               .from('admins')
-              .select('*')
-              .eq('email', targetEmail);
-
-            const matchToken = (supaAdmins || []).find((a: any) => 
-              a.role === 'PENDING_VERIF:' + token || a.verification_token === token
-            );
-
-            if (matchToken) {
-              adminName = matchToken.name || adminName;
-              await supabase
-                .from('admins')
-                .update({ role: 'Staf Diklat Tonasa' })
-                .eq('id', matchToken.id);
-              verified = true;
-            }
-          }
-
-          if (!verified) {
-            const { data: supaAdmins } = await supabase
-              .from('admins')
-              .select('*')
-              .eq('email', targetEmail);
-
-            if (supaAdmins && supaAdmins.length > 0) {
-              adminName = supaAdmins[0].name || adminName;
-              await supabase
-                .from('admins')
-                .update({ role: 'Staf Diklat Tonasa' })
-                .eq('email', targetEmail);
-              verified = true;
-            }
+              .update({ role: 'Admin Diklat' })
+              .eq('id', matchToken.id);
+            verified = true;
           }
         } catch (err) {
           console.warn("Verifikasi Supabase warning:", err);
@@ -558,10 +528,10 @@ export async function POST(request: Request) {
       const db = getDatabase();
       (db.admins || []).forEach((a: any) => {
         if ((a.email || '').toLowerCase() === targetEmail) {
-          if (!token || a.role === 'PENDING_VERIF:' + token || a.verification_token === token || !verified) {
+          if (a.role === 'PENDING_VERIF:' + token || a.verification_token === token) {
             adminName = a.name || adminName;
             a.is_verified = true;
-            a.role = 'Staf Diklat Tonasa';
+            a.role = 'Admin Diklat';
             a.verified_at = new Date().toISOString();
             verified = true;
           }
@@ -572,14 +542,14 @@ export async function POST(request: Request) {
       if (verified) {
         return NextResponse.json({
           success: true,
-          message: `Konfirmasi Berhasil! Akun "${adminName}" (${targetEmail}) telah terverifikasi dan aktif 100%. Silakan masuk dengan kata sandi Anda.`
+          message: `🎉 Verifikasi Berhasil! Akun "${adminName}" (${targetEmail}) telah terverifikasi dan aktif 100%. Silakan masuk dengan kata sandi Anda.`
         });
       }
 
       return NextResponse.json({ 
         success: false, 
-        error: 'Data verifikasi tidak ditemukan atau akun belum terdaftar.' 
-      }, { status: 404 });
+        error: 'Tautan verifikasi tidak valid atau telah kedaluwarsa. Silakan minta "Kirim Ulang Email Verifikasi" untuk mendapatkan tautan baru.' 
+      }, { status: 400 });
     }
 
     // 3. ACTION: SOCIAL LOGIN (GOOGLE / FACEBOOK / INSTAGRAM) DENGAN PROTEKSI KEAMANAN 100%

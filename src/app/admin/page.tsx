@@ -48,6 +48,7 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState('')
   const [authSuccess, setAuthSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string>('')
 
   // State Verifikasi Gmail Wajib & Sesi
   const [pendingVerification, setPendingVerification] = useState<{
@@ -56,7 +57,7 @@ export default function AdminPage() {
     token?: string;
   } | null>(null)
 
-  // Handle Verifikasi Email dari Tautan Gmail atau Tombol Konfirmasi Langsung
+  // Handle Verifikasi Email dari Tautan Gmail
   const handleVerifyEmail = async (emailToVerify: string, token: string = '') => {
     setAuthLoading(true)
     setAuthError('')
@@ -73,12 +74,14 @@ export default function AdminPage() {
       })
       const data = await res.json()
       if (data.success) {
-        setAuthSuccess(`🎉 Konfirmasi Berhasil! Akun "${emailToVerify}" telah terverifikasi dan aktif 100%. Silakan masukkan kata sandi Anda untuk masuk ke Dashboard.`)
+        setAuthSuccess(`🎉 Verifikasi Berhasil! Akun "${emailToVerify}" telah terverifikasi dan aktif 100%. Silakan masukkan kata sandi Anda untuk masuk ke Dashboard Admin.`)
         setLoginForm(prev => ({ ...prev, email: emailToVerify }))
         setAuthTab('login')
+        setUnverifiedEmail('')
         setPendingVerification(null)
       } else {
-        setAuthError(data.error || 'Gagal memverifikasi akun.')
+        setAuthError(data.error || 'Tautan verifikasi tidak valid atau telah kedaluwarsa. Silakan klik "Kirim Ulang Email Verifikasi".')
+        setUnverifiedEmail(emailToVerify)
       }
     } catch (err: any) {
       setAuthError('Gagal menghubungi server verifikasi: ' + err.message)
@@ -87,9 +90,13 @@ export default function AdminPage() {
     }
   }
 
-  // Handle Kirim Ulang Notifikasi Email ke Gmail
+  // Handle Kirim Ulang Email Verifikasi ke Gmail (Ketentuan 7)
   const handleResendEmail = async () => {
-    if (!pendingVerification?.email) return
+    const targetEmail = unverifiedEmail || loginForm.email || registerForm.email
+    if (!targetEmail) {
+      setAuthError('Silakan masukkan alamat email Anda terlebih dahulu untuk mengirim ulang email verifikasi.')
+      return
+    }
     setAuthLoading(true)
     setAuthError('')
     setAuthSuccess('')
@@ -99,14 +106,14 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'resend_verification',
-          email: pendingVerification.email
+          email: targetEmail
         })
       })
       const data = await res.json()
       if (data.success) {
-        setAuthSuccess(`📨 ${data.message || 'Email konfirmasi telah dikirim ulang ke Gmail Anda!'}`)
+        setAuthSuccess(`📨 ${data.message || `Email verifikasi telah berhasil dikirimkan ulang ke Gmail (${targetEmail})! Silakan periksa kotak masuk atau spam Anda.`}`)
       } else {
-        setAuthError(data.error || 'Gagal mengirim ulang email.')
+        setAuthError(data.error || 'Gagal mengirim ulang email verifikasi.')
       }
     } catch (err: any) {
       setAuthError('Gagal menghubungi server: ' + err.message)
@@ -236,13 +243,16 @@ export default function AdminPage() {
         localStorage.setItem('tonasa_admin_session', JSON.stringify(data.user))
         setCurrentUser(data.user)
         setIsAuthenticated(true)
+        setUnverifiedEmail('')
         setPendingVerification(null)
         setAuthSuccess('Berhasil masuk! Membuka Dashboard Admin...')
       } else {
-        // Blokir jika belum dikonfirmasi di Gmail meskipun password benar!
+        // Blokir jika belum dikonfirmasi di Gmail meskipun password benar (Ketentuan 5)
         if (data.unverified) {
+          const target = data.email || loginForm.email
+          setUnverifiedEmail(target)
           setPendingVerification(null)
-          setAuthError(`⚠️ Akun belum aktif! Anda belum mengonfirmasi email di Gmail (${data.email || loginForm.email}). Meskipun kata sandi Anda benar, Anda wajib membuka Gmail dan mengklik tautan konfirmasi di dalam email terlebih dahulu sebelum dapat masuk ke Dashboard Admin.`)
+          setAuthError(`⚠️ Akun belum aktif! Anda belum mengonfirmasi email di Gmail (${target}). Meskipun kata sandi Anda benar, Anda wajib membuka Gmail dan mengklik tautan verifikasi sebelum dapat masuk ke Dashboard Admin.`)
         } else {
           setAuthError(data.error || 'Email atau kata sandi tidak sesuai. Periksa kembali.')
         }
@@ -254,12 +264,26 @@ export default function AdminPage() {
     }
   }
 
-  // Handle Registrasi Akun Admin Baru (Kirim Notifikasi Gmail)
+  // Handle Registrasi Akun Admin Baru (Kirim Notifikasi Gmail Otomatis)
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setAuthLoading(true)
     setAuthError('')
     setAuthSuccess('')
+
+    // Ketentuan 1: Validasi form lengkap
+    if (!registerForm.name.trim() || !registerForm.email.trim() || !registerForm.password || !registerForm.confirmPassword) {
+      setAuthError('Semua kolom (Nama Lengkap, Alamat Email Gmail, Password, dan Konfirmasi Password) wajib diisi.')
+      setAuthLoading(false)
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(registerForm.email.trim())) {
+      setAuthError('Format alamat email tidak valid. Harap masukkan alamat email yang benar (contoh: nama@gmail.com).')
+      setAuthLoading(false)
+      return
+    }
 
     if (registerForm.password !== registerForm.confirmPassword) {
       setAuthError('Konfirmasi kata sandi tidak cocok. Harap periksa kembali.')
@@ -279,8 +303,8 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'register',
-          name: registerForm.name,
-          email: registerForm.email,
+          name: registerForm.name.trim(),
+          email: registerForm.email.trim().toLowerCase(),
           password: registerForm.password,
           pin: registerForm.pin
         })
@@ -288,8 +312,9 @@ export default function AdminPage() {
       const data = await res.json()
 
       if (data.success) {
-        const registeredEmail = registerForm.email
+        const registeredEmail = registerForm.email.trim().toLowerCase()
         setLoginForm({ email: registeredEmail, password: '' })
+        setUnverifiedEmail(registeredEmail)
         setPendingVerification(null)
         setRegisterForm({
           name: '',
@@ -299,7 +324,7 @@ export default function AdminPage() {
           pin: 'TONASA2026'
         })
         setAuthTab('login')
-        setAuthSuccess(`📬 Pendaftaran berhasil! Notifikasi verifikasi telah dikirimkan ke Gmail (${registeredEmail}). Silakan buka kotak masuk atau folder spam di akun Gmail Anda dan klik tombol 'Confirm email address' untuk mengaktifkan akun sebelum login.`)
+        setAuthSuccess(`📬 Pendaftaran berhasil! Email verifikasi otomatis telah dikirimkan ke Gmail (${registeredEmail}). Silakan buka kotak masuk atau folder spam di akun Gmail Anda dan klik tautan verifikasi untuk mengaktifkan akun sebelum login.`)
       } else {
         setPendingVerification(null)
         setAuthError(data.error || 'Pendaftaran admin gagal. Harap periksa data kembali.')
@@ -581,6 +606,24 @@ export default function AdminPage() {
                     )}
                   </button>
 
+                  {/* Ketentuan 7: Fitur Kirim Ulang Email Verifikasi jika email belum diterima */}
+                  {unverifiedEmail && (
+                    <div className="pt-2 text-center bg-black/40 p-2.5 rounded-xl border border-amber-500/30">
+                      <p className="text-[11px] text-zinc-300 mb-1.5">
+                        Belum menerima email di <strong>{unverifiedEmail}</strong>?
+                      </p>
+                      <button
+                        type="button"
+                        disabled={authLoading}
+                        onClick={handleResendEmail}
+                        className="py-1.5 px-3 bg-amber-600/80 hover:bg-amber-500 text-white text-xs font-bold rounded-lg shadow transition flex items-center justify-center gap-1.5 mx-auto cursor-pointer disabled:opacity-50"
+                      >
+                        <span>🔄</span>
+                        <span>{authLoading ? 'Mengirim Ulang...' : 'Kirim Ulang Email Verifikasi'}</span>
+                      </button>
+                    </div>
+                  )}
+
                   {/* Footer Teks Sederhana Sesuai Gambar 1 (Tanpa Simbol Gembok) */}
                   <div className="pt-2 text-center text-xs text-zinc-300">
                     Belum punya akun?{' '}
@@ -615,7 +658,7 @@ export default function AdminPage() {
                     <input
                       type="email"
                       required
-                      placeholder="Masukan Email"
+                      placeholder="Alamat email Gmail"
                       value={registerForm.email}
                       onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
                       className="w-full px-3.5 py-2.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs sm:text-sm placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
@@ -654,7 +697,7 @@ export default function AdminPage() {
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
-                      placeholder="Ulangi password"
+                      placeholder="Konfirmasi password"
                       value={registerForm.confirmPassword}
                       onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
                       className="w-full px-3.5 py-2.5 bg-black/50 border border-red-900/80 rounded-xl text-white text-xs sm:text-sm placeholder:text-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
