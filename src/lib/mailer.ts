@@ -124,3 +124,101 @@ export async function sendVerificationEmail({
     };
   }
 }
+
+interface SendLoginAlertEmailParams {
+  to: string;
+  name?: string;
+  loginTime?: string;
+}
+
+export async function sendLoginAlertEmail({
+  to,
+  name,
+  loginTime
+}: SendLoginAlertEmailParams): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const cleanEmail = to.trim().toLowerCase();
+  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
+  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER || '';
+  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || '';
+  const smtpSecure = smtpPort === 465;
+
+  if (!smtpUser || !smtpPass) {
+    return { success: false, error: 'SMTP belum dikonfigurasi di Environment Variables' };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpSecure,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass
+      }
+    });
+
+    const timeFormatted = loginTime || new Date().toLocaleString('id-ID', { timeZone: 'Asia/Makassar' }) + ' WITA';
+
+    const mailOptions = {
+      from: `"Unit Diklat PT Semen Tonasa" <${smtpUser}>`,
+      to: cleanEmail,
+      subject: 'Notifikasi Keamanan: Akun Admin Berhasil Login - PT Semen Tonasa',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px; color: #18181b; }
+            .container { max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid #e4e4e7; }
+            .header { background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%); padding: 30px 24px; text-align: center; color: #ffffff; }
+            .header h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px; }
+            .header p { margin: 6px 0 0 0; font-size: 12px; color: #93c5fd; font-weight: 600; }
+            .content { padding: 32px 24px; }
+            .greeting { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+            .message { font-size: 13.5px; line-height: 1.6; color: #3f3f46; margin-bottom: 20px; }
+            .info-box { background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 14px 16px; border-radius: 8px; font-size: 13px; color: #1e40af; margin-bottom: 20px; line-height: 1.6; }
+            .footer { background-color: #18181b; padding: 20px 24px; text-align: center; font-size: 11px; color: #a1a1aa; line-height: 1.5; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>PT SEMEN TONASA</h1>
+              <p>UNIT LEARNING & DEVELOPMENT • SISTEM INFORMASI RUANGAN</p>
+            </div>
+            <div class="content">
+              <div class="greeting">Halo, ${name || 'Admin'}!</div>
+              <div class="message">
+                Kami mendeteksi aktivitas <strong>Login Berhasil</strong> pada akun admin Anda di <strong>Portal Admin Sistem Informasi Ruangan PT Semen Tonasa</strong>.
+              </div>
+              <div class="info-box">
+                <strong>Detail Aktivitas Login:</strong><br>
+                • <strong>Email Akun:</strong> ${cleanEmail}<br>
+                • <strong>Waktu Login:</strong> ${timeFormatted}<br>
+                • <strong>Status:</strong> Sukses Masuk ke Dashboard Admin
+              </div>
+              <p style="font-size: 12.5px; color: #71717a; line-height: 1.5;">
+                Jika ini adalah Anda, silakan abaikan notifikasi keamanan ini.<br>
+                Jika Anda merasa tidak melakukan login ini, segera hubungi Administrator Utama Unit Diklat PT Semen Tonasa.
+              </p>
+            </div>
+            <div class="footer">
+              Email keamanan otomatis dari Unit Diklat PT Semen Tonasa.<br>
+              Keamanan akun Anda adalah prioritas utama kami.
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('[Mailer] Notifikasi login berhasil dikirim ke:', cleanEmail, 'MessageId:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (err: any) {
+    console.error('[Mailer] Gagal kirim notifikasi login:', err);
+    return { success: false, error: err.message };
+  }
+}

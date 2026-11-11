@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
-import { sendVerificationEmail } from '@/lib/mailer';
+import { sendVerificationEmail, sendLoginAlertEmail } from '@/lib/mailer';
 
 const DEFAULT_SUPABASE_URL = 'https://dqsrylfuomfoydknewfu.supabase.co';
 const DEFAULT_SUPABASE_KEY = 'sb_publishable_BZgO0F2JC87sjpokpL9E9A_doqvtTfh';
@@ -120,6 +120,12 @@ export async function POST(request: Request) {
               );
 
               if (verifiedAdmin) {
+                // Kirim notifikasi login ke Gmail (meskipun login 10x di Gmail yang sama)
+                sendLoginAlertEmail({
+                  to: verifiedAdmin.email,
+                  name: verifiedAdmin.name
+                }).catch(e => console.warn('Gagal kirim notifikasi login:', e));
+
                 return NextResponse.json({
                   success: true,
                   user: {
@@ -131,11 +137,20 @@ export async function POST(request: Request) {
                 });
               }
 
-              // Jika belum ada yang aktif/terverifikasi, kembalikan status unverified
+              // Jika belum ada yang aktif/terverifikasi, kembalikan status unverified & kirim ulang notifikasi ke Gmail
               const unverifiedAdmin = matchedAdmins[0];
               const token = typeof unverifiedAdmin.role === 'string' && unverifiedAdmin.role.startsWith('PENDING_VERIF:')
                 ? unverifiedAdmin.role.replace('PENDING_VERIF:', '')
                 : (unverifiedAdmin.verification_token || '');
+
+              const originHeader = request.headers.get('origin') || request.headers.get('referer');
+              const originUrl = originHeader ? new URL(originHeader).origin : undefined;
+              sendVerificationEmail({
+                to: unverifiedAdmin.email,
+                name: unverifiedAdmin.name,
+                verificationToken: token,
+                origin: originUrl
+              }).catch(() => {});
 
               return NextResponse.json({
                 success: false,
@@ -143,7 +158,7 @@ export async function POST(request: Request) {
                 email: unverifiedAdmin.email,
                 name: unverifiedAdmin.name,
                 verification_token: token,
-                error: `Akun Anda belum aktif! Anda belum mengonfirmasi email di Gmail (${unverifiedAdmin.email}). Meskipun kata sandi benar, Anda wajib membuka Gmail dan klik konfirmasi terlebih dahulu untuk mengaktifkan akun.`
+                error: `Akun Anda belum aktif! Anda belum mengonfirmasi email di Gmail (${unverifiedAdmin.email}). Notifikasi verifikasi telah dikirimkan ulang ke Gmail Anda. Buka Gmail dan klik tautan verifikasi sebelum dapat masuk ke Dashboard.`
               }, { status: 403 });
             }
           }
@@ -185,6 +200,12 @@ export async function POST(request: Request) {
         );
 
         if (verified) {
+          // Kirim notifikasi login ke Gmail (meskipun login 10x di Gmail yang sama)
+          sendLoginAlertEmail({
+            to: verified.email,
+            name: verified.name
+          }).catch(e => console.warn('Gagal kirim notifikasi login:', e));
+
           return NextResponse.json({
             success: true,
             user: {
@@ -196,11 +217,20 @@ export async function POST(request: Request) {
           });
         }
 
-        // Jika belum terverifikasi
+        // Jika belum terverifikasi, kirim ulang notifikasi ke Gmail
         const unverified = matchedLocal[0];
         const token = typeof unverified.role === 'string' && unverified.role.startsWith('PENDING_VERIF:')
           ? unverified.role.replace('PENDING_VERIF:', '')
           : (unverified.verification_token || '');
+
+        const originHeader = request.headers.get('origin') || request.headers.get('referer');
+        const originUrl = originHeader ? new URL(originHeader).origin : undefined;
+        sendVerificationEmail({
+          to: unverified.email,
+          name: unverified.name,
+          verificationToken: token,
+          origin: originUrl
+        }).catch(() => {});
 
         return NextResponse.json({
           success: false,
@@ -208,7 +238,7 @@ export async function POST(request: Request) {
           email: unverified.email,
           name: unverified.name,
           verification_token: token,
-          error: `Akun Anda belum aktif! Anda belum mengonfirmasi email di Gmail (${unverified.email}). Meskipun kata sandi benar, Anda wajib membuka Gmail dan klik konfirmasi terlebih dahulu untuk mengaktifkan akun.`
+          error: `Akun Anda belum aktif! Anda belum mengonfirmasi email di Gmail (${unverified.email}). Notifikasi verifikasi telah dikirimkan ulang ke Gmail Anda. Buka Gmail dan klik tautan verifikasi sebelum dapat masuk ke Dashboard.`
         }, { status: 403 });
       }
 
@@ -266,32 +296,25 @@ export async function POST(request: Request) {
         );
       }
 
-      // JIKA EMAIL SUDAH TERDAFTAR DAN SUDAH TERVERIFIKASI: DITOLAK
-      if (existingAdmin) {
-        const isVerified = 
-          existingAdmin.is_verified === true || 
-          (typeof existingAdmin.role === 'string' && !existingAdmin.role.startsWith('PENDING_VERIF:'));
-
-        if (isVerified) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Pendaftaran ditolak: Alamat email "${cleanEmail}" sudah terdaftar dan aktif. Satu alamat email hanya dapat digunakan untuk satu akun. Silakan masuk (Login) dengan kata sandi Anda.` 
-          }, { status: 400 });
-        }
-      }
+      // PERMINTAAN PENGGUNA:
+      // Meskipun akun Gmail sudah pernah daftar lebih dari 1x (bahkan 10x di Gmail yang sama),
+      // sistem TIDAK MENOLAK, melainkan memperbarui kredensial & membuat token baru,
+      // dan SELALU mengirimkan email notifikasi verifikasi ke Gmail pendaftar!
+      const existingId = existingAdmin?.id || 'admin-' + Date.now();
 
       // Generate verification token unik untuk konfirmasi email Gmail
       const verificationToken = 'vtok_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
 
       const newAdmin = {
-        id: 'admin-' + Date.now(),
+        id: existingId,
         name: name.trim(),
         email: cleanEmail,
         password: password,
         role: 'PENDING_VERIF:' + verificationToken,
         is_verified: false,
         verification_token: verificationToken,
-        created_at: new Date().toISOString()
+        created_at: existingAdmin?.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
       // Simpan/Perbarui di database lokal
